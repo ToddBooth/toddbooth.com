@@ -38,6 +38,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem 2rem;
+            flex-wrap: wrap;
         }
 
         .logo {
@@ -51,19 +52,21 @@
 
         .nav-tabs {
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
             list-style: none;
+            flex-wrap: wrap;
         }
 
         .nav-tabs button {
             background: none;
             border: none;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #555;
             cursor: pointer;
             padding: 0.5rem 1rem;
             transition: all 0.3s ease;
             border-radius: 5px;
+            white-space: nowrap;
         }
 
         .nav-tabs button:hover,
@@ -134,7 +137,7 @@
 
         .domain-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
             margin: 2rem 0;
         }
@@ -153,10 +156,11 @@
         }
 
         .domain-name {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #667eea;
             margin-bottom: 0.5rem;
+            word-break: break-word;
         }
 
         .domain-description {
@@ -183,6 +187,7 @@
             display: inline-block;
             margin-top: 1rem;
             transition: background 0.3s ease;
+            word-break: break-all;
         }
 
         .contact-email:hover {
@@ -214,10 +219,24 @@
             color: #666;
         }
 
+        .domain-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+
         @media (max-width: 768px) {
             .nav-tabs {
                 flex-direction: column;
                 gap: 0.5rem;
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            .nav-tabs button {
+                width: 100%;
             }
 
             h1 {
@@ -226,6 +245,11 @@
 
             .content {
                 padding: 1.5rem;
+            }
+
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
@@ -236,7 +260,7 @@
             <div class="logo">AI Domains</div>
             <ul class="nav-tabs">
                 <li><button class="tab-button active" data-tab="home">Home</button></li>
-                <li><button class="tab-button" data-tab="domains">Available Domains</button></li>
+                <li><button class="tab-button" data-tab="domains">AI Domains for Sale</button></li>
                 <li><button class="tab-button" data-tab="about">About</button></li>
                 <li><button class="tab-button" data-tab="contact">Contact</button></li>
             </ul>
@@ -256,6 +280,9 @@
                         Secure your position in the AI revolution with premium domain names
                         perfect for your artificial intelligence venture, startup, or project.
                     </p>
+                    <div class="domain-count">
+                        <strong>17 Premium AI Domains Available</strong>
+                    </div>
                 </div>
 
                 <div class="feature-grid">
@@ -277,38 +304,83 @@
                 </div>
             </div>
 
-            <!-- Domains Tab -->
+            <!-- AI Domains for Sale Tab -->
             <div id="domains" class="tab-content">
-                <h1>Available AI Domains</h1>
+                <h1>AI Domains for Sale</h1>
                 <p style="margin-bottom: 2rem; color: #666;">
-                    Explore our collection of premium AI-related domain names. Each domain is carefully
-                    selected to provide maximum value for your artificial intelligence business or project.
+                    Explore our complete collection of <strong>17 premium AI-related domain names</strong>.
+                    Each domain is carefully selected to provide maximum value for your artificial intelligence
+                    business or project.
                 </p>
 
                 <div class="domain-grid">
                     <div class="domain-card">
-                        <div class="domain-name">Sample-AI.com</div>
-                        <div class="domain-description">Perfect for AI sampling and testing platforms</div>
+                        <div class="domain-name">agi-superagents.com</div>
+                        <div class="domain-description">Perfect for advanced AGI multi-agent systems</div>
                     </div>
                     <div class="domain-card">
-                        <div class="domain-name">Neural-Network.io</div>
-                        <div class="domain-description">Ideal for deep learning projects</div>
+                        <div class="domain-name">agi-university.com</div>
+                        <div class="domain-description">Ideal for AGI education and training platforms</div>
                     </div>
                     <div class="domain-card">
-                        <div class="domain-name">SmartML.ai</div>
-                        <div class="domain-description">Great for machine learning services</div>
+                        <div class="domain-name">ai-cloud-security.com</div>
+                        <div class="domain-description">AI-powered cloud security solutions</div>
                     </div>
                     <div class="domain-card">
-                        <div class="domain-name">AI-Solutions.tech</div>
-                        <div class="domain-description">Professional AI consulting domain</div>
+                        <div class="domain-name">ai-cloudsecurity.com</div>
+                        <div class="domain-description">Cloud security with AI intelligence</div>
                     </div>
                     <div class="domain-card">
-                        <div class="domain-name">IntelliBot.ai</div>
-                        <div class="domain-description">Perfect for chatbot and AI assistant platforms</div>
+                        <div class="domain-name">ai-securityagent.com</div>
+                        <div class="domain-description">Single AI security agent platform</div>
                     </div>
                     <div class="domain-card">
-                        <div class="domain-name">DataMind.io</div>
-                        <div class="domain-description">Ideal for AI data analytics platforms</div>
+                        <div class="domain-name">ai-securityagents.com</div>
+                        <div class="domain-description">Multi-agent AI security systems</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">ai-super-agents.com</div>
+                        <div class="domain-description">Advanced AI super agent technology</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">ai-superagents.com</div>
+                        <div class="domain-description">Powerful AI superagent platforms</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">ai-web-development.com</div>
+                        <div class="domain-description">AI-enhanced web development services</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">aiagents-cloud.com</div>
+                        <div class="domain-description">Cloud-based AI agent infrastructure</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">aiagents-hub.com</div>
+                        <div class="domain-description">Central hub for AI agent services</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">aiagents-lab.com</div>
+                        <div class="domain-description">AI agent research and development lab</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">aiagents-pro.com</div>
+                        <div class="domain-description">Professional AI agent solutions</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">aiagents-university.com</div>
+                        <div class="domain-description">AI agent education and certification</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">aiagentssecops.com</div>
+                        <div class="domain-description">AI agents for SecOps automation</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">aicyberhacks.com</div>
+                        <div class="domain-description">AI-powered cybersecurity solutions</div>
+                    </div>
+                    <div class="domain-card">
+                        <div class="domain-name">aisecopsagents.com</div>
+                        <div class="domain-description">AI security operations agents</div>
                     </div>
                 </div>
 
@@ -332,14 +404,26 @@
                 <p>
                     The artificial intelligence industry is experiencing unprecedented growth. Securing
                     the right domain name is crucial for establishing your brand identity in this competitive
-                    landscape. Our portfolio features carefully selected domain names that are:
+                    landscape. Our portfolio features <strong>17 carefully selected domain names</strong>
+                    focused on AI agents, security, and advanced technologies that are:
                 </p>
 
                 <ul style="margin: 1rem 0 1rem 2rem; line-height: 2;">
                     <li>Memorable and brandable</li>
                     <li>Industry-relevant and keyword-rich</li>
-                    <li>Perfect for startups, enterprises, and AI projects</li>
+                    <li>Perfect for AI security, agents, and cloud platforms</li>
+                    <li>Focused on emerging AI technologies (AGI, SuperAgents, SecOps)</li>
                     <li>Ready for immediate use</li>
+                </ul>
+
+                <h2>Domain Categories</h2>
+                <p>Our portfolio includes domains in these key AI sectors:</p>
+                <ul style="margin: 1rem 0 1rem 2rem; line-height: 2;">
+                    <li><strong>AI Security:</strong> Cloud security, cybersecurity, and SecOps solutions</li>
+                    <li><strong>AI Agents:</strong> Single and multi-agent platforms and services</li>
+                    <li><strong>AGI:</strong> Artificial General Intelligence focused domains</li>
+                    <li><strong>AI Education:</strong> University and training platform domains</li>
+                    <li><strong>AI Development:</strong> Web development and professional services</li>
                 </ul>
 
                 <h2>Our Commitment</h2>
