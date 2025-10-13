@@ -16,5 +16,8 @@
 !*.svg
 !*.ico
 
+# Allow vCard files
+!*.vcf
+
 # Allow .gitignore itself
 !.gitignore
