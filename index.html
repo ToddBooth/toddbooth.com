@@ -301,6 +301,7 @@
             const tabs = [
                 { id: 'home', label: 'Home' },
                 { id: 'about', label: 'About Me' },
+                { id: 'background', label: 'Professional Background' },
                 { id: 'experience', label: 'Experience' },
                 { id: 'contact', label: 'Contact' }
             ];
@@ -422,6 +423,81 @@
                         <li>DevOps and CI/CD pipelines</li>
                         <li>Database design and optimization</li>
                     </ul>
+                </div>
+            );
+        }
+
+        // Professional Background Tab Component
+        function ProfessionalBackgroundTab() {
+            return (
+                <div className="tab-content active">
+                    <h1>Professional Background</h1>
+                    <div className="hero-image" style={{ height: '200px', fontSize: '3rem' }}>
+                        <span>💼</span>
+                    </div>
+
+                    <h2>AI Agents & Cloud Development</h2>
+                    <p>
+                        Focused on development of AI Agents for University education, SecOps and for the public cloud.
+                        Experience with Microsoft AWS, GCP, and Azure.
+                    </p>
+
+                    <h2>Technical Expertise</h2>
+                    <div className="personal-info">
+                        <h3>Programming Languages</h3>
+                        <p>
+                            Programming experience in Python, C#, BASH, Ansible, SQL, and No-SQL Databases.
+                        </p>
+                        <h3>Systems & Operations</h3>
+                        <p>
+                            Detailed technical Linux operations experience.
+                        </p>
+                    </div>
+
+                    <h2>Leadership Experience</h2>
+                    <div className="skills-grid">
+                        <div className="skill-card">
+                            <div className="skill-icon">👥</div>
+                            <h3>Engineering Management</h3>
+                            <p>Management experience with the Ericsson Group, overseeing the activities of hundreds of engineers located in the Americas.</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">🚀</div>
+                            <h3>Technology Leadership</h3>
+                            <p>Worldwide Director of New Technology for the Ericsson Group.</p>
+                        </div>
+                    </div>
+
+                    <h2>Academic Experience</h2>
+                    <p>
+                        Thirteen years of experience in teaching Cybersecurity and other computer science courses.
+                    </p>
+
+                    <h2>Professional Certifications</h2>
+                    <div className="personal-info">
+                        <h3>AWS Certifications</h3>
+                        <ul style={{ margin: '0.5rem 0 1rem 2rem', lineHeight: 2 }}>
+                            <li>AWS Certified Cloud Practitioner</li>
+                            <li>AWS Certified Solutions Architect - Associate</li>
+                            <li>AWS Security Specialist</li>
+                        </ul>
+
+                        <h3>Cisco Certifications</h3>
+                        <ul style={{ margin: '0.5rem 0 1rem 2rem', lineHeight: 2 }}>
+                            <li>CCENT</li>
+                            <li>CCNA</li>
+                            <li>CCNA Security</li>
+                            <li>Coursera Cisco Cybersecurity</li>
+                            <li>Coursera Cisco Cyber Operations</li>
+                        </ul>
+
+                        <h3>CompTIA Certifications</h3>
+                        <ul style={{ margin: '0.5rem 0 1rem 2rem', lineHeight: 2 }}>
+                            <li>CompTIA A+</li>
+                            <li>CompTIA Network+</li>
+                            <li>CompTIA Security+</li>
+                        </ul>
+                    </div>
                 </div>
             );
         }
@@ -605,6 +681,8 @@
                         return <HomeTab />;
                     case 'about':
                         return <AboutTab />;
+                    case 'background':
+                        return <ProfessionalBackgroundTab />;
                     case 'experience':
                         return <ExperienceTab />;
                     case 'contact':
