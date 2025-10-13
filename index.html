@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todd Booth - Professional Portfolio</title>
+
+    <!-- React and ReactDOM from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel Standalone for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -282,300 +289,345 @@
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">Todd Booth</div>
-            <ul class="nav-tabs">
-                <li><button class="tab-button active" data-tab="home">Home</button></li>
-                <li><button class="tab-button" data-tab="about">About Me</button></li>
-                <li><button class="tab-button" data-tab="experience">Experience</button></li>
-                <li><button class="tab-button" data-tab="contact">Contact</button></li>
-            </ul>
-        </nav>
-    </header>
+    <div id="root"></div>
 
-    <div class="container">
-        <div class="content">
-            <!-- Home Tab -->
-            <div id="home" class="tab-content active">
-                <div class="hero">
-                    <h1>Welcome! I'm Todd Booth</h1>
-                    <p style="font-size: 1.2rem; color: #666; max-width: 800px; margin: 0 auto;">
-                        Technology professional with extensive experience in software development,
-                        system architecture, and AI-driven solutions.
-                    </p>
-                </div>
+    <script type="text/babel">
+        const { useState } = React;
 
-                <div style="margin: 2rem auto; text-align: center; max-width: 600px;">
-                    <h2>Save My Contact</h2>
-                    <p style="margin: 1rem 0; color: #666;">
-                        Download my contact card to add me to your phone or email contacts
-                    </p>
-                    <a href="vcard.vcf" download="ToddBooth.vcf" class="download-vcard">
-                        📇 Download Contact Card (vCard)
-                    </a>
-                </div>
+        // Header Component
+        function Header({ activeTab, setActiveTab }) {
+            const tabs = [
+                { id: 'home', label: 'Home' },
+                { id: 'about', label: 'About Me' },
+                { id: 'experience', label: 'Experience' },
+                { id: 'contact', label: 'Contact' }
+            ];
 
-                <div class="skills-grid">
-                    <div class="skill-card">
-                        <div class="skill-icon">💻</div>
-                        <h3>Software Development</h3>
-                        <p>Full-stack development and architecture</p>
-                    </div>
-                    <div class="skill-card">
-                        <div class="skill-icon">🤖</div>
-                        <h3>AI & Automation</h3>
-                        <p>AI agents and intelligent systems</p>
-                    </div>
-                    <div class="skill-card">
-                        <div class="skill-icon">🔒</div>
-                        <h3>Security</h3>
-                        <p>Cloud security and SecOps</p>
-                    </div>
-                    <div class="skill-card">
-                        <div class="skill-icon">☁️</div>
-                        <h3>Cloud Systems</h3>
-                        <p>Cloud architecture and deployment</p>
-                    </div>
-                </div>
-            </div>
+            return (
+                <header>
+                    <nav>
+                        <div className="logo">Todd Booth</div>
+                        <ul className="nav-tabs">
+                            {tabs.map(tab => (
+                                <li key={tab.id}>
+                                    <button
+                                        className={activeTab === tab.id ? 'active' : ''}
+                                        onClick={() => setActiveTab(tab.id)}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                </header>
+            );
+        }
 
-            <!-- About Me Tab -->
-            <div id="about" class="tab-content">
-                <h1>About Me</h1>
-                <div class="hero-image" style="height: 200px; font-size: 3rem;">
-                    🌟
-                </div>
-
-                <h2>Professional Background</h2>
-                <p>
-                    I'm a seasoned technology professional specializing in software development,
-                    system architecture, and emerging AI technologies. With years of experience
-                    building robust, scalable systems, I focus on creating innovative solutions
-                    that leverage cutting-edge technologies to solve real-world problems.
-                </p>
-
-                <h2>Current Focus</h2>
-                <p>
-                    Currently, I'm deeply involved in the AI and automation space, working with
-                    AI agents, cloud security solutions, and intelligent systems. I'm passionate
-                    about how artificial intelligence can transform businesses and improve
-                    operational efficiency.
-                </p>
-
-                <div class="personal-info">
-                    <h2>Personal</h2>
-                    <p>
-                        <strong>Current Status:</strong> Single and open to connecting with new friends
-                        and professional contacts.
-                    </p>
-                    <p style="margin-top: 1rem;">
-                        I enjoy staying at the forefront of technology trends, particularly in AI,
-                        cloud computing, and web development. When I'm not coding or exploring new
-                        technologies, I appreciate building meaningful connections with like-minded
-                        individuals.
-                    </p>
-                </div>
-
-                <h2>Expertise Areas</h2>
-                <ul style="margin: 1rem 0 1rem 2rem; line-height: 2;">
-                    <li>Full-stack web development (HTML, CSS, JavaScript, and modern frameworks)</li>
-                    <li>System architecture and design</li>
-                    <li>AI agents and automation systems</li>
-                    <li>Cloud security and SecOps</li>
-                    <li>DevOps and CI/CD pipelines</li>
-                    <li>Database design and optimization</li>
-                </ul>
-            </div>
-
-            <!-- Experience Tab -->
-            <div id="experience" class="tab-content">
-                <h1>Professional Experience</h1>
-                <div class="hero-image" style="height: 200px; font-size: 3rem;">
-                    🚀
-                </div>
-
-                <h2>Career Journey</h2>
-                <p>
-                    Throughout my career, I've had the opportunity to work on diverse projects
-                    spanning multiple industries and technologies. Here's a summary of my
-                    professional journey:
-                </p>
-
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-date">Recent Years</div>
-                        <h3>AI & Cloud Solutions Specialist</h3>
-                        <p>
-                            Focused on developing AI-powered solutions, including AI agents,
-                            security automation, and cloud-based systems. Working with cutting-edge
-                            technologies to build intelligent, scalable platforms.
-                        </p>
-                        <p style="margin-top: 0.5rem;"><strong>Key Technologies:</strong>
-                            AI/ML, Cloud Security, Python, JavaScript, DevOps, Automation
+        // Home Tab Component
+        function HomeTab() {
+            return (
+                <div className="tab-content active">
+                    <div className="hero">
+                        <h1>Welcome! I'm Todd Booth</h1>
+                        <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '800px', margin: '0 auto' }}>
+                            Technology professional with extensive experience in software development,
+                            system architecture, and AI-driven solutions.
                         </p>
                     </div>
 
-                    <div class="timeline-item">
-                        <div class="timeline-date">Previous Experience</div>
-                        <h3>Senior Software Developer</h3>
-                        <p>
-                            Designed and implemented enterprise-level software solutions,
-                            leading development teams and architecting complex systems. Specialized
-                            in full-stack development and system integration.
+                    <div style={{ margin: '2rem auto', textAlign: 'center', maxWidth: '600px' }}>
+                        <h2>Save My Contact</h2>
+                        <p style={{ margin: '1rem 0', color: '#666' }}>
+                            Download my contact card to add me to your phone or email contacts
                         </p>
-                        <p style="margin-top: 0.5rem;"><strong>Key Technologies:</strong>
-                            Full-stack development, Database systems, API design, Microservices
-                        </p>
-                    </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-date">Early Career</div>
-                        <h3>Software Engineer</h3>
-                        <p>
-                            Started my journey in software development, building foundational
-                            skills in programming, system design, and problem-solving. Worked on
-                            various projects ranging from web applications to system utilities.
-                        </p>
-                        <p style="margin-top: 0.5rem;"><strong>Key Technologies:</strong>
-                            Programming fundamentals, Web development, System architecture
-                        </p>
-                    </div>
-                </div>
-
-                <h2>Technical Skills</h2>
-                <div class="skills-grid">
-                    <div class="skill-card">
-                        <div class="skill-icon">🌐</div>
-                        <h3>Web Development</h3>
-                        <p>HTML, CSS, JavaScript, React, Node.js</p>
-                    </div>
-                    <div class="skill-card">
-                        <div class="skill-icon">🐍</div>
-                        <h3>Backend</h3>
-                        <p>Python, APIs, Microservices</p>
-                    </div>
-                    <div class="skill-card">
-                        <div class="skill-icon">🗄️</div>
-                        <h3>Databases</h3>
-                        <p>SQL, NoSQL, Data Architecture</p>
-                    </div>
-                    <div class="skill-card">
-                        <div class="skill-icon">⚙️</div>
-                        <h3>DevOps</h3>
-                        <p>CI/CD, Docker, Kubernetes, Git</p>
-                    </div>
-                    <div class="skill-card">
-                        <div class="skill-icon">🧠</div>
-                        <h3>AI/ML</h3>
-                        <p>AI Agents, Machine Learning, Automation</p>
-                    </div>
-                    <div class="skill-card">
-                        <div class="skill-icon">🛡️</div>
-                        <h3>Security</h3>
-                        <p>Cloud Security, SecOps, Best Practices</p>
-                    </div>
-                </div>
-
-                <h2>Current Projects</h2>
-                <p>
-                    I'm actively working on several exciting initiatives in the AI and automation
-                    space, including AI agent platforms, security automation tools, and cloud-based
-                    solutions. Always exploring new technologies and approaches to solve challenging
-                    problems.
-                </p>
-            </div>
-
-            <!-- Contact Tab -->
-            <div id="contact" class="tab-content">
-                <h1>Get in Touch</h1>
-                <div class="hero-image" style="height: 200px; font-size: 3rem;">
-                    ✉️
-                </div>
-
-                <div style="max-width: 600px; margin: 2rem auto; text-align: center;">
-                    <div style="margin: 2rem 0; text-align: center;">
-                        <h2>QR-Code-Contact</h2>
-                        <p style="font-size: 1.1rem; color: #666; margin: 1rem 0 2rem;">
-                            Scan this QR code to access Todd's contact information.
-                        </p>
-                        <div style="max-width: 600px; margin: 0 auto; padding: 2rem; background: #f8f9fa; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);">
-                            <img src="qr_code.png" alt="QR Code for ToddBooth.com" style="max-width: 100%; height: auto; border-radius: 10px;">
-                        </div>
-                        <p style="font-size: 0.9rem; color: #999; margin-top: 1.5rem;">
-                            Point your phone's camera at the QR code to visit this site
-                        </p>
-                    </div>
-
-                    <h2>Let's Connect!</h2>
-                    <p style="margin: 1rem 0; font-size: 1.1rem; color: #666;">
-                        I'm always interested in connecting with interesting people, whether for
-                        professional opportunities, collaborations, or just to make new friends.
-                        Feel free to reach out!
-                    </p>
-
-                    <div class="contact-section">
-                        <h2 style="color: white;">Email Me</h2>
-                        <p>For inquiries, opportunities, or just to say hello:</p>
-                        <a href="mailto:Todd.Booth+WebSite@GMail.com" class="contact-email">
-                            Todd.Booth+WebSite@GMail.com
+                        <a href="vcard.vcf" download="ToddBooth.vcf" className="download-vcard">
+                            📇 Download Contact Card (vCard)
                         </a>
                     </div>
 
-                    <div class="personal-info" style="text-align: left;">
-                        <h2>What to Expect</h2>
-                        <p>
-                            I typically respond within 24-48 hours. Whether you're interested in:
-                        </p>
-                        <ul style="margin: 1rem 0 1rem 2rem; line-height: 2;">
-                            <li>Professional collaborations or opportunities</li>
-                            <li>Technical discussions about AI, cloud, or development</li>
-                            <li>Making new connections and friendships</li>
-                            <li>Project ideas or consultations</li>
-                        </ul>
-                        <p>
-                            I'm always happy to hear from interesting people!
-                        </p>
+                    <div className="skills-grid">
+                        <div className="skill-card">
+                            <div className="skill-icon">💻</div>
+                            <h3>Software Development</h3>
+                            <p>Full-stack development and architecture</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">🤖</div>
+                            <h3>AI & Automation</h3>
+                            <p>AI agents and intelligent systems</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">🔒</div>
+                            <h3>Security</h3>
+                            <p>Cloud security and SecOps</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">☁️</div>
+                            <h3>Cloud Systems</h3>
+                            <p>Cloud architecture and deployment</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+            );
+        }
 
-    <footer>
-        <p>&copy; 2025 Todd Booth. All rights reserved.</p>
-    </footer>
+        // About Tab Component
+        function AboutTab() {
+            return (
+                <div className="tab-content active">
+                    <h1>About Me</h1>
+                    <div className="hero-image" style={{ height: '200px', fontSize: '3rem' }}>
+                        <span>🌟</span>
+                    </div>
 
-    <script>
-        // Tab switching functionality
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
+                    <h2>Professional Background</h2>
+                    <p>
+                        I'm a seasoned technology professional specializing in software development,
+                        system architecture, and emerging AI technologies. With years of experience
+                        building robust, scalable systems, I focus on creating innovative solutions
+                        that leverage cutting-edge technologies to solve real-world problems.
+                    </p>
 
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove active class from all buttons and contents
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
+                    <h2>Current Focus</h2>
+                    <p>
+                        Currently, I'm deeply involved in the AI and automation space, working with
+                        AI agents, cloud security solutions, and intelligent systems. I'm passionate
+                        about how artificial intelligence can transform businesses and improve
+                        operational efficiency.
+                    </p>
 
-                // Add active class to clicked button and corresponding content
-                button.classList.add('active');
-                const tabId = button.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
+                    <div className="personal-info">
+                        <h2>Personal</h2>
+                        <p>
+                            <strong>Current Status:</strong> Single and open to connecting with new friends
+                            and professional contacts.
+                        </p>
+                        <p style={{ marginTop: '1rem' }}>
+                            I enjoy staying at the forefront of technology trends, particularly in AI,
+                            cloud computing, and web development. When I'm not coding or exploring new
+                            technologies, I appreciate building meaningful connections with like-minded
+                            individuals.
+                        </p>
+                    </div>
 
-        // Smooth scroll effect
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
+                    <h2>Expertise Areas</h2>
+                    <ul style={{ margin: '1rem 0 1rem 2rem', lineHeight: 2 }}>
+                        <li>Full-stack web development (HTML, CSS, JavaScript, and modern frameworks)</li>
+                        <li>System architecture and design</li>
+                        <li>AI agents and automation systems</li>
+                        <li>Cloud security and SecOps</li>
+                        <li>DevOps and CI/CD pipelines</li>
+                        <li>Database design and optimization</li>
+                    </ul>
+                </div>
+            );
+        }
+
+        // Experience Tab Component
+        function ExperienceTab() {
+            return (
+                <div className="tab-content active">
+                    <h1>Professional Experience</h1>
+                    <div className="hero-image" style={{ height: '200px', fontSize: '3rem' }}>
+                        <span>🚀</span>
+                    </div>
+
+                    <h2>Career Journey</h2>
+                    <p>
+                        Throughout my career, I've had the opportunity to work on diverse projects
+                        spanning multiple industries and technologies. Here's a summary of my
+                        professional journey:
+                    </p>
+
+                    <div className="timeline">
+                        <div className="timeline-item">
+                            <div className="timeline-date">Recent Years</div>
+                            <h3>AI & Cloud Solutions Specialist</h3>
+                            <p>
+                                Focused on developing AI-powered solutions, including AI agents,
+                                security automation, and cloud-based systems. Working with cutting-edge
+                                technologies to build intelligent, scalable platforms.
+                            </p>
+                            <p style={{ marginTop: '0.5rem' }}><strong>Key Technologies:</strong>
+                                AI/ML, Cloud Security, Python, JavaScript, DevOps, Automation
+                            </p>
+                        </div>
+
+                        <div className="timeline-item">
+                            <div className="timeline-date">Previous Experience</div>
+                            <h3>Senior Software Developer</h3>
+                            <p>
+                                Designed and implemented enterprise-level software solutions,
+                                leading development teams and architecting complex systems. Specialized
+                                in full-stack development and system integration.
+                            </p>
+                            <p style={{ marginTop: '0.5rem' }}><strong>Key Technologies:</strong>
+                                Full-stack development, Database systems, API design, Microservices
+                            </p>
+                        </div>
+
+                        <div className="timeline-item">
+                            <div className="timeline-date">Early Career</div>
+                            <h3>Software Engineer</h3>
+                            <p>
+                                Started my journey in software development, building foundational
+                                skills in programming, system design, and problem-solving. Worked on
+                                various projects ranging from web applications to system utilities.
+                            </p>
+                            <p style={{ marginTop: '0.5rem' }}><strong>Key Technologies:</strong>
+                                Programming fundamentals, Web development, System architecture
+                            </p>
+                        </div>
+                    </div>
+
+                    <h2>Technical Skills</h2>
+                    <div className="skills-grid">
+                        <div className="skill-card">
+                            <div className="skill-icon">🌐</div>
+                            <h3>Web Development</h3>
+                            <p>HTML, CSS, JavaScript, React, Node.js</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">🐍</div>
+                            <h3>Backend</h3>
+                            <p>Python, APIs, Microservices</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">🗄️</div>
+                            <h3>Databases</h3>
+                            <p>SQL, NoSQL, Data Architecture</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">⚙️</div>
+                            <h3>DevOps</h3>
+                            <p>CI/CD, Docker, Kubernetes, Git</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">🧠</div>
+                            <h3>AI/ML</h3>
+                            <p>AI Agents, Machine Learning, Automation</p>
+                        </div>
+                        <div className="skill-card">
+                            <div className="skill-icon">🛡️</div>
+                            <h3>Security</h3>
+                            <p>Cloud Security, SecOps, Best Practices</p>
+                        </div>
+                    </div>
+
+                    <h2>Current Projects</h2>
+                    <p>
+                        I'm actively working on several exciting initiatives in the AI and automation
+                        space, including AI agent platforms, security automation tools, and cloud-based
+                        solutions. Always exploring new technologies and approaches to solve challenging
+                        problems.
+                    </p>
+                </div>
+            );
+        }
+
+        // Contact Tab Component
+        function ContactTab() {
+            return (
+                <div className="tab-content active">
+                    <h1>Get in Touch</h1>
+                    <div className="hero-image" style={{ height: '200px', fontSize: '3rem' }}>
+                        <span>✉️</span>
+                    </div>
+
+                    <div style={{ maxWidth: '600px', margin: '2rem auto', textAlign: 'center' }}>
+                        <div style={{ margin: '2rem 0', textAlign: 'center' }}>
+                            <h2>QR-Code-Contact</h2>
+                            <p style={{ fontSize: '1.1rem', color: '#666', margin: '1rem 0 2rem' }}>
+                                Scan this QR code to access Todd's contact information.
+                            </p>
+                            <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem', background: '#f8f9fa', borderRadius: '15px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)' }}>
+                                <img src="qr_code.png" alt="QR Code for ToddBooth.com" style={{ maxWidth: '100%', height: 'auto', borderRadius: '10px' }} />
+                            </div>
+                            <p style={{ fontSize: '0.9rem', color: '#999', marginTop: '1.5rem' }}>
+                                Point your phone's camera at the QR code to visit this site
+                            </p>
+                        </div>
+
+                        <h2>Let's Connect!</h2>
+                        <p style={{ margin: '1rem 0', fontSize: '1.1rem', color: '#666' }}>
+                            I'm always interested in connecting with interesting people, whether for
+                            professional opportunities, collaborations, or just to make new friends.
+                            Feel free to reach out!
+                        </p>
+
+                        <div className="contact-section">
+                            <h2 style={{ color: 'white' }}>Email Me</h2>
+                            <p>For inquiries, opportunities, or just to say hello:</p>
+                            <a href="mailto:Todd.Booth+WebSite@GMail.com" className="contact-email">
+                                Todd.Booth+WebSite@GMail.com
+                            </a>
+                        </div>
+
+                        <div className="personal-info" style={{ textAlign: 'left' }}>
+                            <h2>What to Expect</h2>
+                            <p>
+                                I typically respond within 24-48 hours. Whether you're interested in:
+                            </p>
+                            <ul style={{ margin: '1rem 0 1rem 2rem', lineHeight: 2 }}>
+                                <li>Professional collaborations or opportunities</li>
+                                <li>Technical discussions about AI, cloud, or development</li>
+                                <li>Making new connections and friendships</li>
+                                <li>Project ideas or consultations</li>
+                            </ul>
+                            <p>
+                                I'm always happy to hear from interesting people!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Footer Component
+        function Footer() {
+            return (
+                <footer>
+                    <p>&copy; 2025 Todd Booth. All rights reserved.</p>
+                </footer>
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [activeTab, setActiveTab] = useState('home');
+
+            const renderTab = () => {
+                switch (activeTab) {
+                    case 'home':
+                        return <HomeTab />;
+                    case 'about':
+                        return <AboutTab />;
+                    case 'experience':
+                        return <ExperienceTab />;
+                    case 'contact':
+                        return <ContactTab />;
+                    default:
+                        return <HomeTab />;
                 }
-            });
-        });
+            };
+
+            return (
+                <>
+                    <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+                    <div className="container">
+                        <div className="content">
+                            {renderTab()}
+                        </div>
+                    </div>
+                    <Footer />
+                </>
+            );
+        }
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
