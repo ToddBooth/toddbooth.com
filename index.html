@@ -482,22 +482,26 @@
                         </p>
                     </div>
 
-                    <div style={{ margin: '2rem auto', textAlign: 'center', maxWidth: '600px' }}>
+                    <div style={{ margin: '2rem auto', textAlign: 'center', maxWidth: '700px' }}>
                         <h2>Save My Contact</h2>
-                        <div style={{ textAlign: 'center', margin: '1rem auto' }}>
-                            <div style={{ maxWidth: '150px', margin: '0 auto', padding: '1rem', background: '#f8f9fa', borderRadius: '10px', boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)' }}>
-                                <img src="qr_code.png" alt="QR Code for ToddBooth.com" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', margin: '1.5rem auto', flexWrap: 'wrap' }}>
+                            <div style={{ textAlign: 'center', flex: '0 0 auto' }}>
+                                <div style={{ maxWidth: '150px', padding: '1rem', background: '#f8f9fa', borderRadius: '10px', boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)' }}>
+                                    <img src="qr_code.png" alt="QR Code for ToddBooth.com" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
+                                </div>
+                                <p style={{ fontSize: '0.85rem', color: '#999', marginTop: '0.75rem' }}>
+                                    Download Todd's vcard
+                                </p>
                             </div>
-                            <p style={{ fontSize: '0.85rem', color: '#999', marginTop: '0.75rem' }}>
-                                Download Todd's vcard
-                            </p>
+                            <div style={{ flex: '1 1 auto', textAlign: 'left', minWidth: '250px' }}>
+                                <p style={{ margin: '0 0 1rem 0', color: '#666' }}>
+                                    Download my contact card to add me to your phone or email contacts
+                                </p>
+                                <a href="vcard.vcf" download="ToddBooth.vcf" className="download-vcard">
+                                    📇 Download Contact Card (vCard)
+                                </a>
+                            </div>
                         </div>
-                        <p style={{ margin: '1rem 0', color: '#666' }}>
-                            Download my contact card to add me to your phone or email contacts
-                        </p>
-                        <a href="vcard.vcf" download="ToddBooth.vcf" className="download-vcard">
-                            📇 Download Contact Card (vCard)
-                        </a>
                     </div>
 
                     <div className="skills-grid">
