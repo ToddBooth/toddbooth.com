@@ -27,6 +27,7 @@
             color: #333;
             background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
@@ -91,6 +92,9 @@
             border-radius: 15px;
             padding: 3rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            max-width: 100%;
         }
 
         .tab-content {
@@ -118,18 +122,26 @@
             color: #2c3e50;
             margin-bottom: 1.5rem;
             font-size: 2.5rem;
+            word-wrap: break-word;
         }
 
         h2 {
             color: #3498db;
             margin: 2rem 0 1rem;
             font-size: 1.8rem;
+            word-wrap: break-word;
         }
 
         h3 {
             color: #2c3e50;
             margin: 1.5rem 0 0.5rem;
             font-size: 1.3rem;
+            word-wrap: break-word;
+        }
+
+        p {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .hero {
@@ -150,6 +162,7 @@
             color: white;
             font-size: 4rem;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            max-width: calc(100vw - 40px);
         }
 
         .contact-section {
@@ -171,7 +184,9 @@
             display: inline-block;
             margin-top: 1rem;
             transition: background 0.3s ease;
-            word-break: break-all;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
 
         .contact-email:hover {
@@ -262,32 +277,158 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
+            .container {
+                padding: 0 10px;
+            }
+
+            nav {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+
             .nav-tabs {
                 flex-direction: column;
                 gap: 0.5rem;
                 width: 100%;
-                margin-top: 1rem;
             }
 
             .nav-tabs button {
                 width: 100%;
+                padding: 0.75rem;
+                font-size: 0.9rem;
+                text-align: center;
             }
 
             h1 {
-                font-size: 2rem;
+                font-size: 1.75rem;
+                margin-bottom: 1rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+                margin: 1.5rem 0 0.75rem;
+            }
+
+            h3 {
+                font-size: 1.1rem;
+                margin: 1rem 0 0.5rem;
             }
 
             .content {
-                padding: 1.5rem;
+                padding: 1rem;
+                margin: 1rem auto;
             }
 
-            nav {
-                flex-direction: column;
-                align-items: flex-start;
+            .hero {
+                padding: 1rem 0;
+            }
+
+            .hero p {
+                font-size: 1rem !important;
+                padding: 0 0.5rem;
             }
 
             .hero-image {
-                font-size: 3rem;
+                font-size: 2.5rem;
+                height: 150px;
+                margin: 1rem auto;
+            }
+
+            .contact-section {
+                padding: 1.5rem 1rem;
+            }
+
+            .contact-email {
+                font-size: 0.95rem;
+                padding: 0.75rem 1rem;
+                word-break: break-word;
+                display: block;
+            }
+
+            .timeline {
+                padding-left: 1.5rem;
+                margin: 1rem 0;
+            }
+
+            .timeline-item::before {
+                left: -2.1rem;
+                font-size: 1.2rem;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin: 1rem 0;
+            }
+
+            .skill-card {
+                padding: 1rem;
+            }
+
+            .skill-icon {
+                font-size: 2rem;
+            }
+
+            .personal-info {
+                padding: 1rem;
+                margin: 1rem 0;
+            }
+
+            .personal-info ul {
+                margin: 0.5rem 0 0.5rem 1.5rem !important;
+            }
+
+            .download-vcard {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+                display: block;
+                text-align: center;
+                margin: 1rem auto;
+            }
+
+            footer {
+                padding: 1.5rem 1rem;
+                margin-top: 2rem;
+            }
+        }
+
+        /* Extra small screens (phones in portrait, less than 400px) */
+        @media (max-width: 400px) {
+            .logo {
+                font-size: 1.3rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+            }
+
+            .content {
+                padding: 0.75rem;
+            }
+
+            .hero-image {
+                font-size: 2rem;
+                height: 120px;
+            }
+
+            .contact-email {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.75rem;
             }
         }
     </style>
@@ -303,7 +444,7 @@
         function Header({ activeTab, setActiveTab }) {
             const tabs = [
                 { id: 'home', label: 'Home' },
-                { id: 'about', label: 'AboFocused on development of AI Agents for University education, SecOps and for the public cloud. Experience with Microsoft AWS, GCP, and Azure. Programming experience in Python, C#, BASH, Ansible, SQL, and No-SQL Databases. Detailed technical Linux operations experience. Management experience with the Ericsson Group, overseeing the activities of hundreds of engineers located in the Americas. Worldwide Director of New Technology for the Ericsson Group. Thirteen years’ of experience in teaching Cybersecurity and other computer science courses. Numerous certificates in AWS, including Certified Cloud Practitioner, AWS Certified Solutions Architect - Associate, AWS Security Specialist, Cisco CCENT, CCNA, CCNA Security, CompTia A+, Network+, Security+ and Coursera Cisco Cybersecurity and Cisco Cyber Operations. Me' },
+                { id: 'about', label: 'About Me' },
                 { id: 'background', label: 'Professional Background' },
                 { id: 'contact', label: 'Contact' }
             ];
