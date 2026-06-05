@@ -21,3 +21,6 @@
 
 # Allow .gitignore itself
 !.gitignore
+
+# Allow Markdown docs (e.g. CLAUDE.md)
+!*.md
