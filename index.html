@@ -8,16 +8,21 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-    <!-- Rounded/bubbly display font for the small animated name badge on Home -->
+    <!-- Rounded/bubbly display font for the animated name badge in the header -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
 
-    <!-- React and ReactDOM from CDN -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- React, ReactDOM, and React Router from CDN (UMD builds — no build step). -->
+    <!-- Load order matters: react-router needs React + RemixRouter; react-router-dom -->
+    <!-- needs React + ReactDOM + ReactRouter + RemixRouter. -->
+    <script crossorigin="anonymous" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha384-QiHfakT+h3f+zciXEQLf4ehx8xnA54N4qKbfJbdO8qIyIeRrJff69gsHCvTViKvU" src="https://unpkg.com/@remix-run/router@1.23.3/dist/router.umd.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha384-VGG9SSuKlYMI38aoUMmm20pYbmCqi6tJkTJXJ07Y5MDxb29lW56X2rIbvDLePFRJ" src="https://unpkg.com/react-router@6.30.4/dist/umd/react-router.production.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha384-kwxexjtuc6LnCXwilsVJwM1g+2nJ4DH+2q+EQrF0DUkUt6Ml7LTQNQe5IC/AL3yh" src="https://unpkg.com/react-router-dom@6.30.4/dist/umd/react-router-dom.production.min.js"></script>
     <!-- Babel Standalone for JSX transformation -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha384-fsMuX1qrlL2OwY1g8apML4JcSv2aYFaMXKQIjzX+OOveqSCCdmIMjwNQRoralXGe" src="https://unpkg.com/@babel/standalone@8.0.3/babel.min.js"></script>
 
     <style>
         * {
@@ -73,7 +78,7 @@
             flex-wrap: wrap;
         }
 
-        .nav-tabs button {
+        .nav-tabs a {
             background: none;
             border: none;
             font-size: 0.95rem;
@@ -83,10 +88,12 @@
             transition: all 0.3s ease;
             border-radius: 5px;
             white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
         }
 
-        .nav-tabs button:hover,
-        .nav-tabs button.active {
+        .nav-tabs a:hover,
+        .nav-tabs a.active {
             background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
         }
@@ -102,13 +109,8 @@
             max-width: 100%;
         }
 
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.5s;
+        .page-content {
+            animation: fadeIn 0.4s ease;
         }
 
         @keyframes fadeIn {
@@ -137,6 +139,10 @@
             word-wrap: break-word;
         }
 
+        h2:first-of-type {
+            margin-top: 0;
+        }
+
         h3 {
             color: #2c3e50;
             margin: 1.5rem 0 0.5rem;
@@ -147,6 +153,25 @@
         p {
             word-wrap: break-word;
             overflow-wrap: break-word;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
         }
 
         .hero {
@@ -184,7 +209,9 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .bubble-name svg {
+
+            .bubble-name svg,
+            .page-content {
                 animation: none;
             }
         }
@@ -231,31 +258,6 @@
 
         .contact-email:hover {
             background: rgba(255, 255, 255, 0.3);
-        }
-
-        .timeline {
-            margin: 2rem 0;
-            border-left: 3px solid #3498db;
-            padding-left: 2rem;
-        }
-
-        .timeline-item {
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        .timeline-item::before {
-            content: '●';
-            position: absolute;
-            left: -2.6rem;
-            color: #3498db;
-            font-size: 1.5rem;
-        }
-
-        .timeline-date {
-            color: #3498db;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
         }
 
         .skills-grid {
@@ -344,11 +346,132 @@
             text-decoration: underline;
         }
 
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .event {
+            display: flex;
+            gap: 1.5rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 1.5rem 2rem;
+        }
+
+        .event-icon {
+            font-size: 2.5rem;
+            flex: 0 0 auto;
+        }
+
+        .event-date {
+            color: #3498db;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .event h3 {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .event p {
+            color: #555;
+        }
+
+        .week-event {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 1.25rem 1.75rem;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .week-event:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .week-event-icon {
+            font-size: 2.2rem;
+            flex: 0 0 auto;
+        }
+
+        .week-event-date {
+            color: #3498db;
+            font-weight: bold;
+            margin-bottom: 0.2rem;
+        }
+
+        .week-event-body h3 {
+            color: #2c3e50;
+            font-size: 1.15rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .week-event-body p {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .empty-state {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+            margin: 1.5rem 0;
+        }
+
+        .empty-state a {
+            color: #3498db;
+        }
+
+        .all-events-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #3498db;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .all-events-link:hover {
+            text-decoration: underline;
+        }
+
         .personal-info {
             background: #f8f9fa;
             padding: 2rem;
             border-radius: 10px;
             margin: 2rem 0;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 1.5rem 2rem;
+            border-radius: 10px;
+            margin: 1rem 0 2rem;
+        }
+
+        .info-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box a {
+            color: #3498db;
+        }
+
+        ul.plain {
+            margin: 0.5rem 0 1rem 1.5rem;
+            line-height: 1.9;
         }
 
         .download-vcard {
@@ -384,12 +507,107 @@
             color: #5a4a1f;
         }
 
+        .rsvp-note a {
+            color: #8a6d1f;
+            font-weight: 600;
+        }
+
+        .callout {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 10px;
+            margin: 1rem 0 2rem;
+        }
+
+        .callout h3 {
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0.35rem;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .callout ul {
+            margin: 0.5rem 0 0 1.25rem;
+        }
+
+        .callout li {
+            margin-bottom: 0.35rem;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0 2rem;
+            font-size: 0.95rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 0.75rem 0.9rem;
+            border-bottom: 1px solid #e5e9ee;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f5f7fa;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        tr:hover td {
+            background: #f9fbfd;
+        }
+
+        .result-win {
+            color: #1f8a4c;
+            font-weight: 600;
+        }
+
+        .note {
+            color: #777;
+            font-size: 0.9rem;
+            margin: -0.5rem 0 2rem;
+        }
+
+        .sources {
+            margin: 0.5rem 0 0 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .sources li {
+            margin-bottom: 0.4rem;
+        }
+
+        .sources a {
+            color: #3498db;
+        }
+
+        .updated {
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 2rem;
+        }
+
         footer {
             background: rgba(255, 255, 255, 0.95);
             text-align: center;
             padding: 2rem;
             margin-top: 3rem;
             color: #666;
+        }
+
+        footer a {
+            color: #3498db;
         }
 
         @media (max-width: 768px) {
@@ -423,7 +641,7 @@
                 width: 100%;
             }
 
-            .nav-tabs button {
+            .nav-tabs a {
                 width: 100%;
                 padding: 0.75rem;
                 font-size: 0.9rem;
@@ -476,16 +694,6 @@
                 display: block;
             }
 
-            .timeline {
-                padding-left: 1.5rem;
-                margin: 1rem 0;
-            }
-
-            .timeline-item::before {
-                left: -2.1rem;
-                font-size: 1.2rem;
-            }
-
             .skills-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
@@ -496,14 +704,16 @@
                 padding: 1rem;
             }
 
-            .event-card {
+            .skill-icon {
+                font-size: 2rem;
+            }
+
+            .event-card,
+            .event,
+            .week-event {
                 flex-direction: column;
                 text-align: center;
                 padding: 1.25rem;
-            }
-
-            .skill-icon {
-                font-size: 2rem;
             }
 
             .personal-info {
@@ -521,6 +731,12 @@
                 display: block;
                 text-align: center;
                 margin: 1rem auto;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
             }
 
             footer {
@@ -563,51 +779,111 @@
 <body>
     <div id="root"></div>
 
+    <script src="events-data.js?v=4"></script>
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect, useMemo } = React;
+        const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
 
-        // Header Component
-        function Header({ activeTab, setActiveTab }) {
+        // ---------------------------------------------------------------
+        // Hooks
+        // ---------------------------------------------------------------
+
+        // Sets document.title for the current route. Each page component calls
+        // this once; the next page's call simply overwrites it on mount.
+        function useTitle(title) {
+            useEffect(() => {
+                document.title = title;
+            }, [title]);
+        }
+
+        // Filters the shared EVENTS array (events-data.js) down to whatever falls
+        // in the next 7 days, computed fresh on mount — this is what powers the
+        // "This Week" page. `now`/`upcoming` are memoized once per page load,
+        // matching the previous vanilla-JS behavior (recompute happens because
+        // this component remounts fresh each time you navigate to it).
+        function useEvents() {
+            return useMemo(() => {
+                const now = new Date();
+                const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                const upcoming = EVENTS
+                    .map(e => ({ ...e, parsed: new Date(e.date) }))
+                    .filter(e => e.parsed >= now && e.parsed <= weekFromNow)
+                    .sort((a, b) => a.parsed - b.parsed);
+                return { now, upcoming };
+            }, []);
+        }
+
+        // ---------------------------------------------------------------
+        // Shared components
+        // ---------------------------------------------------------------
+
+        // The glossy/puffy "Todd Booth" name badge (SVG + feSpecularLighting
+        // bevel filter). One instance now, rendered by Header on every route —
+        // previously this markup was hand-duplicated across 6 separate HTML files.
+        function BubbleLogo() {
+            return (
+                <svg viewBox="0 0 460 120" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="bubbleFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffd7e6" />
+                            <stop offset="55%" stopColor="#ff6f9c" />
+                            <stop offset="100%" stopColor="#ff2f6e" />
+                        </linearGradient>
+                        <filter id="glossyBevel" x="-30%" y="-60%" width="160%" height="240%" colorInterpolationFilters="sRGB">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+                            <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.9" specularExponent="20" lightingColor="#ffffff" result="specOut">
+                                <fePointLight x="130" y="-40" z="150" />
+                            </feSpecularLighting>
+                            <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut2" />
+                            <feComposite in="SourceGraphic" in2="specOut2" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" />
+                        </filter>
+                    </defs>
+                    <text x="50%" y="72%" textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight="800" fontSize="70" fill="url(#bubbleFill)" stroke="#d42a68" strokeWidth="2.5" paintOrder="stroke fill" filter="url(#glossyBevel)">Todd Booth</text>
+                </svg>
+            );
+        }
+
+        // Scrolls to top on every route change — without this, navigating from a
+        // long page (e.g. the World Cup schedule) to a short one leaves the
+        // scroll position wherever it was, since this is now client-side routing
+        // rather than a real page load.
+        function ScrollToTop() {
+            const location = useLocation();
+            useEffect(() => {
+                window.scrollTo(0, 0);
+            }, [location.pathname]);
+            return null;
+        }
+
+        function Header() {
+            const location = useLocation();
+            const eventRoutes = ['/events', '/this-week', '/world-cup', '/local-music', '/troubadour-evenings'];
+            const eventsActive = eventRoutes.includes(location.pathname);
+
             const tabs = [
-                { id: 'home', label: 'Home' },
-                { id: 'events', label: 'Events' },
-                { id: 'about', label: 'About Me' },
-                { id: 'background', label: 'Professional Background' },
-                { id: 'contact', label: 'Contact' }
+                { to: '/', label: 'Home', end: true },
+                { to: '/events', label: 'Events', forceActive: eventsActive },
+                { to: '/about', label: 'About Me' },
+                { to: '/background', label: 'Professional Background' },
+                { to: '/contact', label: 'Contact' }
             ];
 
             return (
                 <header>
                     <nav>
                         <div className="logo bubble-name" role="img" aria-label="Todd Booth">
-                            <svg viewBox="0 0 460 120" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="bubbleFill" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#ffd7e6" />
-                                        <stop offset="55%" stopColor="#ff6f9c" />
-                                        <stop offset="100%" stopColor="#ff2f6e" />
-                                    </linearGradient>
-                                    <filter id="glossyBevel" x="-30%" y="-60%" width="160%" height="240%" colorInterpolationFilters="sRGB">
-                                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
-                                        <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.9" specularExponent="20" lightingColor="#ffffff" result="specOut">
-                                            <fePointLight x="130" y="-40" z="150" />
-                                        </feSpecularLighting>
-                                        <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut2" />
-                                        <feComposite in="SourceGraphic" in2="specOut2" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" />
-                                    </filter>
-                                </defs>
-                                <text x="50%" y="72%" textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight="800" fontSize="70" fill="url(#bubbleFill)" stroke="#d42a68" strokeWidth="2.5" paintOrder="stroke fill" filter="url(#glossyBevel)">Todd Booth</text>
-                            </svg>
+                            <BubbleLogo />
                         </div>
                         <ul className="nav-tabs">
                             {tabs.map(tab => (
-                                <li key={tab.id}>
-                                    <button
-                                        className={activeTab === tab.id ? 'active' : ''}
-                                        onClick={() => setActiveTab(tab.id)}
+                                <li key={tab.to}>
+                                    <NavLink
+                                        to={tab.to}
+                                        end={tab.end}
+                                        className={({ isActive }) => (isActive || tab.forceActive) ? 'active' : ''}
                                     >
                                         {tab.label}
-                                    </button>
+                                    </NavLink>
                                 </li>
                             ))}
                         </ul>
@@ -616,10 +892,74 @@
             );
         }
 
-        // Home Tab Component
-        function HomeTab({ setActiveTab }) {
+        function Footer() {
             return (
-                <div className="tab-content active">
+                <footer>
+                    <p>&copy; 2026 Todd Booth. All rights reserved.</p>
+                </footer>
+            );
+        }
+
+        function RsvpNote({ children }) {
+            return (
+                <div className="rsvp-note">
+                    <p>{children}</p>
+                </div>
+            );
+        }
+
+        function Callout({ children }) {
+            return <div className="callout">{children}</div>;
+        }
+
+        function InfoBox({ children }) {
+            return <div className="info-box">{children}</div>;
+        }
+
+        function EventCard({ to, icon, title, description, linkText, featured }) {
+            return (
+                <Link to={to} className={featured ? 'event-card event-card-featured' : 'event-card'}>
+                    <div className="event-card-icon">{icon}</div>
+                    <div className="event-card-body">
+                        <h3>{title}</h3>
+                        <p>{description}</p>
+                        <span className="event-card-link">{linkText} →</span>
+                    </div>
+                </Link>
+            );
+        }
+
+        function ContactVcard() {
+            return (
+                <div style={{ margin: '1rem auto', textAlign: 'center', maxWidth: '700px' }}>
+                    <h2>Save My Contact Vcard</h2>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', margin: '1rem auto', flexWrap: 'wrap' }}>
+                        <div style={{ textAlign: 'center', flex: '0 0 auto' }}>
+                            <div style={{ maxWidth: '150px', padding: '1rem', background: '#f8f9fa', borderRadius: '10px', boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)' }}>
+                                <img src="qr_code.png" alt="QR Code for ToddBooth.com" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
+                            </div>
+                        </div>
+                        <div style={{ flex: '0 0 auto', fontSize: '1.2rem', color: '#666', fontWeight: '500' }}>
+                            &lt;--- Camera or ---&gt;
+                        </div>
+                        <div style={{ flex: '1 1 auto', textAlign: 'left', minWidth: '250px' }}>
+                            <a href="vcard.vcf" download="ToddBooth.vcf" className="download-vcard">
+                                📇 Download vcard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ---------------------------------------------------------------
+        // Page components
+        // ---------------------------------------------------------------
+
+        function Home() {
+            useTitle('Todd Booth - Professional Portfolio');
+            return (
+                <div className="page-content">
                     <div className="hero">
                         <h1>Welcome! I'm Todd Booth</h1>
                         <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '800px', margin: '0 auto' }}>
@@ -634,43 +974,24 @@
                         </p>
                     </div>
                     <div style={{ margin: '1rem auto 2rem', textAlign: 'center' }}>
-                        <button onClick={() => setActiveTab('events')} className="download-vcard" style={{ border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}>
+                        <Link to="/events" className="download-vcard" style={{ fontSize: '1.1rem' }}>
                             📅 See what events I'm organizing →
-                        </button>
+                        </Link>
                     </div>
-                    <div className="rsvp-note">
-                        <p>
-                            ⚠️ <strong>Important:</strong> if you want to attend one of my events, please
-                            tell me as early as possible — I need to know so I can add you to the booked
-                            table. If I don't hear from you in time, I may not be able to fit you in.
-                        </p>
-                    </div>
-                    <div style={{ margin: '1rem auto', textAlign: 'center', maxWidth: '700px' }}>
-                        <h2>Save My Contact Vcard</h2>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', margin: '1rem auto', flexWrap: 'wrap' }}>
-                            <div style={{ textAlign: 'center', flex: '0 0 auto' }}>
-                                <div style={{ maxWidth: '150px', padding: '1rem', background: '#f8f9fa', borderRadius: '10px', boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)' }}>
-                                    <img src="qr_code.png" alt="QR Code for ToddBooth.com" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
-                                </div>
-                            </div>
-                            <div style={{ flex: '0 0 auto', fontSize: '1.2rem', color: '#666', fontWeight: '500' }}>
-                                &lt;--- Camera or ---&gt;
-                            </div>
-                            <div style={{ flex: '1 1 auto', textAlign: 'left', minWidth: '250px' }}>
-                                <a href="vcard.vcf" download="ToddBooth.vcf" className="download-vcard">
-                                    📇 Download vcard
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    <RsvpNote>
+                        ⚠️ <strong>Important:</strong> if you want to attend one of my events, please
+                        tell me as early as possible — I need to know so I can add you to the booked
+                        table. If I don't hear from you in time, I may not be able to fit you in.
+                    </RsvpNote>
+                    <ContactVcard />
                 </div>
             );
         }
 
-        // Events Tab Component
-        function EventsTab() {
+        function Events() {
+            useTitle('Events | Todd Booth');
             return (
-                <div className="tab-content active">
+                <div className="page-content">
                     <div className="hero">
                         <h1>Upcoming Events</h1>
                         <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '800px', margin: '0 auto' }}>
@@ -680,63 +1001,408 @@
                         </p>
                     </div>
                     <div className="events-list">
-                        <a href="this-week.html" target="_blank" rel="noopener noreferrer" className="event-card event-card-featured">
-                            <div className="event-card-icon">📅</div>
-                            <div className="event-card-body">
-                                <h3>This Week's Events</h3>
-                                <p>
-                                    A rolling summary of everything happening in the next 7 days,
-                                    pulled from all the events below.
-                                </p>
-                                <span className="event-card-link">View this week (opens in a new tab) →</span>
-                            </div>
-                        </a>
-                        <a href="world-cup.html" target="_blank" rel="noopener noreferrer" className="event-card">
-                            <div className="event-card-icon">🏆</div>
-                            <div className="event-card-body">
-                                <h3>FIFA World Cup 2026</h3>
-                                <p>
-                                    Norway's historic run to the quarterfinals continues — full fixture
-                                    schedule, results, and kickoff times in both US Eastern and Swedish time.
-                                </p>
-                                <span className="event-card-link">View schedule &amp; results (opens in a new tab) →</span>
-                            </div>
-                        </a>
-                        <a href="local-music.html" target="_blank" rel="noopener noreferrer" className="event-card">
-                            <div className="event-card-icon">🎵</div>
-                            <div className="event-card-body">
-                                <h3>Local Live Music</h3>
-                                <p>
-                                    Three summer nights of live music — a community singalong, a '90s
-                                    Skellefteå band's comeback show, and a country closing night.
-                                </p>
-                                <span className="event-card-link">View event details (opens in a new tab) →</span>
-                            </div>
-                        </a>
-                        <a href="troubadour-evenings.html" target="_blank" rel="noopener noreferrer" className="event-card">
-                            <div className="event-card-icon">🎤</div>
-                            <div className="event-card-body">
-                                <h3>Trubadurkväll med Julia Lundmark &amp; Co</h3>
-                                <p>
-                                    Free troubadour evenings at Nordanågården Bistro in Skellefteå — three
-                                    Thursdays this summer, free entry.
-                                </p>
-                                <span className="event-card-link">View event details (opens in a new tab) →</span>
-                            </div>
-                        </a>
+                        <EventCard
+                            to="/this-week"
+                            icon="📅"
+                            title="This Week's Events"
+                            description="A rolling summary of everything happening in the next 7 days, pulled from all the events below."
+                            linkText="View this week"
+                            featured
+                        />
+                        <EventCard
+                            to="/world-cup"
+                            icon="🏆"
+                            title="FIFA World Cup 2026"
+                            description="Norway's historic run to the quarterfinals continues — full fixture schedule, results, and kickoff times in both US Eastern and Swedish time."
+                            linkText="View schedule &amp; results"
+                        />
+                        <EventCard
+                            to="/local-music"
+                            icon="🎵"
+                            title="Local Live Music"
+                            description="Three summer nights of live music — a community singalong, a '90s Skellefteå band's comeback show, and a country closing night."
+                            linkText="View event details"
+                        />
+                        <EventCard
+                            to="/troubadour-evenings"
+                            icon="🎤"
+                            title="Trubadurkväll med Julia Lundmark &amp; Co"
+                            description="Free troubadour evenings at Nordanågården Bistro in Skellefteå — three Thursdays this summer, free entry."
+                            linkText="View event details"
+                        />
                     </div>
                     <p style={{ marginTop: '2rem', color: '#888', fontStyle: 'italic', textAlign: 'center' }}>
                         Know something you'd like to see here, or want to help plan an event? Reach out
-                        via the Contact tab.
+                        via the <Link to="/contact">Contact page</Link>.
                     </p>
                 </div>
             );
         }
 
-        // About Tab Component
-        function AboutTab() {
+        function ThisWeek() {
+            useTitle("This Week's Events | Todd Booth");
+            const { now, upcoming } = useEvents();
+
             return (
-                <div className="tab-content active">
+                <div className="page-content">
+                    <Link to="/events" className="back-link">← Back to Events</Link>
+                    <h1>📅 This Week's Events</h1>
+                    <p className="subtitle">What's happening in the next 7 days, pulled from every upcoming event on this site.</p>
+
+                    {upcoming.length === 0 ? (
+                        <div className="empty-state">
+                            Nothing in the next 7 days right now. Check the{' '}
+                            <Link to="/events">Events page</Link> for everything coming up.
+                        </div>
+                    ) : (
+                        <div className="event-list">
+                            {upcoming.map((e, i) => (
+                                <Link key={i} to={e.link} className="week-event">
+                                    <div className="week-event-icon">{e.icon}</div>
+                                    <div className="week-event-body">
+                                        <div className="week-event-date">
+                                            {e.parsed.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+                                        </div>
+                                        <h3>{e.title}</h3>
+                                        <p>{e.venue}</p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+
+                    <Link to="/events" className="all-events-link">← See all upcoming events</Link>
+
+                    <p className="updated">
+                        Generated {now.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })} — this list updates automatically each time the page loads.
+                    </p>
+                </div>
+            );
+        }
+
+        function WorldCup() {
+            useTitle('FIFA World Cup 2026 — Schedule & Results | Todd Booth');
+            return (
+                <div className="page-content">
+                    <Link to="/events" className="back-link">← Back to Events</Link>
+                    <h1>🏆 FIFA World Cup 2026 — Remaining Fixtures</h1>
+                    <p className="subtitle">Following Norway's historic quarterfinal run, plus the full schedule to the Final. Updated July 7, 2026.</p>
+
+                    <p className="note">
+                        All times below: US Eastern Time (ET, UTC-4 in July) and Swedish time (CEST, UTC+2) —
+                        Sweden is 6 hours ahead of ET. Teams are listed where already determined by earlier
+                        results; otherwise shown as bracket placeholders (Winner/Runner-up of a given match).
+                    </p>
+
+                    <RsvpNote>
+                        📋 <strong>Planning to watch a match with us?</strong> Let Todd know if you're coming
+                        so he can book a table for you — reach out via the <Link to="/contact">Contact page</Link>.
+                    </RsvpNote>
+
+                    <h2>Norway's Next Match</h2>
+                    <p>
+                        Norway beat Brazil <strong>2-1</strong> (Erling Haaland scored both goals, 79' and 90')
+                        in the Round of 16 on July 5, 2026 — their first-ever World Cup quarterfinal appearance.
+                    </p>
+
+                    <Callout>
+                        <h3>Quarterfinal — Saturday, July 11, 2026</h3>
+                        <p><strong>Kickoff:</strong> 5:00 PM ET / 11:00 PM Swedish time (CEST)</p>
+                        <p><strong>Venue:</strong> Hard Rock Stadium, Miami Gardens, FL</p>
+                        <p>
+                            <strong>Opponent:</strong> England (confirmed) — England beat co-host Mexico 3-2 on
+                            July 5 (Jude Bellingham scored twice 98 seconds apart, Harry Kane converted a
+                            penalty while England were down to 10 men).
+                        </p>
+                        <p>
+                            <strong>🍔 The plan:</strong> BBQ from 2:00–9:00 PM, then we head into the city
+                            together to watch the match at 11:00 PM. Contact Todd for details and to
+                            reserve a place.
+                        </p>
+                    </Callout>
+
+                    <h2>Round of 16 — Results</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Match</th>
+                                <th>Result</th>
+                                <th>Venue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mon Jul 6, 2026</td>
+                                <td>Portugal vs Spain</td>
+                                <td className="result-win">Spain won 1-0 (Mikel Merino, injury time) — Ronaldo's last World Cup match</td>
+                                <td>Dallas</td>
+                            </tr>
+                            <tr>
+                                <td>Mon Jul 6, 2026</td>
+                                <td>USA vs Belgium</td>
+                                <td className="result-win">Belgium won 4-1 (De Ketelaere x2, Vanaken, Lukaku; Tillman for USA) — USA eliminated</td>
+                                <td>Seattle</td>
+                            </tr>
+                            <tr>
+                                <td>Tue Jul 7, 2026</td>
+                                <td>Argentina vs Egypt</td>
+                                <td className="result-win">Argentina won 3-2 — Egypt led 2-0 (Ibrahim 15', Zico 67') after Messi missed a first-half penalty; Romero (79'), Messi (83'), and Enzo Fernández (90'+2') completed a stoppage-time comeback</td>
+                                <td>Atlanta</td>
+                            </tr>
+                            <tr>
+                                <td>Tue Jul 7, 2026</td>
+                                <td>Switzerland vs Colombia</td>
+                                <td>In progress / result not yet final as of this update (0-0 last checked) — winner faces Argentina in the quarterfinal</td>
+                                <td>Vancouver (BC Place)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>Quarterfinals (Jul 9–11, 2026)</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Match</th>
+                                <th>Kickoff (ET)</th>
+                                <th>Kickoff (Sweden, CEST)</th>
+                                <th>Venue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Thu Jul 9, 2026</td>
+                                <td>Morocco vs France</td>
+                                <td>4:00 PM</td>
+                                <td>10:00 PM (Jul 9)</td>
+                                <td>Gillette Stadium, Foxborough, MA</td>
+                            </tr>
+                            <tr>
+                                <td>Fri Jul 10, 2026</td>
+                                <td>Belgium vs Spain</td>
+                                <td>3:00 PM</td>
+                                <td>9:00 PM (Jul 10)</td>
+                                <td>SoFi Stadium, Inglewood, CA</td>
+                            </tr>
+                            <tr>
+                                <td>Sat Jul 11, 2026</td>
+                                <td><strong>Norway</strong> vs England</td>
+                                <td>5:00 PM</td>
+                                <td>11:00 PM (Jul 11)</td>
+                                <td>Hard Rock Stadium, Miami Gardens, FL</td>
+                            </tr>
+                            <tr>
+                                <td>Sat Jul 11, 2026</td>
+                                <td>Argentina vs Winner(Switzerland/Colombia)</td>
+                                <td>9:00 PM</td>
+                                <td>3:00 AM (Jul 12)</td>
+                                <td>Arrowhead Stadium, Kansas City, MO</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>Semifinals</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Match</th>
+                                <th>Kickoff (ET)</th>
+                                <th>Kickoff (Sweden, CEST)</th>
+                                <th>Venue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tue Jul 14, 2026</td>
+                                <td>Semifinal 1</td>
+                                <td>3:00 PM</td>
+                                <td>9:00 PM (Jul 14)</td>
+                                <td>AT&amp;T Stadium, Arlington/Dallas, TX</td>
+                            </tr>
+                            <tr>
+                                <td>Wed Jul 15, 2026</td>
+                                <td>Semifinal 2</td>
+                                <td>3:00 PM</td>
+                                <td>9:00 PM (Jul 15)</td>
+                                <td>Mercedes-Benz Stadium, Atlanta, GA</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>Third Place Play-off</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Match</th>
+                                <th>Kickoff (ET)</th>
+                                <th>Kickoff (Sweden, CEST)</th>
+                                <th>Venue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sat Jul 18, 2026</td>
+                                <td>Runner-up SF1 vs Runner-up SF2</td>
+                                <td>5:00 PM</td>
+                                <td>11:00 PM (Jul 18)</td>
+                                <td>Hard Rock Stadium, Miami Gardens, FL</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>Final</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Match</th>
+                                <th>Kickoff (ET)</th>
+                                <th>Kickoff (Sweden, CEST)</th>
+                                <th>Venue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sun Jul 19, 2026</td>
+                                <td>Winner SF1 vs Winner SF2</td>
+                                <td>3:00 PM</td>
+                                <td>9:00 PM (Jul 19)</td>
+                                <td>MetLife Stadium, East Rutherford, NJ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>Sources</h2>
+                    <ul className="sources">
+                        <li><a href="https://www.espn.com/soccer/match/_/gameId/760509/egypt-argentina" target="_blank" rel="noopener noreferrer">ESPN – Argentina 3-2 Egypt final score</a></li>
+                        <li><a href="https://www.npr.org/2026/07/07/nx-s1-5884872/2026-world-cup-fifa-argentina-egypt-round-of-16" target="_blank" rel="noopener noreferrer">NPR – Argentina's comeback win over Egypt</a></li>
+                        <li><a href="https://www.aljazeera.com/amp/sports/liveblog/2026/7/7/argentina-vs-egypt-live-fifa-world-cup-2026" target="_blank" rel="noopener noreferrer">Al Jazeera – Argentina 3-2 Egypt, as it happened</a></li>
+                        <li><a href="https://www.espn.com/soccer/match/_/gameId/760507/belgium-united-states" target="_blank" rel="noopener noreferrer">ESPN – USA 1-4 Belgium final score</a></li>
+                        <li><a href="https://www.cnn.com/2026/07/06/sport/live-news/usa-belgium-world-cup-score" target="_blank" rel="noopener noreferrer">CNN – Belgium ends USA's World Cup dream 4-1</a></li>
+                        <li><a href="https://www.espn.com/soccer/match/_/gameId/760506/spain-portugal" target="_blank" rel="noopener noreferrer">ESPN – Portugal 0-1 Spain final score</a></li>
+                        <li><a href="https://www.aljazeera.com/sports/liveblog/2026/7/6/portugal-vs-spain-live-fifa-world-cup-2026-round-of-16" target="_blank" rel="noopener noreferrer">Al Jazeera – Portugal 0-1 Spain, as it happened</a></li>
+                        <li><a href="https://www.euronews.com/2026/07/06/norway-and-england-advance-to-world-cup-quarterfinals-as-brazil-and-mexico-head-home" target="_blank" rel="noopener noreferrer">Euronews – Norway and England advance, Brazil and Mexico eliminated</a></li>
+                        <li><a href="https://www.espn.com/soccer/story/_/id/49274470/mexico-england-brazil-norway-round-16" target="_blank" rel="noopener noreferrer">ESPN – Mexico vs England / Brazil vs Norway recap</a></li>
+                        <li><a href="https://www.espn.com/soccer/match/_/gameId/760508/colombia-switzerland" target="_blank" rel="noopener noreferrer">ESPN – Switzerland vs Colombia live coverage</a></li>
+                        <li><a href="https://www.aljazeera.com/sports/liveblog/2026/7/7/live-switzerland-vs-colombia-fifa-world-cup-2026" target="_blank" rel="noopener noreferrer">Al Jazeera – Switzerland vs Colombia live</a></li>
+                        <li><a href="https://bleacherreport.com/articles/25452143-updated-world-cup-2026-bracket-odds-and-quarterfinals-schedule-after-round-16-results" target="_blank" rel="noopener noreferrer">Bleacher Report – Updated bracket, odds, QF schedule after R16</a></li>
+                        <li><a href="https://sports.yahoo.com/soccer/article/2026-fifa-world-cup-daily-schedule-every-match-date-kickoff-time-and-venue-for-all-48-teams-234515087.html" target="_blank" rel="noopener noreferrer">Yahoo Sports – 2026 World Cup daily schedule, kickoff times, venues</a></li>
+                        <li><a href="https://www.olympics.com/en/news/fifa-world-cup-2026-how-to-watch-belgium-vs-spain-in-the-quarter-finals-head-to-head-full-schedule" target="_blank" rel="noopener noreferrer">Olympics.com – Belgium vs Spain QF schedule</a></li>
+                        <li><a href="https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_final" target="_blank" rel="noopener noreferrer">Wikipedia – 2026 FIFA World Cup Final</a></li>
+                        <li><a href="https://www.mlssoccer.com/news/fifa-2026-world-cup-metlife-stadium-to-host-final-key-dates" target="_blank" rel="noopener noreferrer">MLS Soccer – MetLife Stadium to host final</a></li>
+                    </ul>
+
+                    <p className="updated">Last updated July 7, 2026.</p>
+                </div>
+            );
+        }
+
+        function LocalMusic() {
+            useTitle('Local Live Music — Bryggarbacken | Todd Booth');
+            return (
+                <div className="page-content">
+                    <Link to="/events" className="back-link">← Back to Events</Link>
+                    <h1>🎵 Local Live Music — Bryggarbacken</h1>
+                    <p className="subtitle">Three summer nights of live music at Bryggarbacken. Updated July 7, 2026.</p>
+
+                    <RsvpNote>
+                        📋 <strong>Planning to come?</strong> Let Todd know so he can book a table for you —
+                        reach out via the <Link to="/contact">Contact page</Link>.
+                    </RsvpNote>
+
+                    <div className="event-list">
+                        <div className="event">
+                            <div className="event-icon">🎵</div>
+                            <div>
+                                <div className="event-date">Tuesday, July 14, 2026</div>
+                                <h3>Allsång på Bryggarbacken</h3>
+                                <p>A community singalong, hosted by Mats Bergqvist and Mattias Kågström.</p>
+                            </div>
+                        </div>
+
+                        <div className="event">
+                            <div className="event-icon">🎸</div>
+                            <div>
+                                <div className="event-date">Tuesday, July 21, 2026</div>
+                                <h3>The Drowners</h3>
+                                <p>A comeback show from the Skellefteå band that was big in the '90s.</p>
+                            </div>
+                        </div>
+
+                        <div className="event">
+                            <div className="event-icon">🤠</div>
+                            <div>
+                                <div className="event-date">Tuesday, July 28, 2026</div>
+                                <h3>Ben Carine &amp; The 18-Wheelers</h3>
+                                <p>Country night — the closing show of the series.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="updated">Last updated July 7, 2026.</p>
+                </div>
+            );
+        }
+
+        function TroubadourEvenings() {
+            useTitle('Trubadurkväll med Julia Lundmark & Co | Todd Booth');
+            return (
+                <div className="page-content">
+                    <Link to="/events" className="back-link">← Back to Events</Link>
+                    <h1>🎤 Trubadurkväll med Julia Lundmark &amp; Co</h1>
+                    <p className="subtitle">Troubadour Evening with Julia Lundmark &amp; Co — live music at Nordanågården Bistro, Skellefteå. Updated July 7, 2026.</p>
+
+                    <p>
+                        Julia Lundmark &amp; co play live at Nordanågården Bistro on select Thursday
+                        evenings this summer. Bring family, friends, or colleagues for music, food,
+                        and drinks — free entry.
+                    </p>
+
+                    <h2>Upcoming Dates</h2>
+                    <Callout>
+                        <p><strong>Every date below, 18:30</strong></p>
+                        <ul>
+                            <li>Thursday, July 9, 2026</li>
+                            <li>Thursday, July 16, 2026</li>
+                            <li>Thursday, July 23, 2026</li>
+                        </ul>
+                    </Callout>
+
+                    <h2>Venue</h2>
+                    <InfoBox>
+                        <p><strong>Nordanågården Bistro</strong></p>
+                        <p>Strandgatan 4, 931 33 Skellefteå, Sweden</p>
+                        <p>Free parking available. Wheelchair accessible, gender-neutral restrooms.</p>
+                        <p>Phone: <a href="tel:+46091053350">+46 910 53 350</a> · Website: <a href="http://www.nordanagarden.se" target="_blank" rel="noopener noreferrer">nordanagarden.se</a></p>
+                    </InfoBox>
+
+                    <h2>Good to Know</h2>
+                    <ul className="plain">
+                        <li>Free admission ("Fri entré")</li>
+                        <li>Some dates offer a seafood platter option with table reservations — contact Nordanågården Bistro directly (phone or website above) to reserve</li>
+                        <li>Categories: Afterwork, Food &amp; Drink, Music</li>
+                    </ul>
+
+                    <h2>More Information &amp; Source</h2>
+                    <p>
+                        Full listing, updates, and any additional dates:{' '}
+                        <a href="https://www.visitskelleftea.se/sv/evenemangsarkiv/trubadurkvall-med-julia-lundmark-co/" target="_blank" rel="noopener noreferrer">
+                            Visit Skellefteå — Trubadurkväll med Julia Lundmark &amp; co
+                        </a>
+                    </p>
+
+                    <p className="updated">Last updated July 7, 2026.</p>
+                </div>
+            );
+        }
+
+        function About() {
+            useTitle('About Me | Todd Booth');
+            return (
+                <div className="page-content">
                     <h1>About Me</h1>
                     <div className="hero-image" style={{ height: '200px', fontSize: '3rem' }}>
                         <span>🌟</span>
@@ -785,10 +1451,10 @@
             );
         }
 
-        // Professional Background Tab Component
-        function ProfessionalBackgroundTab() {
+        function ProfessionalBackground() {
+            useTitle('Professional Background | Todd Booth');
             return (
-                <div className="tab-content active">
+                <div className="page-content">
                     <h1>Professional Background</h1>
                     <div className="hero-image" style={{ height: '200px', fontSize: '3rem' }}>
                         <span>💼</span>
@@ -808,7 +1474,7 @@
                         </div>
                         <div className="skill-card">
                             <div className="skill-icon">🤖</div>
-                            <h3>AI & Automation</h3>
+                            <h3>AI &amp; Automation</h3>
                             <p>AI agents and intelligent systems</p>
                         </div>
                         <div className="skill-card">
@@ -823,7 +1489,7 @@
                         </div>
                     </div>
 
-                    <h2>AI Agents & Cloud Development</h2>
+                    <h2>AI Agents &amp; Cloud Development</h2>
                     <p>
                         Focused on development of AI Agents for University education, SecOps and for the public cloud.
                         Experience with Microsoft AWS, GCP, and Azure.
@@ -836,7 +1502,7 @@
                             Programming experience in Python, C#, BASH, Ansible, SQL, No-SQL Databases,
                             Intel Assembly, C, C++, and Rust.
                         </p>
-                        <h3>Systems & Operations</h3>
+                        <h3>Systems &amp; Operations</h3>
                         <p>
                             Detailed technical Linux operations experience.
                         </p>
@@ -890,112 +1556,10 @@
             );
         }
 
-        // Experience Tab Component
-        function ExperienceTab() {
+        function Contact() {
+            useTitle('Contact | Todd Booth');
             return (
-                <div className="tab-content active">
-                    <h1>Professional Experience</h1>
-                    <div className="hero-image" style={{ height: '200px', fontSize: '3rem' }}>
-                        <span>🚀</span>
-                    </div>
-
-                    <h2>Career Journey</h2>
-                    <p>
-                        Throughout my career, I've had the opportunity to work on diverse projects
-                        spanning multiple industries and technologies. Here's a summary of my
-                        professional journey:
-                    </p>
-
-                    <div className="timeline">
-                        <div className="timeline-item">
-                            <div className="timeline-date">Recent Years</div>
-                            <h3>AI & Cloud Solutions Specialist</h3>
-                            <p>
-                                Focused on developing AI-powered solutions, including AI agents,
-                                security automation, and cloud-based systems. Working with cutting-edge
-                                technologies to build intelligent, scalable platforms.
-                            </p>
-                            <p style={{ marginTop: '0.5rem' }}><strong>Key Technologies:</strong>
-                                AI/ML, Cloud Security, Python, JavaScript, DevOps, Automation
-                            </p>
-                        </div>
-
-                        <div className="timeline-item">
-                            <div className="timeline-date">Previous Experience</div>
-                            <h3>Senior Software Developer</h3>
-                            <p>
-                                Designed and implemented enterprise-level software solutions,
-                                leading development teams and architecting complex systems. Specialized
-                                in full-stack development and system integration.
-                            </p>
-                            <p style={{ marginTop: '0.5rem' }}><strong>Key Technologies:</strong>
-                                Full-stack development, Database systems, API design, Microservices
-                            </p>
-                        </div>
-
-                        <div className="timeline-item">
-                            <div className="timeline-date">Early Career</div>
-                            <h3>Software Engineer</h3>
-                            <p>
-                                Started my journey in software development, building foundational
-                                skills in programming, system design, and problem-solving. Worked on
-                                various projects ranging from web applications to system utilities.
-                            </p>
-                            <p style={{ marginTop: '0.5rem' }}><strong>Key Technologies:</strong>
-                                Programming fundamentals, Web development, System architecture
-                            </p>
-                        </div>
-                    </div>
-
-                    <h2>Technical Skills</h2>
-                    <div className="skills-grid">
-                        <div className="skill-card">
-                            <div className="skill-icon">🌐</div>
-                            <h3>Web Development</h3>
-                            <p>HTML, CSS, JavaScript, React, Node.js</p>
-                        </div>
-                        <div className="skill-card">
-                            <div className="skill-icon">🐍</div>
-                            <h3>Backend</h3>
-                            <p>Python, APIs, Microservices</p>
-                        </div>
-                        <div className="skill-card">
-                            <div className="skill-icon">🗄️</div>
-                            <h3>Databases</h3>
-                            <p>SQL, NoSQL, Data Architecture</p>
-                        </div>
-                        <div className="skill-card">
-                            <div className="skill-icon">⚙️</div>
-                            <h3>DevOps</h3>
-                            <p>CI/CD, Docker, Kubernetes, Git</p>
-                        </div>
-                        <div className="skill-card">
-                            <div className="skill-icon">🧠</div>
-                            <h3>AI/ML</h3>
-                            <p>AI Agents, Machine Learning, Automation</p>
-                        </div>
-                        <div className="skill-card">
-                            <div className="skill-icon">🛡️</div>
-                            <h3>Security</h3>
-                            <p>Cloud Security, SecOps, Best Practices</p>
-                        </div>
-                    </div>
-
-                    <h2>Current Projects</h2>
-                    <p>
-                        I'm actively working on several exciting initiatives in the AI and automation
-                        space, including AI agent platforms, security automation tools, and cloud-based
-                        solutions. Always exploring new technologies and approaches to solve challenging
-                        problems.
-                    </p>
-                </div>
-            );
-        }
-
-        // Contact Tab Component
-        function ContactTab() {
-            return (
-                <div className="tab-content active">
+                <div className="page-content">
                     <h1>Get in Touch</h1>
                     <div className="hero-image" style={{ height: '200px', fontSize: '3rem' }}>
                         <span>✉️</span>
@@ -1017,24 +1581,7 @@
                             </a>
                         </div>
 
-                        <div style={{ margin: '2rem auto', textAlign: 'center' }}>
-                            <h2>Save My Contact Vcard</h2>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', margin: '1rem auto', flexWrap: 'wrap' }}>
-                                <div style={{ textAlign: 'center', flex: '0 0 auto' }}>
-                                    <div style={{ maxWidth: '150px', padding: '1rem', background: '#f8f9fa', borderRadius: '10px', boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)' }}>
-                                        <img src="qr_code.png" alt="QR Code for ToddBooth.com" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
-                                    </div>
-                                </div>
-                                <div style={{ flex: '0 0 auto', fontSize: '1.2rem', color: '#666', fontWeight: '500' }}>
-                                    &lt;--- Camera or ---&gt;
-                                </div>
-                                <div style={{ flex: '1 1 auto', textAlign: 'left', minWidth: '250px' }}>
-                                    <a href="vcard.vcf" download="ToddBooth.vcf" className="download-vcard">
-                                        📇 Download vcard
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <ContactVcard />
 
                         <div className="personal-info" style={{ textAlign: 'left' }}>
                             <h2>What to Expect</h2>
@@ -1056,46 +1603,44 @@
             );
         }
 
-        // Footer Component
-        function Footer() {
+        function NotFound() {
+            useTitle('Page Not Found | Todd Booth');
             return (
-                <footer>
-                    <p>&copy; 2026 Todd Booth. All rights reserved.</p>
-                </footer>
+                <div className="page-content" style={{ textAlign: 'center' }}>
+                    <h1>Page Not Found</h1>
+                    <p style={{ margin: '1rem 0 2rem' }}>That page doesn't exist — maybe it moved.</p>
+                    <Link to="/" className="download-vcard">← Back to Home</Link>
+                </div>
             );
         }
 
-        // Main App Component
+        // ---------------------------------------------------------------
+        // App
+        // ---------------------------------------------------------------
+
         function App() {
-            const [activeTab, setActiveTab] = useState('home');
-
-            const renderTab = () => {
-                switch (activeTab) {
-                    case 'home':
-                        return <HomeTab setActiveTab={setActiveTab} />;
-                    case 'events':
-                        return <EventsTab />;
-                    case 'about':
-                        return <AboutTab />;
-                    case 'background':
-                        return <ProfessionalBackgroundTab />;
-                    case 'contact':
-                        return <ContactTab />;
-                    default:
-                        return <HomeTab setActiveTab={setActiveTab} />;
-                }
-            };
-
             return (
-                <>
-                    <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+                <HashRouter>
+                    <ScrollToTop />
+                    <Header />
                     <div className="container">
                         <div className="content">
-                            {renderTab()}
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/events" element={<Events />} />
+                                <Route path="/this-week" element={<ThisWeek />} />
+                                <Route path="/world-cup" element={<WorldCup />} />
+                                <Route path="/local-music" element={<LocalMusic />} />
+                                <Route path="/troubadour-evenings" element={<TroubadourEvenings />} />
+                                <Route path="/about" element={<About />} />
+                                <Route path="/background" element={<ProfessionalBackground />} />
+                                <Route path="/contact" element={<Contact />} />
+                                <Route path="*" element={<NotFound />} />
+                            </Routes>
                         </div>
                     </div>
                     <Footer />
-                </>
+                </HashRouter>
             );
         }
 
