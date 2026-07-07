@@ -18,6 +18,13 @@ const EVENTS = [
         link: 'troubadour-evenings.html'
     },
     {
+        date: '2026-07-11T14:00:00+02:00',
+        title: 'BBQ & Norway Watch Party',
+        venue: 'BBQ 2–8 PM, then into the city to watch Norway vs England at 11 PM — contact Todd for details & to reserve a place',
+        icon: '🍔',
+        link: 'world-cup.html'
+    },
+    {
         date: '2026-07-11T23:00:00+02:00',
         title: 'World Cup Quarterfinal: Norway vs England',
         venue: 'Hard Rock Stadium, Miami Gardens, FL (5:00 PM ET / 11:00 PM Swedish time)',
