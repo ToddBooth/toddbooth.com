@@ -155,14 +155,16 @@
         }
 
         .bubble-name {
-            text-align: center;
-            margin: 0 auto 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            line-height: 0;
         }
 
         .bubble-name svg {
-            width: clamp(220px, 55vw, 340px);
-            height: auto;
-            filter: drop-shadow(0 6px 8px rgba(196, 43, 99, 0.25));
+            height: 42px;
+            width: auto;
+            display: block;
+            filter: drop-shadow(0 3px 4px rgba(196, 43, 99, 0.25));
             transform-origin: center bottom;
             animation: bubble-sway 3.2s ease-in-out infinite alternate;
         }
@@ -411,6 +413,10 @@
                 margin-bottom: 0.5rem;
             }
 
+            .bubble-name svg {
+                height: 34px;
+            }
+
             .nav-tabs {
                 flex-direction: column;
                 gap: 0.5rem;
@@ -573,7 +579,26 @@
             return (
                 <header>
                     <nav>
-                        <div className="logo">Todd Booth</div>
+                        <div className="logo bubble-name" role="img" aria-label="Todd Booth">
+                            <svg viewBox="0 0 460 120" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="bubbleFill" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#ffd7e6" />
+                                        <stop offset="55%" stopColor="#ff6f9c" />
+                                        <stop offset="100%" stopColor="#ff2f6e" />
+                                    </linearGradient>
+                                    <filter id="glossyBevel" x="-30%" y="-60%" width="160%" height="240%" colorInterpolationFilters="sRGB">
+                                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+                                        <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.9" specularExponent="20" lightingColor="#ffffff" result="specOut">
+                                            <fePointLight x="130" y="-40" z="150" />
+                                        </feSpecularLighting>
+                                        <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut2" />
+                                        <feComposite in="SourceGraphic" in2="specOut2" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" />
+                                    </filter>
+                                </defs>
+                                <text x="50%" y="72%" textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight="800" fontSize="70" fill="url(#bubbleFill)" stroke="#d42a68" strokeWidth="2.5" paintOrder="stroke fill" filter="url(#glossyBevel)">Todd Booth</text>
+                            </svg>
+                        </div>
                         <ul className="nav-tabs">
                             {tabs.map(tab => (
                                 <li key={tab.id}>
@@ -596,26 +621,6 @@
             return (
                 <div className="tab-content active">
                     <div className="hero">
-                        <div className="bubble-name" aria-hidden="true">
-                            <svg viewBox="0 0 460 120" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="bubbleFill" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#ffd7e6" />
-                                        <stop offset="55%" stopColor="#ff6f9c" />
-                                        <stop offset="100%" stopColor="#ff2f6e" />
-                                    </linearGradient>
-                                    <filter id="glossyBevel" x="-30%" y="-60%" width="160%" height="240%" colorInterpolationFilters="sRGB">
-                                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
-                                        <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.9" specularExponent="20" lightingColor="#ffffff" result="specOut">
-                                            <fePointLight x="130" y="-40" z="150" />
-                                        </feSpecularLighting>
-                                        <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut2" />
-                                        <feComposite in="SourceGraphic" in2="specOut2" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" />
-                                    </filter>
-                                </defs>
-                                <text x="50%" y="72%" textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight="800" fontSize="70" fill="url(#bubbleFill)" stroke="#d42a68" strokeWidth="2.5" paintOrder="stroke fill" filter="url(#glossyBevel)">Todd Booth</text>
-                            </svg>
-                        </div>
                         <h1>Welcome! I'm Todd Booth</h1>
                         <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '800px', margin: '0 auto' }}>
                             Beyond the day job, I like bringing people together — whether that's a technical
