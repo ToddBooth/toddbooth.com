@@ -8,6 +8,10 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -53,6 +57,41 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-decoration: none;
+        }
+
+        .bubble-name {
+            display: inline-flex;
+            align-items: center;
+            line-height: 0;
+        }
+
+        .bubble-name svg {
+            height: 42px;
+            width: auto;
+            display: block;
+            filter: drop-shadow(0 3px 4px rgba(196, 43, 99, 0.25));
+            transform-origin: center bottom;
+            animation: bubble-sway 3.2s ease-in-out infinite alternate;
+        }
+
+        @keyframes bubble-sway {
+            0% {
+                transform: rotate(-4deg) translateY(0);
+            }
+
+            50% {
+                transform: rotate(0deg) translateY(-3px);
+            }
+
+            100% {
+                transform: rotate(4deg) translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .bubble-name svg {
+                animation: none;
+            }
         }
 
         .back-link {
@@ -161,6 +200,10 @@
         }
 
         @media (max-width: 768px) {
+            .bubble-name svg {
+                height: 34px;
+            }
+
             .content {
                 padding: 1.5rem;
                 margin: 1rem auto;
@@ -182,7 +225,26 @@
 <body>
     <header>
         <nav>
-            <a href="index.html" class="logo">Todd Booth</a>
+            <a href="index.html" class="logo bubble-name" aria-label="Todd Booth">
+                <svg viewBox="0 0 460 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="bubbleFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#ffd7e6" />
+                            <stop offset="55%" stop-color="#ff6f9c" />
+                            <stop offset="100%" stop-color="#ff2f6e" />
+                        </linearGradient>
+                        <filter id="glossyBevel" x="-30%" y="-60%" width="160%" height="240%" color-interpolation-filters="sRGB">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+                            <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.9" specularExponent="20" lighting-color="#ffffff" result="specOut">
+                                <fePointLight x="130" y="-40" z="150" />
+                            </feSpecularLighting>
+                            <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOut2" />
+                            <feComposite in="SourceGraphic" in2="specOut2" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" />
+                        </filter>
+                    </defs>
+                    <text x="50%" y="72%" text-anchor="middle" font-family="'Baloo 2', sans-serif" font-weight="800" font-size="70" fill="url(#bubbleFill)" stroke="#d42a68" stroke-width="2.5" paint-order="stroke fill" filter="url(#glossyBevel)">Todd Booth</text>
+                </svg>
+            </a>
             <a href="index.html" class="back-link">← Back to toddbooth.com</a>
         </nav>
     </header>
