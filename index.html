@@ -208,9 +208,44 @@
             }
         }
 
+        .birth-sky {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .birth-star {
+            fill: #ffffff;
+            opacity: 0.55;
+            animation: star-twinkle var(--twinkle-dur, 4s) ease-in-out infinite;
+            animation-delay: var(--twinkle-delay, 0s);
+        }
+
+        @keyframes star-twinkle {
+
+            0%,
+            100% {
+                opacity: 0.25;
+            }
+
+            50% {
+                opacity: 0.9;
+            }
+        }
+
+        .container,
+        footer {
+            position: relative;
+            z-index: 1;
+        }
+
         @media (prefers-reduced-motion: reduce) {
 
             .bubble-name svg,
+            .birth-star,
             .page-content {
                 animation: none;
             }
@@ -814,6 +849,120 @@
         }
 
         // ---------------------------------------------------------------
+        // "Birth Sky" astronomy engine
+        //
+        // Plots the real arrangement of ~80 bright stars over Skellefteå at
+        // 08:00 UTC (09:00 local — Sweden ran permanent CET with no DST until
+        // 1980) on June 26, 1959: the morning Todd was born. Real math, not a
+        // lookup table: Julian Date -> Greenwich Mean Sidereal Time -> Local
+        // Sidereal Time -> per-star Hour Angle -> Altitude/Azimuth (standard
+        // spherical astronomy) -> an equidistant-azimuthal ("planisphere")
+        // projection onto a 0-100 viewBox circle, so the whole sky sphere
+        // (zenith at center, nadir at the rim) maps onto one SVG without any
+        // horizon clipping. Star RA/Dec are J2000 and NOT precession-corrected
+        // back to 1959 — the drift over 41 years is a small fraction of a
+        // degree, invisible at this stylized scale.
+        //
+        // Fun fact, not a bug: at 64.75°N in late June the sun doesn't
+        // meaningfully set (midnight-sun season) — none of this was actually
+        // visible to the naked eye that morning. The stars were still exactly
+        // there; this plots where.
+        // ---------------------------------------------------------------
+
+        // [name, RA (decimal hours, J2000), Dec (decimal degrees, J2000), apparent magnitude]
+        const BIRTH_SKY_STARS = [
+            ['Sirius', 6.7525, -16.7161, -1.46], ['Canopus', 6.3992, -52.6957, -0.74],
+            ['Alpha Centauri', 14.6600, -60.8339, -0.27], ['Arcturus', 14.2610, 19.1825, -0.05],
+            ['Vega', 18.6156, 38.7837, 0.03], ['Capella', 5.2782, 45.9980, 0.08],
+            ['Rigel', 5.2423, -8.2016, 0.13], ['Procyon', 7.6550, 5.2250, 0.34],
+            ['Betelgeuse', 5.9195, 7.4071, 0.42], ['Achernar', 1.6286, -57.2367, 0.46],
+            ['Hadar', 14.0637, -60.3730, 0.61], ['Altair', 19.8464, 8.8683, 0.76],
+            ['Acrux', 12.4433, -63.0990, 0.77], ['Aldebaran', 4.5987, 16.5093, 0.85],
+            ['Antares', 16.4901, -26.4320, 0.96], ['Spica', 13.4199, -11.1613, 0.97],
+            ['Pollux', 7.7553, 28.0262, 1.14], ['Fomalhaut', 22.9608, -29.6222, 1.16],
+            ['Deneb', 20.6905, 45.2803, 1.25], ['Mimosa', 12.7955, -59.6888, 1.25],
+            ['Regulus', 10.1395, 11.9672, 1.36], ['Adhara', 6.9770, -28.9721, 1.50],
+            ['Castor', 7.5766, 31.8883, 1.58], ['Gacrux', 12.5194, -57.1133, 1.63],
+            ['Shaula', 17.5601, -37.1038, 1.63], ['Bellatrix', 5.4188, 6.3497, 1.64],
+            ['Elnath', 5.4381, 28.6075, 1.65], ['Miaplacidus', 9.2200, -69.7172, 1.67],
+            ['Alnilam', 5.6036, -1.2019, 1.69], ['Alnair', 22.1372, -46.9611, 1.73],
+            ['Alioth', 12.9005, 55.9598, 1.76], ['Regor', 8.1594, -47.3365, 1.78],
+            ['Alnitak', 5.6793, -1.9426, 1.79], ['Dubhe', 11.0621, 61.7508, 1.79],
+            ['Mirfak', 3.4054, 49.8612, 1.79], ['Wezen', 7.1398, -26.3932, 1.83],
+            ['Sargas', 17.6222, -42.9976, 1.87], ['Kaus Australis', 18.4029, -34.3846, 1.85],
+            ['Avior', 8.3752, -59.5095, 1.86], ['Alkaid', 13.7923, 49.3133, 1.85],
+            ['Menkalinan', 5.9922, 44.9474, 1.90], ['Atria', 16.8111, -69.0277, 1.91],
+            ['Alhena', 6.6285, 16.3993, 1.93], ['Peacock', 20.4275, -56.7351, 1.94],
+            ['Polaris', 2.5303, 89.2641, 1.98], ['Mirzam', 6.3785, -17.9558, 1.98],
+            ['Alphard', 9.4598, -8.6586, 1.98], ['Algieba', 10.3327, 19.8415, 2.01],
+            ['Hamal', 2.1196, 23.4624, 2.00], ['Diphda', 0.7264, -17.9866, 2.04],
+            ['Nunki', 18.9211, -26.2967, 2.05], ['Menkent', 14.1113, -36.3699, 2.06],
+            ['Saiph', 5.7959, -9.6696, 2.07], ['Alpheratz', 0.1398, 29.0904, 2.06],
+            ['Mirach', 1.1622, 35.6206, 2.05], ['Rasalhague', 17.5822, 12.5601, 2.07],
+            ['Kochab', 14.8451, 74.1555, 2.07], ['Denebola', 11.8177, 14.5720, 2.14],
+            ['Algol', 3.1361, 40.9556, 2.12], ['Naos', 8.0592, -40.0031, 2.21],
+            ['Aspidiske', 9.2848, -59.2750, 2.21], ['Alphecca', 15.5782, 26.7147, 2.23],
+            ['Suhail', 9.1330, -43.4326, 2.21], ['Mizar', 13.3987, 54.9254, 2.23],
+            ['Sadr', 20.3705, 40.2567, 2.23], ['Schedar', 0.6751, 56.5373, 2.24],
+            ['Eltanin', 17.9436, 51.4889, 2.24], ['Mintaka', 5.5334, -0.2991, 2.25],
+            ['Caph', 0.1529, 59.1498, 2.28], ['Dschubba', 16.0059, -22.6217, 2.29],
+            ['Alderamin', 21.3097, 62.5855, 2.45], ['Gienah', 12.2634, -17.5416, 2.59],
+            ['Markab', 23.0794, 15.2053, 2.49], ['Enif', 21.7364, 9.8750, 2.40],
+            ['Scheat', 23.0629, 28.0828, 2.42], ['Sabik', 17.1730, -15.7249, 2.43],
+            ['Phecda', 11.8971, 53.6948, 2.44], ['Merak', 11.0307, 56.3824, 2.37],
+            ['Alcyone', 3.7914, 24.1051, 2.87], ['Ruchbah', 1.4300, 60.2354, 2.68],
+            ['Megrez', 12.2570, 57.0326, 3.31],
+        ];
+
+        const BIRTH_SKY_UTC = Date.UTC(1959, 5, 26, 8, 0, 0); // 1959-06-26 09:00 CET (UTC+1, no DST) = 08:00 UTC
+        const BIRTH_SKY_LAT = 64.7507;  // Skellefteå, Sweden
+        const BIRTH_SKY_LON = 20.9528;
+
+        function julianDate(unixMs) {
+            return unixMs / 86400000 + 2440587.5;
+        }
+
+        // Greenwich Mean Sidereal Time, in hours (Meeus, Astronomical Algorithms ch. 12)
+        function gmstHours(jd) {
+            const T = (jd - 2451545.0) / 36525;
+            let g = 280.46061837 + 360.98564736629 * (jd - 2451545.0)
+                + 0.000387933 * T * T - (T * T * T) / 38710000;
+            g = ((g % 360) + 360) % 360;
+            return g / 15;
+        }
+
+        function starAltAz(raHours, decDeg, latDeg, lonDeg, jd) {
+            const lst = (((gmstHours(jd) + lonDeg / 15) % 24) + 24) % 24;
+            let haDeg = (lst - raHours) * 15;
+            haDeg = ((haDeg + 540) % 360) - 180; // normalize to -180..180
+            const ha = haDeg * Math.PI / 180, dec = decDeg * Math.PI / 180, lat = latDeg * Math.PI / 180;
+            const sinAlt = Math.sin(dec) * Math.sin(lat) + Math.cos(dec) * Math.cos(lat) * Math.cos(ha);
+            const alt = Math.asin(Math.min(1, Math.max(-1, sinAlt)));
+            const cosAz = (Math.sin(dec) - Math.sin(alt) * Math.sin(lat)) / (Math.cos(alt) * Math.cos(lat));
+            let az = Math.acos(Math.min(1, Math.max(-1, cosAz)));
+            if (Math.sin(ha) > 0) az = 2 * Math.PI - az;
+            return { altDeg: alt * 180 / Math.PI, azDeg: az * 180 / Math.PI };
+        }
+
+        // Computes {x, y, size}[] (x/y as 0-100 viewBox percentages) for every
+        // catalog star at the fixed birth moment/location. Pure function of
+        // constants above, so this only ever needs to run once.
+        function useBirthSky() {
+            return useMemo(() => {
+                const jd = julianDate(BIRTH_SKY_UTC);
+                return BIRTH_SKY_STARS.map(([name, ra, dec, mag]) => {
+                    const { altDeg, azDeg } = starAltAz(ra, dec, BIRTH_SKY_LAT, BIRTH_SKY_LON, jd);
+                    const r = (90 - altDeg) / 180; // 0 at zenith, 1 at nadir — always in [0,1]
+                    const azRad = azDeg * Math.PI / 180;
+                    const x = 50 + r * 50 * Math.sin(azRad);
+                    const y = 50 - r * 50 * Math.cos(azRad);
+                    const size = Math.max(0.6, 2.6 - mag * 0.45);
+                    return { name, x, y, size };
+                });
+            }, []);
+        }
+
+        // ---------------------------------------------------------------
         // Shared components
         // ---------------------------------------------------------------
 
@@ -839,6 +988,26 @@
                         </filter>
                     </defs>
                     <text x="50%" y="72%" textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight="800" fontSize="70" fill="url(#bubbleFill)" stroke="#d42a68" strokeWidth="2.5" paintOrder="stroke fill" filter="url(#glossyBevel)">Todd Booth</text>
+                </svg>
+            );
+        }
+
+        // Fixed full-viewport starfield behind everything, on every route — see
+        // the astronomy engine above for what it's plotting and why.
+        function BirthSky() {
+            const stars = useBirthSky();
+            return (
+                <svg className="birth-sky" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                    {stars.map((s, i) => (
+                        <circle
+                            key={s.name}
+                            cx={s.x}
+                            cy={s.y}
+                            r={s.size * 0.09}
+                            className="birth-star"
+                            style={{ '--twinkle-delay': ((i * 0.37) % 4) + 's', '--twinkle-dur': (3 + (i % 5)) + 's' }}
+                        />
+                    ))}
                 </svg>
             );
         }
@@ -896,6 +1065,10 @@
             return (
                 <footer>
                     <p>&copy; 2026 Todd Booth. All rights reserved.</p>
+                    <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.75 }}>
+                        ✨ The stars above are the real sky over Skellefteå, Sweden — 09:00, June 26, 1959,
+                        the morning I was born.
+                    </p>
                 </footer>
             );
         }
@@ -1621,6 +1794,7 @@
         function App() {
             return (
                 <HashRouter>
+                    <BirthSky />
                     <ScrollToTop />
                     <Header />
                     <div className="container">
