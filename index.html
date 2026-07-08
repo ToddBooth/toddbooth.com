@@ -819,7 +819,7 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=6"></script>
+    <script src="events-data.js?v=7"></script>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
@@ -837,17 +837,17 @@
         }
 
         // Filters the shared EVENTS array (events-data.js) down to whatever falls
-        // in the next 30 days, computed fresh on mount — this is what powers the
-        // "This Month" page. `now`/`upcoming` are memoized once per page load,
+        // in the next 31 days, computed fresh on mount — this is what powers the
+        // "Next 31 Days" page. `now`/`upcoming` are memoized once per page load,
         // matching the previous vanilla-JS behavior (recompute happens because
         // this component remounts fresh each time you navigate to it).
         function useEvents() {
             return useMemo(() => {
                 const now = new Date();
-                const monthFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+                const windowEnd = new Date(now.getTime() + 31 * 24 * 60 * 60 * 1000);
                 const upcoming = EVENTS
                     .map(e => ({ ...e, parsed: new Date(e.date) }))
-                    .filter(e => e.parsed >= now && e.parsed <= monthFromNow)
+                    .filter(e => e.parsed >= now && e.parsed <= windowEnd)
                     .sort((a, b) => a.parsed - b.parsed);
                 return { now, upcoming };
             }, []);
@@ -1031,7 +1031,7 @@
 
         function Header() {
             const location = useLocation();
-            const eventRoutes = ['/events', '/this-month', '/world-cup', '/local-music', '/troubadour-evenings', '/sara-kulturhus'];
+            const eventRoutes = ['/events', '/next-31-days', '/world-cup', '/local-music', '/troubadour-evenings', '/sara-kulturhus'];
             const eventsActive = eventRoutes.includes(location.pathname);
 
             const tabs = [
@@ -1180,11 +1180,11 @@
                     </div>
                     <div className="events-list">
                         <EventCard
-                            to="/this-month"
+                            to="/next-31-days"
                             icon="📅"
-                            title="This Month's Events"
-                            description="A rolling summary of everything happening in the next 30 days, pulled from all the events below."
-                            linkText="View this month"
+                            title="Next 31 Days"
+                            description="A rolling summary of everything happening in the next 31 days, pulled from all the events below."
+                            linkText="View next 31 days"
                             featured
                         />
                         <EventCard
@@ -1224,19 +1224,19 @@
             );
         }
 
-        function ThisMonth() {
-            useTitle("This Month's Events | Todd Booth");
+        function Next31Days() {
+            useTitle("Next 31 Days | Todd Booth");
             const { now, upcoming } = useEvents();
 
             return (
                 <div className="page-content">
                     <Link to="/events" className="back-link">← Back to Events</Link>
-                    <h1>📅 This Month's Events</h1>
-                    <p className="subtitle">What's happening in the next 30 days, pulled from every upcoming event on this site.</p>
+                    <h1>📅 Next 31 Days</h1>
+                    <p className="subtitle">What's happening in the next 31 days, pulled from every upcoming event on this site.</p>
 
                     {upcoming.length === 0 ? (
                         <div className="empty-state">
-                            Nothing in the next 30 days right now. Check the{' '}
+                            Nothing in the next 31 days right now. Check the{' '}
                             <Link to="/events">Events page</Link> for everything coming up.
                         </div>
                     ) : (
@@ -1928,7 +1928,7 @@
                             <Routes>
                                 <Route path="/" element={<Home />} />
                                 <Route path="/events" element={<Events />} />
-                                <Route path="/this-month" element={<ThisMonth />} />
+                                <Route path="/next-31-days" element={<Next31Days />} />
                                 <Route path="/world-cup" element={<WorldCup />} />
                                 <Route path="/local-music" element={<LocalMusic />} />
                                 <Route path="/troubadour-evenings" element={<TroubadourEvenings />} />
