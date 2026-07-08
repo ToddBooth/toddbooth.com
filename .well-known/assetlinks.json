@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.toddbooth.twa",
+        "sha256_cert_fingerprints": ["13:61:DB:50:87:31:0A:3A:A4:7F:6F:F2:AB:25:90:9E:28:2E:DF:44:70:29:26:57:72:2A:8F:C3:C6:B2:EE:1C"]
+      }
+    }]
