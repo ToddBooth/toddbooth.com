@@ -27,6 +27,20 @@ const EVENTS = [
         link: '/troubadour-evenings'
     },
     {
+        date: '2026-07-09T22:00:00+02:00',
+        title: 'World Cup Quarterfinal: Morocco vs France',
+        venue: 'Gillette Stadium, Foxborough, MA (4:00 PM ET / 10:00 PM Swedish time)',
+        icon: '🏆',
+        link: '/world-cup'
+    },
+    {
+        date: '2026-07-10T21:00:00+02:00',
+        title: 'World Cup Quarterfinal: Belgium vs Spain',
+        venue: 'SoFi Stadium, Inglewood, CA (3:00 PM ET / 9:00 PM Swedish time)',
+        icon: '🏆',
+        link: '/world-cup'
+    },
+    {
         date: '2026-07-11T14:00:00+02:00',
         title: 'BBQ & Norway Watch Party',
         venue: 'BBQ 2–6 PM, then into the city to watch Norway vs England at 11 PM — contact Todd for details & to reserve a place',
@@ -41,6 +55,13 @@ const EVENTS = [
         link: '/world-cup'
     },
     {
+        date: '2026-07-12T03:00:00+02:00',
+        title: 'World Cup Quarterfinal: Argentina vs Winner (Switzerland/Colombia)',
+        venue: 'Arrowhead Stadium, Kansas City, MO (9:00 PM ET Jul 11 / 3:00 AM Swedish time Jul 12)',
+        icon: '🏆',
+        link: '/world-cup'
+    },
+    {
         date: '2026-07-14T18:30:00+02:00',
         title: 'Allsång på Bryggarbacken',
         venue: 'Bryggarbacken',
@@ -48,11 +69,39 @@ const EVENTS = [
         link: '/local-music'
     },
     {
+        date: '2026-07-14T21:00:00+02:00',
+        title: 'World Cup Semifinal 1',
+        venue: 'AT&T Stadium, Arlington/Dallas, TX (3:00 PM ET / 9:00 PM Swedish time)',
+        icon: '🏆',
+        link: '/world-cup'
+    },
+    {
+        date: '2026-07-15T21:00:00+02:00',
+        title: 'World Cup Semifinal 2',
+        venue: 'Mercedes-Benz Stadium, Atlanta, GA (3:00 PM ET / 9:00 PM Swedish time)',
+        icon: '🏆',
+        link: '/world-cup'
+    },
+    {
         date: '2026-07-16T18:30:00+02:00',
         title: 'Trubadurkväll med Julia Lundmark & Co',
         venue: 'Nordanågården Bistro, Skellefteå',
         icon: '🎤',
         link: '/troubadour-evenings'
+    },
+    {
+        date: '2026-07-18T23:00:00+02:00',
+        title: 'World Cup Third Place Play-off',
+        venue: 'Hard Rock Stadium, Miami Gardens, FL (5:00 PM ET / 11:00 PM Swedish time)',
+        icon: '🏆',
+        link: '/world-cup'
+    },
+    {
+        date: '2026-07-19T21:00:00+02:00',
+        title: 'World Cup Final',
+        venue: 'MetLife Stadium, East Rutherford, NJ (3:00 PM ET / 9:00 PM Swedish time)',
+        icon: '🏆',
+        link: '/world-cup'
     },
     {
         date: '2026-07-21T18:30:00+02:00',
