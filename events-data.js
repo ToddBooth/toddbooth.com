@@ -1,15 +1,15 @@
 // events-data.js — single source of truth for dated event instances used by
-// the /this-month route (React) to compute a rolling "next 30 days" summary.
+// the /next-31-days route (React) to compute a rolling "next 31 days" summary.
 //
 // `date` is an ISO-8601 string WITH an explicit UTC offset so the "is this within
-// the next 30 days" comparison is correct regardless of the visitor's local
+// the next 31 days" comparison is correct regardless of the visitor's local
 // timezone. Swedish-local events use +02:00 (CEST) or +01:00 (CET) depending on
 // whether the date falls in Swedish daylight saving time (DST ends the last
 // Sunday of October, begins the last Sunday of March) — the World Cup match and
 // the Sara Kulturhus concerts are both encoded at their correct Swedish-local
 // offset for this reason. None of the Sara Kulturhus concerts had a specific
 // start time captured from the source, so they use a placeholder 19:00 — this
-// value is never displayed to visitors (the /this-month page only shows the
+// value is never displayed to visitors (the /next-31-days page only shows the
 // date, not the time), it only affects same-day sort order.
 //
 // `link` is a React Router path (e.g. '/world-cup'), not a filename — index.html
