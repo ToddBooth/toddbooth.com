@@ -819,7 +819,7 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=4"></script>
+    <script src="events-data.js?v=5"></script>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
@@ -837,17 +837,17 @@
         }
 
         // Filters the shared EVENTS array (events-data.js) down to whatever falls
-        // in the next 7 days, computed fresh on mount — this is what powers the
-        // "This Week" page. `now`/`upcoming` are memoized once per page load,
+        // in the next 30 days, computed fresh on mount — this is what powers the
+        // "This Month" page. `now`/`upcoming` are memoized once per page load,
         // matching the previous vanilla-JS behavior (recompute happens because
         // this component remounts fresh each time you navigate to it).
         function useEvents() {
             return useMemo(() => {
                 const now = new Date();
-                const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                const monthFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
                 const upcoming = EVENTS
                     .map(e => ({ ...e, parsed: new Date(e.date) }))
-                    .filter(e => e.parsed >= now && e.parsed <= weekFromNow)
+                    .filter(e => e.parsed >= now && e.parsed <= monthFromNow)
                     .sort((a, b) => a.parsed - b.parsed);
                 return { now, upcoming };
             }, []);
@@ -1031,7 +1031,7 @@
 
         function Header() {
             const location = useLocation();
-            const eventRoutes = ['/events', '/this-week', '/world-cup', '/local-music', '/troubadour-evenings'];
+            const eventRoutes = ['/events', '/this-month', '/world-cup', '/local-music', '/troubadour-evenings', '/sara-kulturhus'];
             const eventsActive = eventRoutes.includes(location.pathname);
 
             const tabs = [
@@ -1180,11 +1180,11 @@
                     </div>
                     <div className="events-list">
                         <EventCard
-                            to="/this-week"
+                            to="/this-month"
                             icon="📅"
-                            title="This Week's Events"
-                            description="A rolling summary of everything happening in the next 7 days, pulled from all the events below."
-                            linkText="View this week"
+                            title="This Month's Events"
+                            description="A rolling summary of everything happening in the next 30 days, pulled from all the events below."
+                            linkText="View this month"
                             featured
                         />
                         <EventCard
@@ -1208,6 +1208,13 @@
                             description="Free troubadour evenings at Nordanågården Bistro in Skellefteå — three Thursdays this summer, free entry."
                             linkText="View event details"
                         />
+                        <EventCard
+                            to="/sara-kulturhus"
+                            icon="🎼"
+                            title="Sara Kulturhus Concerts"
+                            description="39 upcoming concerts at Sara Kulturhus in Skellefteå — jazz, classical, pop, rock, and more, from July 2026 through April 2027."
+                            linkText="View full concert calendar"
+                        />
                     </div>
                     <p style={{ marginTop: '2rem', color: '#888', fontStyle: 'italic', textAlign: 'center' }}>
                         Know something you'd like to see here, or want to help plan an event? Reach out
@@ -1217,19 +1224,19 @@
             );
         }
 
-        function ThisWeek() {
-            useTitle("This Week's Events | Todd Booth");
+        function ThisMonth() {
+            useTitle("This Month's Events | Todd Booth");
             const { now, upcoming } = useEvents();
 
             return (
                 <div className="page-content">
                     <Link to="/events" className="back-link">← Back to Events</Link>
-                    <h1>📅 This Week's Events</h1>
-                    <p className="subtitle">What's happening in the next 7 days, pulled from every upcoming event on this site.</p>
+                    <h1>📅 This Month's Events</h1>
+                    <p className="subtitle">What's happening in the next 30 days, pulled from every upcoming event on this site.</p>
 
                     {upcoming.length === 0 ? (
                         <div className="empty-state">
-                            Nothing in the next 7 days right now. Check the{' '}
+                            Nothing in the next 30 days right now. Check the{' '}
                             <Link to="/events">Events page</Link> for everything coming up.
                         </div>
                     ) : (
@@ -1577,6 +1584,120 @@
             );
         }
 
+        function SaraKulturhus() {
+            useTitle('Sara Kulturhus Concerts | Todd Booth');
+            return (
+                <div className="page-content">
+                    <Link to="/events" className="back-link">← Back to Events</Link>
+                    <h1>🎼 Sara Kulturhus Concerts</h1>
+                    <p className="subtitle">39 upcoming concerts at Sara Kulturhus, Skellefteå — jazz, classical, pop, rock, and more. Captured July 5, 2026.</p>
+
+                    <p>
+                        Sara Kulturhus is Skellefteå's cultural center and concert venue. Below is the
+                        full concert calendar, pulled from the venue's own "Konsert" listing filter,
+                        covering the next nine months (through early April 2027). Each event title links
+                        to its official page on <a href="https://www.sarakulturhus.se/sv/evenemang/" target="_blank" rel="noopener noreferrer">sarakulturhus.se</a> for
+                        full details, times, and tickets.
+                    </p>
+
+                    <Callout>
+                        <p>
+                            <strong>No specific start times or ticket prices are captured here</strong> —
+                            check each event's own page (linked below) for exact times and pricing. None
+                            were marked "fri entré" (free entry) except where noted on the venue's site.
+                        </p>
+                    </Callout>
+
+                    <h2>2026</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Event</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>16 Jul</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/champian-fulton-klas-lindqvist/" target="_blank" rel="noopener noreferrer">Champian Fulton &amp; Klas Lindqvist</a></td><td>Konsert, Jazz, Musik</td><td>Scen 4</td></tr>
+                            <tr><td>28 Aug</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/sasongsoppning-med-beethoven-och-sjostakovitj/" target="_blank" rel="noopener noreferrer">Säsongsöppning med Beethoven och Sjostakovitj</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>12 Sep</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/ida-lova-tjuvjakt/" target="_blank" rel="noopener noreferrer">Ida-Lova + Tjuvjakt</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>18 Sep</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/fran-elvis-presley-till-jerry-williams/" target="_blank" rel="noopener noreferrer">Från Elvis Presley till Jerry Williams</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>19 Sep</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/sandro-cavazza/" target="_blank" rel="noopener noreferrer">Sandro Cavazza</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>20 Sep</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/pitea-strakkvartett/" target="_blank" rel="noopener noreferrer">Piteå stråkkvartett</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 5</td></tr>
+                            <tr><td>02 – 03 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/oh-what-a-night/" target="_blank" rel="noopener noreferrer">Oh What A Night!</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>09 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/bystrom-och-tjajkovskij/" target="_blank" rel="noopener noreferrer">Byström och Tjajkovskij</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>10 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/viktor-noren-linus-wahlgren-vara-liv-vara-musikaler/" target="_blank" rel="noopener noreferrer">Viktor Norén &amp; Linus Wahlgren - Våra Liv, Våra Musikaler</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>10 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/tusen-ars-saknad-musik-och-poesi-i-tva-akter/" target="_blank" rel="noopener noreferrer">Tusen års saknad - musik och poesi i två akter</a></td><td>Konsert, Musik, Teater</td><td>Scen 5</td></tr>
+                            <tr><td>17 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/a-tribute-to-dire-straits/" target="_blank" rel="noopener noreferrer">A Tribute to Dire Straits</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>22 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/valter-nilsson/" target="_blank" rel="noopener noreferrer">Valter Nilsson</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
+                            <tr><td>22 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/bach-jazz/" target="_blank" rel="noopener noreferrer">Bach Jazz</a></td><td>Konsert, Jazz, Musik</td><td>Hjortronet</td></tr>
+                            <tr><td>24 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/skelleftea-symfoniorkester-queen-at-the-opera/" target="_blank" rel="noopener noreferrer">Skellefteå Symfoniorkester - Queen at The Opera</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>25 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/niklas-stromstedt-tyck-om-mig/" target="_blank" rel="noopener noreferrer">Niklas Strömstedt – Tyck OM mig</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>28 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/pianomania-nordica-anna-fedorova/" target="_blank" rel="noopener noreferrer">Pianomania Nordica - Anna Fedorova</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 2</td></tr>
+                            <tr><td>30 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/sven-ingvars-igar-idag-imorgon-70-ar/" target="_blank" rel="noopener noreferrer">Sven Ingvars – Igår. Idag. Imorgon. 70 år.</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>31 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/disco-inferno/" target="_blank" rel="noopener noreferrer">Disco Inferno</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>05 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/brassunit/" target="_blank" rel="noopener noreferrer">BrassUnit</a></td><td>Konsert, Jazz, Musik</td><td>Scen 5</td></tr>
+                            <tr><td>06 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/hardcore-superstar/" target="_blank" rel="noopener noreferrer">Hardcore Superstar</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
+                            <tr><td>19 – 20 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/bo-kaspers-orkester-il-magnifico/" target="_blank" rel="noopener noreferrer">Bo Kaspers Orkester - Il Magnifico</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>19 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/carl-johan-vallgren/" target="_blank" rel="noopener noreferrer">Carl-Johan Vallgren</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
+                            <tr><td>25 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/pianomania-nordica-steven-mayer/" target="_blank" rel="noopener noreferrer">Pianomania Nordica - Steven Mayer</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 2</td></tr>
+                            <tr><td>27 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/division-7/" target="_blank" rel="noopener noreferrer">Division 7</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
+                            <tr><td>28 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/christmas-night/" target="_blank" rel="noopener noreferrer">Christmas Night</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>05 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/seinabo-sey/" target="_blank" rel="noopener noreferrer">Seinabo Sey</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>09 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/john-lundvik-med-mats-bjorkes-caravan/" target="_blank" rel="noopener noreferrer">John Lundvik med Mats Björkes Caravan</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>12 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/the-soul-of-christmas/" target="_blank" rel="noopener noreferrer">The Soul of Christmas</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>16 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/hogwarts-magic-symphony/" target="_blank" rel="noopener noreferrer">Hogwarts Magic Symphony</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>17 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/vintergala-med-gunhild-carling/" target="_blank" rel="noopener noreferrer">Vintergala med Gunhild Carling</a></td><td>Konsert, Mat &amp; dryck, Jazz</td><td>—</td></tr>
+                            <tr><td>18 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/vintergala-med-e-m-d/" target="_blank" rel="noopener noreferrer">Vintergala med E.M.D</a></td><td>Konsert, Mat &amp; dryck, Musik</td><td>Södra foajén &amp; Scen 1</td></tr>
+                            <tr><td>19 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/en-innerlig-jul-med-andreas-aleman-och-tareq-taylor/" target="_blank" rel="noopener noreferrer">En innerlig jul med Andreas Aleman och Tareq Taylor</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>30 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/euskefeurat-maranger-och-surdeg/" target="_blank" rel="noopener noreferrer">Euskefeurat – Maränger och surdeg</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2>2027</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Event</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>10 Jan</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/familjeshowen-dolly-style/" target="_blank" rel="noopener noreferrer">Familjeshowen - Dolly Style</a></td><td>Barn &amp; familj, Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>26 Jan</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/the-music-of-hans-zimmer/" target="_blank" rel="noopener noreferrer">The Music of Hans Zimmer</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>05 Feb</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/beethoven-och-schumann/" target="_blank" rel="noopener noreferrer">Beethoven och Schumann</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>26 Feb</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/molly-hammar/" target="_blank" rel="noopener noreferrer">Molly Hammar</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
+                            <tr><td>05 Mar</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/den-svenska-bjornstammen/" target="_blank" rel="noopener noreferrer">Den Svenska Björnstammen</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
+                            <tr><td>09 Apr</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/sasongsavslutning-med-ravel-och-bacewicz/" target="_blank" rel="noopener noreferrer">Säsongsavslutning med Ravel och Bacewicz</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2>Venue</h2>
+                    <InfoBox>
+                        <p><strong>Sara Kulturhus</strong></p>
+                        <p>Skellefteå, Sweden</p>
+                        <p>Website: <a href="https://www.sarakulturhus.se/sv/evenemang/" target="_blank" rel="noopener noreferrer">sarakulturhus.se</a></p>
+                    </InfoBox>
+
+                    <h2>More Information &amp; Source</h2>
+                    <p>
+                        Full listing, updates, and any additional concerts:{' '}
+                        <a href="https://www.sarakulturhus.se/sv/evenemang/" target="_blank" rel="noopener noreferrer">
+                            Sara Kulturhus — Evenemang
+                        </a>{' '}
+                        (filtered to the "Konsert" category). Non-concert categories — exhibitions,
+                        literature, lectures, stand-up, theatre, and family events without music — are
+                        not included here.
+                    </p>
+
+                    <p className="updated">Last updated July 8, 2026.</p>
+                </div>
+            );
+        }
+
         function About() {
             useTitle('About Me | Todd Booth');
             return (
@@ -1807,10 +1928,11 @@
                             <Routes>
                                 <Route path="/" element={<Home />} />
                                 <Route path="/events" element={<Events />} />
-                                <Route path="/this-week" element={<ThisWeek />} />
+                                <Route path="/this-month" element={<ThisMonth />} />
                                 <Route path="/world-cup" element={<WorldCup />} />
                                 <Route path="/local-music" element={<LocalMusic />} />
                                 <Route path="/troubadour-evenings" element={<TroubadourEvenings />} />
+                                <Route path="/sara-kulturhus" element={<SaraKulturhus />} />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/background" element={<ProfessionalBackground />} />
                                 <Route path="/contact" element={<Contact />} />
