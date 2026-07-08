@@ -43,7 +43,7 @@ const EVENTS = [
     {
         date: '2026-07-11T14:00:00+02:00',
         title: 'BBQ & Norway Watch Party',
-        venue: 'BBQ 2–6 PM, then into the city to watch Norway vs England at 11 PM — contact Todd for details & to reserve a place',
+        venue: 'BBQ 2–6 PM at Fru Lovisas Gata, Erikslid, then into the city to watch Norway vs England at 11 PM — let Todd know if you\'re coming',
         icon: '🍔',
         link: '/world-cup'
     },
