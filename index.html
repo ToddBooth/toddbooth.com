@@ -823,7 +823,7 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=11"></script>
+    <script src="events-data.js?v=12"></script>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
@@ -1069,7 +1069,7 @@
 
         function Header() {
             const location = useLocation();
-            const eventRoutes = ['/events', '/next-31-days', '/world-cup', '/local-music', '/troubadour-evenings', '/bbq-party', '/sara-kulturhus'];
+            const eventRoutes = ['/events', '/next-31-days', '/world-cup', '/local-music', '/troubadour-evenings', '/bbq-party', '/lion-bar', '/sara-kulturhus'];
             const eventsActive = eventRoutes.includes(location.pathname);
 
             const tabs = [
@@ -1231,6 +1231,13 @@
                             title="FIFA World Cup 2026"
                             description="Norway's historic run to the quarterfinals continues — full fixture schedule, results, and kickoff times in both US Eastern and Swedish time."
                             linkText="View schedule &amp; results"
+                        />
+                        <EventCard
+                            to="/lion-bar"
+                            icon="🕺"
+                            title="Direktören &amp; Kaptenen Live Night"
+                            description="Friday, July 10 at Lion Bar, Skellefteå — a dance party starting at 21:00."
+                            linkText="View event details"
                         />
                         <EventCard
                             to="/bbq-party"
@@ -1625,6 +1632,33 @@
                     </p>
 
                     <p className="updated">Last updated July 7, 2026.</p>
+                </div>
+            );
+        }
+
+        function LionBar() {
+            useTitle('Direktören & Kaptenen Live Night | Todd Booth');
+            return (
+                <div className="page-content">
+                    <Link to="/events" className="back-link">← Back to Events</Link>
+                    <h1>🕺 Direktören &amp; Kaptenen Live Night</h1>
+                    <p className="subtitle">Friday, July 10, 2026, 21:00 — Lion Bar, Skellefteå.</p>
+
+                    <Callout>
+                        <p>📅 <strong>Date:</strong> Friday, July 10, 2026</p>
+                        <p>🕘 <strong>Doors/Start:</strong> 21:00</p>
+                        <p>📍 <strong>Venue:</strong> Lion Bar, Skellefteå</p>
+                        <p>🎉 <strong>Billed as:</strong> a dance party</p>
+                    </Callout>
+
+                    <h2>Good to Know</h2>
+                    <p>
+                        This is the only Lion Bar event listed for July 2026 across Ticketmaster,
+                        LiveSpot, and the local Skellefteå event aggregators — there's no separate
+                        Tuesday-the-14th show, in case you'd seen that date mentioned elsewhere.
+                    </p>
+
+                    <p className="updated">Last checked July 9, 2026.</p>
                 </div>
             );
         }
@@ -2108,6 +2142,7 @@
                                 <Route path="/local-music" element={<LocalMusic />} />
                                 <Route path="/troubadour-evenings" element={<TroubadourEvenings />} />
                                 <Route path="/bbq-party" element={<BbqParty />} />
+                                <Route path="/lion-bar" element={<LionBar />} />
                                 <Route path="/sara-kulturhus" element={<SaraKulturhus />} />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/background" element={<ProfessionalBackground />} />
