@@ -97,6 +97,13 @@ const EVENTS = [
         link: '/troubadour-evenings'
     },
     {
+        date: '2026-07-17T22:00:00+02:00',
+        title: 'Afrobeats Pop Up Bash — Skellefteå Edition',
+        venue: 'Lion Bar, Skellefteå — Afrobeats/Amapiano/French Afro/Dancehall, 22:00–02:00, entry 80 kr',
+        icon: '🌴',
+        link: '/lion-bar'
+    },
+    {
         date: '2026-07-18T23:00:00+02:00',
         title: 'World Cup Third Place Play-off',
         venue: 'Hard Rock Stadium, Miami Gardens, FL (5:00 PM ET / 11:00 PM Swedish time)',
