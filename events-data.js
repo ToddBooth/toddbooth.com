@@ -41,6 +41,13 @@ const EVENTS = [
         link: '/world-cup'
     },
     {
+        date: '2026-07-10T21:00:00+02:00',
+        title: 'Direktören & Kaptenen Live Night',
+        venue: 'Lion Bar, Skellefteå — dance party, doors 21:00',
+        icon: '🕺',
+        link: '/lion-bar'
+    },
+    {
         date: '2026-07-11T14:00:00+02:00',
         title: 'Chandan\'s BBQ & Norway Watch Party',
         venue: 'BBQ 2–6 PM at Fru Lovisas Gata, Erikslid, then into the city to watch Norway vs England at 11 PM — let Todd know if you\'re coming',
