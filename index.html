@@ -585,6 +585,63 @@
             color: white;
         }
 
+        .ig-popup-trigger {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            font: inherit;
+            color: inherit;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .ig-popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 17, 40, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1rem;
+        }
+
+        .ig-popup-content {
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        }
+
+        .ig-popup-content iframe {
+            display: block;
+            width: 100%;
+            height: 80vh;
+            max-height: 700px;
+            border: none;
+        }
+
+        .ig-popup-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: rgba(44, 62, 80, 0.85);
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 1;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -1132,6 +1189,36 @@
             return <div className="info-box">{children}</div>;
         }
 
+        // A link that opens the given Instagram post in an in-page popup (an
+        // <iframe> onto Instagram's own /embed view) instead of navigating away.
+        // Click the backdrop or the × to close.
+        function InstagramPopup({ url, children }) {
+            const [open, setOpen] = useState(false);
+            const embedUrl = url.replace(/\/?$/, '/') + 'embed/';
+            return (
+                <>
+                    <button type="button" className="ig-popup-trigger" onClick={() => setOpen(true)}>
+                        {children}
+                    </button>
+                    {open && (
+                        <div className="ig-popup-overlay" onClick={() => setOpen(false)}>
+                            <div className="ig-popup-content" onClick={e => e.stopPropagation()}>
+                                <button
+                                    type="button"
+                                    className="ig-popup-close"
+                                    onClick={() => setOpen(false)}
+                                    aria-label="Close"
+                                >
+                                    ×
+                                </button>
+                                <iframe src={embedUrl} title="Instagram post" allowFullScreen />
+                            </div>
+                        </div>
+                    )}
+                </>
+            );
+        }
+
         function EventCard({ to, icon, title, description, linkText, featured }) {
             return (
                 <Link to={to} className={featured ? 'event-card event-card-featured' : 'event-card'}>
@@ -1653,7 +1740,10 @@
                                 <p>
                                     A dance party from the Swedish "EPA" duo behind hits like "SOS,"
                                     "PSYKOPAT," "BUBBEL," and "SEGELBÅTEN" — expect an energetic,
-                                    bass-heavy crowd rather than a seated show.
+                                    bass-heavy crowd rather than a seated show.{' '}
+                                    <InstagramPopup url="https://www.instagram.com/p/Daia6y1Ig4k/">
+                                        View announcement on Instagram
+                                    </InstagramPopup>
                                 </p>
                             </div>
                         </div>
@@ -1666,7 +1756,10 @@
                                 <p>
                                     A full night of Afrobeats, Amapiano, French Afro, and Dancehall,
                                     with DJ Platinum (Umeå) and DJ Boumba (Luleå) live on stage.
-                                    Hosted by Plat1num Promotions and DopeNation • Kakalika. Entry 80 kr.
+                                    Hosted by Plat1num Promotions and DopeNation • Kakalika. Entry 80 kr.{' '}
+                                    <InstagramPopup url="https://www.instagram.com/p/DafFOKOuC63/">
+                                        View announcement on Instagram
+                                    </InstagramPopup>
                                 </p>
                             </div>
                         </div>
