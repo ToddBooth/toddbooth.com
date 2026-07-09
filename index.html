@@ -823,7 +823,7 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=12"></script>
+    <script src="events-data.js?v=13"></script>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
@@ -1235,8 +1235,8 @@
                         <EventCard
                             to="/lion-bar"
                             icon="🕺"
-                            title="Direktören &amp; Kaptenen Live Night"
-                            description="Friday, July 10 at Lion Bar, Skellefteå — a dance party starting at 21:00."
+                            title="Lion Bar Skellefteå"
+                            description="Two dance nights this July — Direktören &amp; Kaptenen (Jul 10) and an Afrobeats Pop Up Bash (Jul 17)."
                             linkText="View event details"
                         />
                         <EventCard
@@ -1637,28 +1637,40 @@
         }
 
         function LionBar() {
-            useTitle('Direktören & Kaptenen Live Night | Todd Booth');
+            useTitle('Lion Bar Skellefteå — Upcoming Nights | Todd Booth');
             return (
                 <div className="page-content">
                     <Link to="/events" className="back-link">← Back to Events</Link>
-                    <h1>🕺 Direktören &amp; Kaptenen Live Night</h1>
-                    <p className="subtitle">Friday, July 10, 2026, 21:00 — Lion Bar, Skellefteå.</p>
+                    <h1>🕺 Lion Bar Skellefteå</h1>
+                    <p className="subtitle">Two dance nights worth knowing about this July.</p>
 
-                    <Callout>
-                        <p>📅 <strong>Date:</strong> Friday, July 10, 2026</p>
-                        <p>🕘 <strong>Doors/Start:</strong> 21:00</p>
-                        <p>📍 <strong>Venue:</strong> Lion Bar, Skellefteå</p>
-                        <p>🎉 <strong>Billed as:</strong> a dance party</p>
-                    </Callout>
+                    <div className="event-list">
+                        <div className="event">
+                            <div className="event-icon">🕺</div>
+                            <div>
+                                <div className="event-date">Friday, July 10, 2026 — 21:00</div>
+                                <h3>Direktören &amp; Kaptenen Live Night</h3>
+                                <p>
+                                    A dance party from the Swedish "EPA" duo behind hits like "SOS,"
+                                    "PSYKOPAT," "BUBBEL," and "SEGELBÅTEN" — expect an energetic,
+                                    bass-heavy crowd rather than a seated show.
+                                </p>
+                            </div>
+                        </div>
 
-                    <h2>About Direktören &amp; Kaptenen</h2>
-                    <p>
-                        Direktören &amp; Kaptenen are a Swedish duo in the "EPA" scene — the
-                        youth party-music genre named after the EPA-tractors it's played from —
-                        and one of the more streamed acts in that space right now, with hits
-                        including "SOS," "PSYKOPAT," "BUBBEL," and "SEGELBÅTEN." Expect an
-                        energetic, bass-heavy dance-party crowd rather than a seated show.
-                    </p>
+                        <div className="event">
+                            <div className="event-icon">🌴</div>
+                            <div>
+                                <div className="event-date">Friday, July 17, 2026 — 22:00–02:00</div>
+                                <h3>Afrobeats Pop Up Bash — Skellefteå Edition</h3>
+                                <p>
+                                    A full night of Afrobeats, Amapiano, French Afro, and Dancehall,
+                                    with DJ Platinum (Umeå) and DJ Boumba (Luleå) live on stage.
+                                    Hosted by Plat1num Promotions and DopeNation • Kakalika. Entry 80 kr.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
                     <h2>Venue</h2>
                     <InfoBox>
@@ -1675,27 +1687,37 @@
 
                     <h2>Good to Know</h2>
                     <ul className="plain">
-                        <li>This is the only Lion Bar event listed for July 2026 across Ticketmaster,
-                            LiveSpot, and the local Skellefteå event aggregators — there's no separate
-                            Tuesday-the-14th show, in case you'd seen that date mentioned elsewhere.</li>
-                        <li>Skellefteå has two Lion Bar locations — this event is at the main
-                            "Lion Bar Skellefteå" (Strandgatan 38) per Ticketmaster's venue listing,
-                            not the separate "Lion Bar Play Skellefteå."</li>
-                        <li>Ticket price isn't published on the listing pages themselves — check
-                            Ticketmaster for current pricing and availability.</li>
+                        <li>Skellefteå has two Lion Bar locations — both nights below are at the
+                            main "Lion Bar Skellefteå" (Strandgatan 38), not the separate
+                            "Lion Bar Play Skellefteå."</li>
+                        <li>Direktören &amp; Kaptenen is the only Lion Bar event listed for that
+                            week across Ticketmaster, LiveSpot, and the local Skellefteå event
+                            aggregators — there's no separate Tuesday-the-14th show, in case you'd
+                            seen that date mentioned elsewhere. Ticket price isn't published; check
+                            Ticketmaster for current pricing.</li>
+                        <li>The Afrobeats Pop Up Bash isn't on Ticketmaster or Evently — it's
+                            promoted directly via Instagram (@plat1num_promotions, DopeNation •
+                            Kakalika). Entry is 80 kr; no presale link found, so it's likely pay
+                            at the door.</li>
                     </ul>
 
                     <h2>More Information &amp; Source</h2>
                     <p>
-                        Listings confirming this date/time:{' '}
+                        <strong>Direktören &amp; Kaptenen:</strong>{' '}
                         <a href="https://www.ticketmaster.se/artist/lion-bar-skelleftea-biljetter/1359043" target="_blank" rel="noopener noreferrer">Ticketmaster</a>
                         {' '}·{' '}
                         <a href="https://evently.se/events/JMPwlFUW/direktoren-kaptenen-live-night" target="_blank" rel="noopener noreferrer">Evently</a>
                         {' '}·{' '}
                         <a href="https://lionbar.se/restauranger/lion-bar-skelleftea/" target="_blank" rel="noopener noreferrer">Lion Bar Skellefteå (official)</a>
                     </p>
+                    <p>
+                        <strong>Afrobeats Pop Up Bash:</strong> shared via Instagram by{' '}
+                        <a href="https://www.instagram.com/lionbarskelleftea/" target="_blank" rel="noopener noreferrer">@lionbarskelleftea</a>,
+                        Plat1num Promotions, and DopeNation • Kakalika — no separate ticketing
+                        page found.
+                    </p>
 
-                    <p className="updated">Last checked July 9, 2026.</p>
+                    <p className="updated">Last updated July 9, 2026.</p>
                 </div>
             );
         }
