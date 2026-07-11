@@ -27,20 +27,6 @@ const EVENTS = [
         link: '/troubadour-evenings'
     },
     {
-        date: '2026-07-09T22:00:00+02:00',
-        title: 'World Cup Quarterfinal: Morocco vs France',
-        venue: 'Gillette Stadium, Foxborough, MA (4:00 PM ET / 10:00 PM Swedish time)',
-        icon: '🏆',
-        link: '/world-cup'
-    },
-    {
-        date: '2026-07-10T21:00:00+02:00',
-        title: 'World Cup Quarterfinal: Belgium vs Spain',
-        venue: 'SoFi Stadium, Inglewood, CA (3:00 PM ET / 9:00 PM Swedish time)',
-        icon: '🏆',
-        link: '/world-cup'
-    },
-    {
         date: '2026-07-10T21:00:00+02:00',
         title: 'Direktören & Kaptenen Live Night',
         venue: 'Lion Bar, Skellefteå — dance party, doors 21:00',
@@ -63,7 +49,7 @@ const EVENTS = [
     },
     {
         date: '2026-07-12T03:00:00+02:00',
-        title: 'World Cup Quarterfinal: Argentina vs Winner (Switzerland/Colombia)',
+        title: 'World Cup Quarterfinal: Argentina vs Switzerland',
         venue: 'Arrowhead Stadium, Kansas City, MO (9:00 PM ET Jul 11 / 3:00 AM Swedish time Jul 12)',
         icon: '🏆',
         link: '/world-cup'
@@ -77,7 +63,7 @@ const EVENTS = [
     },
     {
         date: '2026-07-14T21:00:00+02:00',
-        title: 'World Cup Semifinal 1',
+        title: 'World Cup Semifinal: France vs Spain',
         venue: 'AT&T Stadium, Arlington/Dallas, TX (3:00 PM ET / 9:00 PM Swedish time)',
         icon: '🏆',
         link: '/world-cup'
