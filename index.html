@@ -880,7 +880,7 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=13"></script>
+    <script src="events-data.js?v=14"></script>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
@@ -1410,7 +1410,7 @@
                 <div className="page-content">
                     <Link to="/events" className="back-link">← Back to Events</Link>
                     <h1>🏆 FIFA World Cup 2026 — Remaining Fixtures</h1>
-                    <p className="subtitle">Following Norway's historic quarterfinal run, plus the full schedule to the Final. Updated July 7, 2026.</p>
+                    <p className="subtitle">Following Norway's historic quarterfinal run, plus the full schedule to the Final. Updated July 11, 2026.</p>
 
                     <p className="note">
                         All times below: US Eastern Time (ET, UTC-4 in July) and Swedish time (CEST, UTC+2) —
@@ -1445,7 +1445,7 @@
                         </p>
                     </Callout>
 
-                    <h2>Round of 16 — Results</h2>
+                    <h2>Recent Results (last 7 days)</h2>
                     <table>
                         <thead>
                             <tr>
@@ -1477,13 +1477,25 @@
                             <tr>
                                 <td>Tue Jul 7, 2026</td>
                                 <td>Switzerland vs Colombia</td>
-                                <td>In progress / result not yet final as of this update (0-0 last checked) — winner faces Argentina in the quarterfinal</td>
+                                <td className="result-win">Switzerland won 4-3 on penalties after a scoreless 120 minutes — Ruben Vargas scored the winning kick, sending the Swiss to their first World Cup quarterfinal since 1954</td>
                                 <td>Vancouver (BC Place)</td>
+                            </tr>
+                            <tr>
+                                <td>Thu Jul 9, 2026</td>
+                                <td>Morocco vs France</td>
+                                <td className="result-win">France won 2-0 — Kylian Mbappé (missed a first-half penalty, then scored on the hour) and Ousmane Dembélé; France advance to face Spain in the semifinal</td>
+                                <td>Gillette Stadium, Foxborough, MA</td>
+                            </tr>
+                            <tr>
+                                <td>Fri Jul 10, 2026</td>
+                                <td>Belgium vs Spain</td>
+                                <td className="result-win">Spain won 2-1 — Fabián Ruiz opened the scoring, Charles De Ketelaere equalized, Mikel Merino scored the winner moments after coming off the bench; Belgium lost keeper Thibault Courtois to injury</td>
+                                <td>SoFi Stadium, Inglewood, CA</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <h2>Quarterfinals (Jul 9–11, 2026)</h2>
+                    <h2>Quarterfinals — Today (Jul 11, 2026)</h2>
                     <table>
                         <thead>
                             <tr>
@@ -1496,20 +1508,6 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Thu Jul 9, 2026</td>
-                                <td>Morocco vs France</td>
-                                <td>4:00 PM</td>
-                                <td>10:00 PM (Jul 9)</td>
-                                <td>Gillette Stadium, Foxborough, MA</td>
-                            </tr>
-                            <tr>
-                                <td>Fri Jul 10, 2026</td>
-                                <td>Belgium vs Spain</td>
-                                <td>3:00 PM</td>
-                                <td>9:00 PM (Jul 10)</td>
-                                <td>SoFi Stadium, Inglewood, CA</td>
-                            </tr>
-                            <tr>
                                 <td>Sat Jul 11, 2026</td>
                                 <td><strong>Norway</strong> vs England</td>
                                 <td>5:00 PM</td>
@@ -1518,7 +1516,7 @@
                             </tr>
                             <tr>
                                 <td>Sat Jul 11, 2026</td>
-                                <td>Argentina vs Winner(Switzerland/Colombia)</td>
+                                <td>Argentina vs Switzerland</td>
                                 <td>9:00 PM</td>
                                 <td>3:00 AM (Jul 12)</td>
                                 <td>Arrowhead Stadium, Kansas City, MO</td>
@@ -1540,14 +1538,14 @@
                         <tbody>
                             <tr>
                                 <td>Tue Jul 14, 2026</td>
-                                <td>Semifinal 1</td>
+                                <td>France vs Spain</td>
                                 <td>3:00 PM</td>
                                 <td>9:00 PM (Jul 14)</td>
                                 <td>AT&amp;T Stadium, Arlington/Dallas, TX</td>
                             </tr>
                             <tr>
                                 <td>Wed Jul 15, 2026</td>
-                                <td>Semifinal 2</td>
+                                <td>Winner(Norway/England) vs Winner(Argentina/Switzerland)</td>
                                 <td>3:00 PM</td>
                                 <td>9:00 PM (Jul 15)</td>
                                 <td>Mercedes-Benz Stadium, Atlanta, GA</td>
@@ -1610,16 +1608,20 @@
                         <li><a href="https://www.aljazeera.com/sports/liveblog/2026/7/6/portugal-vs-spain-live-fifa-world-cup-2026-round-of-16" target="_blank" rel="noopener noreferrer">Al Jazeera – Portugal 0-1 Spain, as it happened</a></li>
                         <li><a href="https://www.euronews.com/2026/07/06/norway-and-england-advance-to-world-cup-quarterfinals-as-brazil-and-mexico-head-home" target="_blank" rel="noopener noreferrer">Euronews – Norway and England advance, Brazil and Mexico eliminated</a></li>
                         <li><a href="https://www.espn.com/soccer/story/_/id/49274470/mexico-england-brazil-norway-round-16" target="_blank" rel="noopener noreferrer">ESPN – Mexico vs England / Brazil vs Norway recap</a></li>
-                        <li><a href="https://www.espn.com/soccer/match/_/gameId/760508/colombia-switzerland" target="_blank" rel="noopener noreferrer">ESPN – Switzerland vs Colombia live coverage</a></li>
-                        <li><a href="https://www.aljazeera.com/sports/liveblog/2026/7/7/live-switzerland-vs-colombia-fifa-world-cup-2026" target="_blank" rel="noopener noreferrer">Al Jazeera – Switzerland vs Colombia live</a></li>
+                        <li><a href="https://theanalyst.com/articles/switzerland-vs-colombia-stats-world-cup-2026" target="_blank" rel="noopener noreferrer">Opta Analyst – Switzerland 4-3 pens Colombia, seal QF spot</a></li>
+                        <li><a href="https://www.cbssports.com/soccer/news/colombia-switzerland-live-updates-world-cup-2026-score-result/live/" target="_blank" rel="noopener noreferrer">CBS Sports – Switzerland upset Colombia, advance to face Argentina</a></li>
+                        <li><a href="https://www.cnn.com/2026/07/09/sport/live-news/france-morocco-world-cup-score" target="_blank" rel="noopener noreferrer">CNN – France 2-0 Morocco, books semifinal spot</a></li>
+                        <li><a href="https://www.npr.org/2026/07/09/nx-s1-5887619/2026-world-cup-fifa-france-morocco-quarterfinal" target="_blank" rel="noopener noreferrer">NPR – France downs Morocco 2-0 to advance to the semifinal</a></li>
+                        <li><a href="https://www.espn.com/soccer/story/_/id/49320409/world-cup-updates-spain-take-belgium-second-quarterfinal" target="_blank" rel="noopener noreferrer">ESPN – Merino scores winner as Spain beat Belgium 2-1</a></li>
+                        <li><a href="https://www.cnn.com/2026/07/10/sport/live-news/spain-belgium-world-cup-score" target="_blank" rel="noopener noreferrer">CNN – Spain's late winner breaks Belgian hearts</a></li>
+                        <li><a href="https://worldsoccertalk.com/world-cup/france-vs-spain-date-kickoff-time-and-venue-for-the-2026-world-cup-semifinal/" target="_blank" rel="noopener noreferrer">World Soccer Talk – France vs Spain semifinal: date, kickoff, venue</a></li>
                         <li><a href="https://bleacherreport.com/articles/25452143-updated-world-cup-2026-bracket-odds-and-quarterfinals-schedule-after-round-16-results" target="_blank" rel="noopener noreferrer">Bleacher Report – Updated bracket, odds, QF schedule after R16</a></li>
                         <li><a href="https://sports.yahoo.com/soccer/article/2026-fifa-world-cup-daily-schedule-every-match-date-kickoff-time-and-venue-for-all-48-teams-234515087.html" target="_blank" rel="noopener noreferrer">Yahoo Sports – 2026 World Cup daily schedule, kickoff times, venues</a></li>
-                        <li><a href="https://www.olympics.com/en/news/fifa-world-cup-2026-how-to-watch-belgium-vs-spain-in-the-quarter-finals-head-to-head-full-schedule" target="_blank" rel="noopener noreferrer">Olympics.com – Belgium vs Spain QF schedule</a></li>
                         <li><a href="https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_final" target="_blank" rel="noopener noreferrer">Wikipedia – 2026 FIFA World Cup Final</a></li>
                         <li><a href="https://www.mlssoccer.com/news/fifa-2026-world-cup-metlife-stadium-to-host-final-key-dates" target="_blank" rel="noopener noreferrer">MLS Soccer – MetLife Stadium to host final</a></li>
                     </ul>
 
-                    <p className="updated">Last updated July 7, 2026.</p>
+                    <p className="updated">Last updated July 11, 2026.</p>
                 </div>
             );
         }
