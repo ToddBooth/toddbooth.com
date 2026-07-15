@@ -40,7 +40,15 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            /* Light aurora wash: soft mint/violet/blush bands over a pale sky-to-mint
+               base, standing in for the old dark navy-to-blue night backdrop so the
+               birth-sky starfield now reads as dawn light rather than midnight. */
+            background:
+                radial-gradient(ellipse 70% 45% at 10% 0%, rgba(160, 230, 200, 0.55) 0%, rgba(160, 230, 200, 0) 60%),
+                radial-gradient(ellipse 65% 45% at 90% 10%, rgba(205, 190, 240, 0.5) 0%, rgba(205, 190, 240, 0) 60%),
+                radial-gradient(ellipse 60% 45% at 50% 100%, rgba(245, 205, 225, 0.45) 0%, rgba(245, 205, 225, 0) 60%),
+                linear-gradient(160deg, #e8f6fb 0%, #f8fafc 50%, #eaf7ef 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -223,7 +231,10 @@
         }
 
         .birth-star {
-            fill: #ffffff;
+            /* Deep navy ink (the site's own brand color) reads as a star chart on
+               parchment against the new light aurora backdrop — plain white would
+               vanish against a light background at low twinkle opacity. */
+            fill: #2c3e50;
             opacity: 0.55;
             animation: star-twinkle var(--twinkle-dur, 4s) ease-in-out infinite;
             animation-delay: var(--twinkle-delay, 0s);
