@@ -21,7 +21,7 @@
 // or removed there — there's no build step tying them together automatically.
 const EVENTS = [
     {
-        date: '2026-07-21T18:30:00+02:00',
+        date: '2026-07-21T19:00:00+02:00',
         title: 'The Drowners (comeback show)',
         venue: 'Bryggarbacken',
         icon: '🎸',
@@ -35,7 +35,7 @@ const EVENTS = [
         link: '/troubadour-evenings'
     },
     {
-        date: '2026-07-28T18:30:00+02:00',
+        date: '2026-07-28T19:00:00+02:00',
         title: 'Ben Carine & The 18-Wheelers (closing night)',
         venue: 'Bryggarbacken',
         icon: '🤠',
