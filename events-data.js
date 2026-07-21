@@ -5,17 +5,18 @@
 // the next 31 days" comparison is correct regardless of the visitor's local
 // timezone. Swedish-local events use +02:00 (CEST) or +01:00 (CET) depending on
 // whether the date falls in Swedish daylight saving time (DST ends the last
-// Sunday of October, begins the last Sunday of March) — the World Cup match and
-// the Sara Kulturhus concerts are both encoded at their correct Swedish-local
-// offset for this reason. None of the Sara Kulturhus concerts had a specific
-// start time captured from the source, so they use a placeholder 19:00 — this
-// value is never displayed to visitors (the /next-31-days page only shows the
-// date, not the time), it only affects same-day sort order.
+// Sunday of October, begins the last Sunday of March) — the Sara Kulturhus
+// concerts are encoded at their correct Swedish-local offset for this reason.
+// None of the Sara Kulturhus concerts had a specific start time captured from
+// the source, so they use a placeholder 19:00 — this value is never displayed
+// to visitors (the /next-31-days page only shows the date, not the time), it
+// only affects same-day sort order.
 //
-// `link` is a React Router path (e.g. '/world-cup'), not a filename — index.html
-// is a single-page app since 2026-07-08 (build 12), routed with HashRouter.
+// `link` is a React Router path (e.g. '/sara-kulturhus'), not a filename —
+// index.html is a single-page app since 2026-07-08 (build 12), routed with
+// HashRouter.
 //
-// Keep this in sync by hand with the WorldCup / LocalMusic / TroubadourEvenings /
+// Keep this in sync by hand with the LocalMusic / TroubadourEvenings /
 // SaraKulturhus page components in index.html whenever a date is added, changed,
 // or removed there — there's no build step tying them together automatically.
 const EVENTS = [
@@ -41,39 +42,11 @@ const EVENTS = [
         link: '/bbq-party'
     },
     {
-        date: '2026-07-11T23:00:00+02:00',
-        title: 'World Cup Quarterfinal: Norway vs England',
-        venue: 'Hard Rock Stadium, Miami Gardens, FL (5:00 PM ET / 11:00 PM Swedish time)',
-        icon: '🏆',
-        link: '/world-cup'
-    },
-    {
-        date: '2026-07-12T03:00:00+02:00',
-        title: 'World Cup Quarterfinal: Argentina vs Switzerland',
-        venue: 'Arrowhead Stadium, Kansas City, MO (9:00 PM ET Jul 11 / 3:00 AM Swedish time Jul 12)',
-        icon: '🏆',
-        link: '/world-cup'
-    },
-    {
         date: '2026-07-14T18:30:00+02:00',
         title: 'Allsång på Bryggarbacken',
         venue: 'Bryggarbacken',
         icon: '🎵',
         link: '/local-music'
-    },
-    {
-        date: '2026-07-14T21:00:00+02:00',
-        title: 'World Cup Semifinal: France vs Spain',
-        venue: 'AT&T Stadium, Arlington/Dallas, TX (3:00 PM ET / 9:00 PM Swedish time)',
-        icon: '🏆',
-        link: '/world-cup'
-    },
-    {
-        date: '2026-07-15T21:00:00+02:00',
-        title: 'World Cup Semifinal 2',
-        venue: 'Mercedes-Benz Stadium, Atlanta, GA (3:00 PM ET / 9:00 PM Swedish time)',
-        icon: '🏆',
-        link: '/world-cup'
     },
     {
         date: '2026-07-16T18:30:00+02:00',
@@ -88,20 +61,6 @@ const EVENTS = [
         venue: 'Lion Bar, Skellefteå — Afrobeats/Amapiano/French Afro/Dancehall, 22:00–02:00, entry 80 kr',
         icon: '🌴',
         link: '/lion-bar'
-    },
-    {
-        date: '2026-07-18T23:00:00+02:00',
-        title: 'World Cup Third Place Play-off',
-        venue: 'Hard Rock Stadium, Miami Gardens, FL (5:00 PM ET / 11:00 PM Swedish time)',
-        icon: '🏆',
-        link: '/world-cup'
-    },
-    {
-        date: '2026-07-19T21:00:00+02:00',
-        title: 'World Cup Final',
-        venue: 'MetLife Stadium, East Rutherford, NJ (3:00 PM ET / 9:00 PM Swedish time)',
-        icon: '🏆',
-        link: '/world-cup'
     },
     {
         date: '2026-07-21T18:30:00+02:00',
