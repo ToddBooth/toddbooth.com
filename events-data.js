@@ -21,48 +21,6 @@
 // or removed there — there's no build step tying them together automatically.
 const EVENTS = [
     {
-        date: '2026-07-09T18:30:00+02:00',
-        title: 'Trubadurkväll med Julia Lundmark & Co',
-        venue: 'Nordanågården Bistro, Skellefteå',
-        icon: '🎤',
-        link: '/troubadour-evenings'
-    },
-    {
-        date: '2026-07-10T21:00:00+02:00',
-        title: 'Direktören & Kaptenen Live Night',
-        venue: 'Lion Bar, Skellefteå — dance party, doors 21:00',
-        icon: '🕺',
-        link: '/lion-bar'
-    },
-    {
-        date: '2026-07-11T14:00:00+02:00',
-        title: 'Chandan\'s BBQ & Norway Watch Party',
-        venue: 'BBQ 2–6 PM at Fru Lovisas Gata, Erikslid, then into the city to watch Norway vs England at 11 PM — let Todd know if you\'re coming',
-        icon: '🍔',
-        link: '/bbq-party'
-    },
-    {
-        date: '2026-07-14T18:30:00+02:00',
-        title: 'Allsång på Bryggarbacken',
-        venue: 'Bryggarbacken',
-        icon: '🎵',
-        link: '/local-music'
-    },
-    {
-        date: '2026-07-16T18:30:00+02:00',
-        title: 'Trubadurkväll med Julia Lundmark & Co',
-        venue: 'Nordanågården Bistro, Skellefteå',
-        icon: '🎤',
-        link: '/troubadour-evenings'
-    },
-    {
-        date: '2026-07-17T22:00:00+02:00',
-        title: 'Afrobeats Pop Up Bash — Skellefteå Edition',
-        venue: 'Lion Bar, Skellefteå — Afrobeats/Amapiano/French Afro/Dancehall, 22:00–02:00, entry 80 kr',
-        icon: '🌴',
-        link: '/lion-bar'
-    },
-    {
         date: '2026-07-21T18:30:00+02:00',
         title: 'The Drowners (comeback show)',
         venue: 'Bryggarbacken',
@@ -83,10 +41,9 @@ const EVENTS = [
         icon: '🤠',
         link: '/local-music'
     },
-    // --- Sara Kulturhus concerts (Jul 2026 - Apr 2027) — source:
+    // --- Sara Kulturhus concerts (Aug 2026 - Apr 2027) — source:
     // /home/todd/Activities/Current/sara_culture_events.md, captured 2026-07-05.
     // Placeholder 19:00 time on every entry (see file header comment above).
-    { date: '2026-07-16T19:00:00+02:00', title: 'Champian Fulton & Klas Lindqvist', venue: 'Sara Kulturhus, Skellefteå (Scen 4)', icon: '🎼', link: '/sara-kulturhus' },
     { date: '2026-08-28T19:00:00+02:00', title: 'Säsongsöppning med Beethoven och Sjostakovitj', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
     { date: '2026-09-12T19:00:00+02:00', title: 'Ida-Lova + Tjuvjakt', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
     { date: '2026-09-18T19:00:00+02:00', title: 'Från Elvis Presley till Jerry Williams', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
