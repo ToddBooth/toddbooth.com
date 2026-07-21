@@ -1143,12 +1143,13 @@
             return <div className="info-box">{children}</div>;
         }
 
-        function EventCard({ to, icon, title, description, linkText, featured }) {
+        function EventCard({ to, icon, title, date, description, linkText, featured }) {
             return (
                 <Link to={to} className={featured ? 'event-card event-card-featured' : 'event-card'}>
                     <div className="event-card-icon">{icon}</div>
                     <div className="event-card-body">
                         <h3>{title}</h3>
+                        {date && <div className="event-date">{date}</div>}
                         <p>{description}</p>
                         <span className="event-card-link">{linkText} →</span>
                     </div>
@@ -1240,6 +1241,7 @@
                             to="/local-music"
                             icon="🎵"
                             title="Local Live Music"
+                            date="Tue, Jul 21 &amp; Tue, Jul 28, 2026"
                             description="Two summer nights of live music — a '90s Skellefteå band's comeback show and a country closing night."
                             linkText="View event details"
                         />
@@ -1247,6 +1249,7 @@
                             to="/troubadour-evenings"
                             icon="🎤"
                             title="Trubadurkväll med Julia Lundmark &amp; Co"
+                            date="Thu, Jul 23, 2026"
                             description="Free troubadour evening at Nordanågården Bistro in Skellefteå — free entry."
                             linkText="View event details"
                         />
@@ -1254,6 +1257,7 @@
                             to="/sara-kulturhus"
                             icon="🎼"
                             title="Sara Kulturhus Concerts"
+                            date="Aug 2026 – Apr 2027"
                             description="38 upcoming concerts at Sara Kulturhus in Skellefteå — jazz, classical, pop, rock, and more, from August 2026 through April 2027."
                             linkText="View full concert calendar"
                         />
