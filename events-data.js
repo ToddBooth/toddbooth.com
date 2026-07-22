@@ -51,7 +51,7 @@ const EVENTS = [
     {
         date: '2026-07-25T20:00:00+02:00',
         title: 'Live Band Night (Saturday party)',
-        venue: "Bishop's Arms, city center",
+        venue: "Bishop's Arms, city center — found by Loredana!",
         icon: '🎸',
         link: '/saturday-party'
     },
