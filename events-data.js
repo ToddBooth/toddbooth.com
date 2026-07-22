@@ -41,6 +41,13 @@ const EVENTS = [
         icon: '🤠',
         link: '/local-music'
     },
+    {
+        date: '2026-08-07T11:00:00+02:00',
+        title: 'Tribute to Rock Skellefteå 2026',
+        venue: 'Skellefteå, Guldtorget',
+        icon: '🎸',
+        link: '/tribute-to-rock'
+    },
     // --- Sara Kulturhus concerts (Aug 2026 - Apr 2027) — source:
     // /home/todd/Activities/Current/sara_culture_events.md, captured 2026-07-05.
     // Placeholder 19:00 time on every entry (see file header comment above).
