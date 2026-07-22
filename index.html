@@ -834,7 +834,7 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=19"></script>
+    <script src="events-data.js?v=20"></script>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
@@ -1258,7 +1258,7 @@
                             icon="🎉"
                             title="Saturday Fika, BBQ &amp; Live Band"
                             date="Sat, Jul 25, 2026"
-                            description="An afternoon fika &amp; BBQ at Todd's place, then live band music at Bishop's Arms in the evening."
+                            description="An afternoon fika &amp; BBQ at Todd's place, then live band music at Bishop's Arms in the evening — found by Loredana!"
                             linkText="View event details"
                         />
                         <EventCard
@@ -1534,7 +1534,7 @@
                 <div className="page-content">
                     <Link to="/events" className="back-link">← Back to Events</Link>
                     <h1>🎉 Saturday Fika, BBQ &amp; Live Band</h1>
-                    <p className="subtitle">Two events, one day — an afternoon fika &amp; BBQ at Todd's place, then live band night at Bishop's Arms. Saturday, July 25, 2026.</p>
+                    <p className="subtitle">Two events, one day — an afternoon fika &amp; BBQ at Todd's place, then live band night at Bishop's Arms (found by Loredana!). Saturday, July 25, 2026.</p>
 
                     <RsvpNote>
                         📋 <strong>Planning to come?</strong> Let Todd know as early as possible — table
@@ -1572,7 +1572,13 @@
                         </div>
                     </div>
 
-                    <h2>🎸 Live Band Night — Bishop's Arms</h2>
+                    <h2>🎸 Live Band Night — Bishop's Arms (Loredana's Pick!)</h2>
+                    <Callout>
+                        <p>
+                            🌟 <strong>Big thanks to Loredana</strong> — she's the one who found this
+                            live band event at Bishop's Arms! Great find, Loredana!
+                        </p>
+                    </Callout>
                     <div className="event-list">
                         <div className="event">
                             <div className="event-icon">🎸</div>
@@ -1588,7 +1594,7 @@
                             <div>
                                 <div className="event-date">20:00 · Live Band Performance</div>
                                 <h3>Live Music Starts</h3>
-                                <p>Free live band at Bishop's Arms — standing room is usually available, but a dinner table needs an early reservation (see below). Thanks to Loredana for finding this one!</p>
+                                <p>Free live band at Bishop's Arms — standing room is usually available, but a dinner table needs an early reservation (see below). Thanks to <strong>Loredana</strong> for finding this one!</p>
                             </div>
                         </div>
                     </div>
@@ -1605,7 +1611,7 @@
 
                     <h2>More Information</h2>
                     <p>
-                        Live band listing at Bishop's Arms (found by Loredana!):{' '}
+                        Live band listing at Bishop's Arms (found by <strong>Loredana</strong>!):{' '}
                         <a href="https://www.facebook.com/share/1JKpzZzwjp/" target="_blank" rel="noopener noreferrer">
                             Facebook event
                         </a>
