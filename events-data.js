@@ -42,6 +42,20 @@ const EVENTS = [
         link: '/local-music'
     },
     {
+        date: '2026-07-25T15:00:00+02:00',
+        title: 'Fika & BBQ (Saturday party)',
+        venue: "Todd's Place",
+        icon: '🥐',
+        link: '/saturday-party'
+    },
+    {
+        date: '2026-07-25T20:00:00+02:00',
+        title: 'Live Band Night (Saturday party)',
+        venue: "Bishop's Arms, city center",
+        icon: '🎸',
+        link: '/saturday-party'
+    },
+    {
         date: '2026-08-07T11:00:00+02:00',
         title: 'Tribute to Rock Skellefteå 2026',
         venue: 'Skellefteå, Guldtorget',
