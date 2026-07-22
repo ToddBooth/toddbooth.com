@@ -44,7 +44,7 @@ const EVENTS = [
     {
         date: '2026-07-25T15:00:00+02:00',
         title: 'Fika & BBQ (Saturday party)',
-        venue: "Todd's Place",
+        venue: "Todd's Place, Fru Lovisas Gatan 25",
         icon: '🥐',
         link: '/saturday-party'
     },
