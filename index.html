@@ -834,7 +834,7 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=18"></script>
+    <script src="events-data.js?v=19"></script>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
@@ -1080,7 +1080,7 @@
 
         function Header() {
             const location = useLocation();
-            const eventRoutes = ['/events', '/next-31-days', '/local-music', '/troubadour-evenings', '/sara-kulturhus', '/tribute-to-rock'];
+            const eventRoutes = ['/events', '/next-31-days', '/local-music', '/troubadour-evenings', '/sara-kulturhus', '/tribute-to-rock', '/saturday-party'];
             const eventsActive = eventRoutes.includes(location.pathname);
 
             const tabs = [
@@ -1251,6 +1251,14 @@
                             title="Trubadurkväll med Julia Lundmark &amp; Co"
                             date="Thu, Jul 23, 2026"
                             description="Free troubadour evening at Nordanågården Bistro in Skellefteå — free entry."
+                            linkText="View event details"
+                        />
+                        <EventCard
+                            to="/saturday-party"
+                            icon="🎉"
+                            title="Saturday Fika, BBQ &amp; Live Band"
+                            date="Sat, Jul 25, 2026"
+                            description="An afternoon fika &amp; BBQ at Todd's place, then live band music at Bishop's Arms in the evening."
                             linkText="View event details"
                         />
                         <EventCard
@@ -1516,6 +1524,94 @@
                     </p>
 
                     <p className="updated">Last updated July 8, 2026.</p>
+                </div>
+            );
+        }
+
+        function SaturdayParty() {
+            useTitle('Saturday Fika, BBQ & Live Band | Todd Booth');
+            return (
+                <div className="page-content">
+                    <Link to="/events" className="back-link">← Back to Events</Link>
+                    <h1>🎉 Saturday Fika, BBQ &amp; Live Band</h1>
+                    <p className="subtitle">Two events, one day — an afternoon fika &amp; BBQ at Todd's place, then live band night at Bishop's Arms. Saturday, July 25, 2026.</p>
+
+                    <RsvpNote>
+                        📋 <strong>Planning to come?</strong> Let Todd know as early as possible — table
+                        seating for the live band at Bishop's Arms is limited, and it's first-come,
+                        first-served. Reach out via the <Link to="/contact">Contact page</Link>.
+                    </RsvpNote>
+
+                    <h2>🥐 Fika &amp; BBQ — Todd's Place</h2>
+                    <div className="event-list">
+                        <div className="event">
+                            <div className="event-icon">🥐</div>
+                            <div>
+                                <div className="event-date">15:00 – 15:30 · Fika on the Patio</div>
+                                <h3>Fika &amp; Mingling</h3>
+                                <p>Outdoor patio with a dance floor. Tea, coffee, soda, and small sandwiches, plus fika desserts — a casual start to the afternoon.</p>
+                            </div>
+                        </div>
+
+                        <div className="event">
+                            <div className="event-icon">🍖</div>
+                            <div>
+                                <div className="event-date">16:30 – 17:30 · Light Dinner &amp; BBQ</div>
+                                <h3>BBQ Time</h3>
+                                <p>Snacks, a light dinner, and a small BBQ on the patio.</p>
+                            </div>
+                        </div>
+
+                        <div className="event">
+                            <div className="event-icon">🍻</div>
+                            <div>
+                                <div className="event-date">19:00 · Departure to City</div>
+                                <h3>Heading to Bishop's Arms</h3>
+                                <p>A tequila shot send-off, then the group heads into the city for the live band.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>🎸 Live Band Night — Bishop's Arms</h2>
+                    <div className="event-list">
+                        <div className="event">
+                            <div className="event-icon">🎸</div>
+                            <div>
+                                <div className="event-date">19:30 · Arrival</div>
+                                <h3>Get Settled</h3>
+                                <p>Bishop's Arms, city center (on the square) — securing seating/standing spots before the band starts.</p>
+                            </div>
+                        </div>
+
+                        <div className="event">
+                            <div className="event-icon">🎤</div>
+                            <div>
+                                <div className="event-date">20:00 · Live Band Performance</div>
+                                <h3>Live Music Starts</h3>
+                                <p>Free live band at Bishop's Arms — standing room is usually available, but a dinner table needs an early reservation (see below).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Callout>
+                        <p><strong>Want a dinner seat at Bishop's Arms?</strong></p>
+                        <p>
+                            A free live band means limited seating — it can be hard to secure a good
+                            table, though standing room is usually available. If you'd like Todd to
+                            book you a table, contact him ASAP and confirm right away that you're
+                            coming — it's first-come, first-served with limited seats remaining.
+                        </p>
+                    </Callout>
+
+                    <h2>More Information</h2>
+                    <p>
+                        Live band listing at Bishop's Arms:{' '}
+                        <a href="https://www.facebook.com/share/1JKpzZzwjp/" target="_blank" rel="noopener noreferrer">
+                            Facebook event
+                        </a>
+                    </p>
+
+                    <p className="updated">Last updated July 22, 2026.</p>
                 </div>
             );
         }
@@ -1888,6 +1984,7 @@
                                 <Route path="/troubadour-evenings" element={<TroubadourEvenings />} />
                                 <Route path="/sara-kulturhus" element={<SaraKulturhus />} />
                                 <Route path="/tribute-to-rock" element={<TributeToRock />} />
+                                <Route path="/saturday-party" element={<SaturdayParty />} />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/background" element={<ProfessionalBackground />} />
                                 <Route path="/contact" element={<Contact />} />
