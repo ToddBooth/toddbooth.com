@@ -834,7 +834,7 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=21"></script>
+    <script src="events-data.js?v=22"></script>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
@@ -1256,9 +1256,9 @@
                         <EventCard
                             to="/saturday-party"
                             icon="🎉"
-                            title="Saturday Fika, BBQ &amp; Live Band"
+                            title="Saturday BBQ, Fika &amp; Live Band"
                             date="Sat, Jul 25, 2026"
-                            description="An afternoon fika &amp; BBQ at Todd's place, then live band music at Bishop's Arms in the evening — found by Loredana!"
+                            description="An afternoon BBQ &amp; fika at Todd's place, then live band music at Bishop's Arms in the evening — found by Loredana!"
                             linkText="View event details"
                         />
                         <EventCard
@@ -1529,12 +1529,12 @@
         }
 
         function SaturdayParty() {
-            useTitle('Saturday Fika, BBQ & Live Band | Todd Booth');
+            useTitle('Saturday BBQ, Fika & Live Band | Todd Booth');
             return (
                 <div className="page-content">
                     <Link to="/events" className="back-link">← Back to Events</Link>
-                    <h1>🎉 Saturday Fika, BBQ &amp; Live Band</h1>
-                    <p className="subtitle">Two events, one day — an afternoon fika &amp; BBQ at Todd's place, then live band night at Bishop's Arms (found by Loredana!). Saturday, July 25, 2026.</p>
+                    <h1>🎉 Saturday BBQ, Fika &amp; Live Band</h1>
+                    <p className="subtitle">Two events, one day — an afternoon BBQ &amp; fika at Todd's place, then live band night at Bishop's Arms (found by Loredana!). Saturday, July 25, 2026.</p>
 
                     <RsvpNote>
                         📋 <strong>Planning to come?</strong> Let Todd know if you'd like him to book
@@ -1542,7 +1542,7 @@
                         <Link to="/contact">Contact page</Link>.
                     </RsvpNote>
 
-                    <h2>🥐 Fika &amp; BBQ — Todd's Place</h2>
+                    <h2>🍖 BBQ &amp; Fika — Todd's Place</h2>
                     <InfoBox>
                         <p><strong>Fru Lovisas Gatan 25, lgh 1004</strong></p>
                         <p>Backside patio — come around the back of the building, not the front entrance.</p>
@@ -1568,20 +1568,20 @@
                     </InfoBox>
                     <div className="event-list">
                         <div className="event">
-                            <div className="event-icon">🥐</div>
+                            <div className="event-icon">🍖</div>
                             <div>
-                                <div className="event-date">15:00 – 15:30 · Fika on the Patio</div>
-                                <h3>Fika &amp; Mingling</h3>
-                                <p>Outdoor patio with a dance floor. Tea, coffee, soda, sparkling water, and small sandwiches, plus fika desserts — a casual start to the afternoon. <strong>Todd will supply everything</strong> — you don't need to bring anything.</p>
+                                <div className="event-date">15:00 – 17:00 · BBQ</div>
+                                <h3>BBQ Time</h3>
+                                <p>Grilling on the patio — meat, ribs, sausage, chicken, potato salad, beer, wine, and more. <strong>Todd will supply everything</strong> — you don't need to bring anything.</p>
                             </div>
                         </div>
 
                         <div className="event">
-                            <div className="event-icon">🍖</div>
+                            <div className="event-icon">🥐</div>
                             <div>
-                                <div className="event-date">16:30 – 17:30 · Light Dinner &amp; BBQ</div>
-                                <h3>BBQ Time</h3>
-                                <p>Snacks, a light dinner, and a small BBQ on the patio — grilling meat, ribs, sausage, chicken, potato salad, beer, wine, and more. <strong>Todd will again supply everything</strong> — you don't need to bring anything.</p>
+                                <div className="event-date">17:00 – 19:00 · Coffee &amp; Fika</div>
+                                <h3>Fika &amp; Mingling</h3>
+                                <p>Outdoor patio with a dance floor. Tea, coffee, soda, sparkling water, and small sandwiches, plus fika desserts. <strong>Todd will again supply everything</strong> — you don't need to bring anything.</p>
                             </div>
                         </div>
 
@@ -1638,7 +1638,7 @@
                         </a>
                     </p>
 
-                    <p className="updated">Last updated July 22, 2026.</p>
+                    <p className="updated">Last updated July 25, 2026.</p>
                 </div>
             );
         }
