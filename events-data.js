@@ -56,8 +56,15 @@ const EVENTS = [
         link: '/saturday-party'
     },
     {
-        date: '2026-08-07T11:00:00+02:00',
-        title: 'Tribute to Rock Skellefteå 2026',
+        date: '2026-08-07T12:00:00+02:00',
+        title: 'Tribute to Rock Skellefteå 2026 (Fredag)',
+        venue: 'Skellefteå, Guldtorget',
+        icon: '🎸',
+        link: '/tribute-to-rock'
+    },
+    {
+        date: '2026-08-08T12:00:00+02:00',
+        title: 'Tribute to Rock Skellefteå 2026 (Lördag)',
         venue: 'Skellefteå, Guldtorget',
         icon: '🎸',
         link: '/tribute-to-rock'
