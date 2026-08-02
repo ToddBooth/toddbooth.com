@@ -21,41 +21,6 @@
 // or removed there — there's no build step tying them together automatically.
 const EVENTS = [
     {
-        date: '2026-07-21T19:00:00+02:00',
-        title: 'The Drowners (comeback show)',
-        venue: 'Bryggarbacken',
-        icon: '🎸',
-        link: '/local-music'
-    },
-    {
-        date: '2026-07-23T18:30:00+02:00',
-        title: 'Trubadurkväll med Julia Lundmark & Co',
-        venue: 'Nordanågården Bistro, Skellefteå',
-        icon: '🎤',
-        link: '/troubadour-evenings'
-    },
-    {
-        date: '2026-07-28T19:00:00+02:00',
-        title: 'Ben Carine & The 18-Wheelers (closing night)',
-        venue: 'Bryggarbacken',
-        icon: '🤠',
-        link: '/local-music'
-    },
-    {
-        date: '2026-07-25T15:00:00+02:00',
-        title: 'BBQ & Fika (Saturday party)',
-        venue: "Todd's Place, Fru Lovisas Gatan 25",
-        icon: '🥐',
-        link: '/saturday-party'
-    },
-    {
-        date: '2026-07-25T20:00:00+02:00',
-        title: 'Live Band Night (Saturday party)',
-        venue: "Bishop's Arms, city center — found by Loredana!",
-        icon: '🎸',
-        link: '/saturday-party'
-    },
-    {
         date: '2026-08-07T12:00:00+02:00',
         title: 'Tribute to Rock Skellefteå 2026 (Fredag)',
         venue: 'Skellefteå, Guldtorget',
