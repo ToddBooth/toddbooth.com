@@ -1080,7 +1080,7 @@
 
         function Header() {
             const location = useLocation();
-            const eventRoutes = ['/events', '/next-31-days', '/local-music', '/troubadour-evenings', '/sara-kulturhus', '/tribute-to-rock', '/saturday-party'];
+            const eventRoutes = ['/events', '/next-31-days', '/sara-kulturhus', '/tribute-to-rock'];
             const eventsActive = eventRoutes.includes(location.pathname);
 
             const tabs = [
@@ -1238,30 +1238,6 @@
                             featured
                         />
                         <EventCard
-                            to="/local-music"
-                            icon="🎵"
-                            title="Local Live Music"
-                            date="Tue, Jul 21 &amp; Tue, Jul 28, 2026"
-                            description="Two summer nights of live music — a '90s Skellefteå band's comeback show and a country closing night."
-                            linkText="View event details"
-                        />
-                        <EventCard
-                            to="/troubadour-evenings"
-                            icon="🎤"
-                            title="Trubadurkväll med Julia Lundmark &amp; Co"
-                            date="Thu, Jul 23, 2026"
-                            description="Free troubadour evening at Nordanågården Bistro in Skellefteå — free entry."
-                            linkText="View event details"
-                        />
-                        <EventCard
-                            to="/saturday-party"
-                            icon="🎉"
-                            title="Saturday BBQ, Fika &amp; Live Band"
-                            date="Sat, Jul 25, 2026"
-                            description="An afternoon BBQ &amp; fika at Todd's place, then live band music at Bishop's Arms in the evening — found by Loredana!"
-                            linkText="View event details"
-                        />
-                        <EventCard
                             to="/sara-kulturhus"
                             icon="🎼"
                             title="Sara Kulturhus Concerts"
@@ -1327,93 +1303,6 @@
             );
         }
 
-        function LocalMusic() {
-            useTitle('Local Live Music — Bryggarbacken | Todd Booth');
-            return (
-                <div className="page-content">
-                    <Link to="/events" className="back-link">← Back to Events</Link>
-                    <h1>🎵 Local Live Music — Bryggarbacken</h1>
-                    <p className="subtitle">Two summer nights of live music at Bryggarbacken. Updated July 7, 2026.</p>
-
-                    <RsvpNote>
-                        📋 <strong>Planning to come?</strong> Let Todd know so he can book a table for you —
-                        reach out via the <Link to="/contact">Contact page</Link>.
-                    </RsvpNote>
-
-                    <div className="event-list">
-                        <div className="event">
-                            <div className="event-icon">🎸</div>
-                            <div>
-                                <div className="event-date">Tuesday, July 21, 2026 · 19:00</div>
-                                <h3>The Drowners</h3>
-                                <p>A comeback show from the Skellefteå band that was big in the '90s.</p>
-                            </div>
-                        </div>
-
-                        <div className="event">
-                            <div className="event-icon">🤠</div>
-                            <div>
-                                <div className="event-date">Tuesday, July 28, 2026 · 19:00</div>
-                                <h3>Ben Carine &amp; The 18-Wheelers</h3>
-                                <p>Country night — the closing show of the series.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p className="updated">Last updated July 7, 2026.</p>
-                </div>
-            );
-        }
-
-        function TroubadourEvenings() {
-            useTitle('Trubadurkväll med Julia Lundmark & Co | Todd Booth');
-            return (
-                <div className="page-content">
-                    <Link to="/events" className="back-link">← Back to Events</Link>
-                    <h1>🎤 Trubadurkväll med Julia Lundmark &amp; Co</h1>
-                    <p className="subtitle">Troubadour Evening with Julia Lundmark &amp; Co — live music at Nordanågården Bistro, Skellefteå. Updated July 7, 2026.</p>
-
-                    <p>
-                        Julia Lundmark &amp; co play live at Nordanågården Bistro on select Thursday
-                        evenings this summer. Bring family, friends, or colleagues for music, food,
-                        and drinks — free entry.
-                    </p>
-
-                    <h2>Upcoming Date</h2>
-                    <Callout>
-                        <p><strong>18:30</strong></p>
-                        <ul>
-                            <li>Thursday, July 23, 2026</li>
-                        </ul>
-                    </Callout>
-
-                    <h2>Venue</h2>
-                    <InfoBox>
-                        <p><strong>Nordanågården Bistro</strong></p>
-                        <p>Strandgatan 4, 931 33 Skellefteå, Sweden</p>
-                        <p>Free parking available. Wheelchair accessible, gender-neutral restrooms.</p>
-                        <p>Phone: <a href="tel:+46091053350">+46 910 53 350</a> · Website: <a href="http://www.nordanagarden.se" target="_blank" rel="noopener noreferrer">nordanagarden.se</a></p>
-                    </InfoBox>
-
-                    <h2>Good to Know</h2>
-                    <ul className="plain">
-                        <li>Free admission ("Fri entré")</li>
-                        <li>Some dates offer a seafood platter option with table reservations — contact Nordanågården Bistro directly (phone or website above) to reserve</li>
-                        <li>Categories: Afterwork, Food &amp; Drink, Music</li>
-                    </ul>
-
-                    <h2>More Information &amp; Source</h2>
-                    <p>
-                        Full listing, updates, and any additional dates:{' '}
-                        <a href="https://www.visitskelleftea.se/sv/evenemangsarkiv/trubadurkvall-med-julia-lundmark-co/" target="_blank" rel="noopener noreferrer">
-                            Visit Skellefteå — Trubadurkväll med Julia Lundmark &amp; co
-                        </a>
-                    </p>
-
-                    <p className="updated">Last updated July 7, 2026.</p>
-                </div>
-            );
-        }
 
         function SaraKulturhus() {
             useTitle('Sara Kulturhus Concerts | Todd Booth');
@@ -1528,122 +1417,7 @@
             );
         }
 
-        function SaturdayParty() {
-            useTitle('Saturday BBQ, Fika & Live Band | Todd Booth');
-            return (
-                <div className="page-content">
-                    <Link to="/events" className="back-link">← Back to Events</Link>
-                    <h1>🎉 Saturday BBQ, Fika &amp; Live Band</h1>
-                    <p className="subtitle">Two events, one day — an afternoon BBQ &amp; fika at Todd's place, then live band night at Bishop's Arms (found by Loredana!). Saturday, July 25, 2026.</p>
-
-                    <RsvpNote>
-                        📋 <strong>Planning to come?</strong> Let Todd know if you'd like him to book
-                        you a table at Bishop's Arms — we'll have two tables. Reach out via the{' '}
-                        <Link to="/contact">Contact page</Link>.
-                    </RsvpNote>
-
-                    <h2>🍖 BBQ &amp; Fika — Todd's Place</h2>
-                    <InfoBox>
-                        <p><strong>Fru Lovisas Gatan 25, lgh 1004</strong></p>
-                        <p>Backside patio — come around the back of the building, not the front entrance.</p>
-                        <p>
-                            <a href="https://maps.app.goo.gl/ncWU7Ph7fs8ButD99" target="_blank" rel="noopener noreferrer">
-                                🗺️ View on Google Maps
-                            </a>
-                        </p>
-                        <p>
-                            <strong>Driving directions:</strong> at the nearby roundabout, go{' '}
-                            <strong>North</strong> (not West), then take a quick left, another quick
-                            left, and then a quick right.
-                        </p>
-                        <p>
-                            📱 Guests can text Todd at{' '}
-                            <a href="sms:+46725197773">072-519.7773</a> and ask him to share his live
-                            Google Maps GPS location.
-                        </p>
-                        <p>
-                            🚗 Planning to drive and park? Text Todd for detailed car parking
-                            directions.
-                        </p>
-                    </InfoBox>
-                    <div className="event-list">
-                        <div className="event">
-                            <div className="event-icon">🍖</div>
-                            <div>
-                                <div className="event-date">15:00 – 17:00 · BBQ</div>
-                                <h3>BBQ Time</h3>
-                                <p>Grilling on the patio — meat, ribs, sausage, chicken, potato salad, beer, wine, and more. <strong>Todd will supply everything</strong> — you don't need to bring anything.</p>
-                            </div>
-                        </div>
-
-                        <div className="event">
-                            <div className="event-icon">🥐</div>
-                            <div>
-                                <div className="event-date">17:00 – 19:00 · Coffee &amp; Fika</div>
-                                <h3>Fika &amp; Mingling</h3>
-                                <p>Outdoor patio with a dance floor. Tea, coffee, soda, sparkling water, and small sandwiches, plus fika desserts. <strong>Todd will again supply everything</strong> — you don't need to bring anything.</p>
-                            </div>
-                        </div>
-
-                        <div className="event">
-                            <div className="event-icon">🍻</div>
-                            <div>
-                                <div className="event-date">19:00 · Departure to City</div>
-                                <h3>Heading to Bishop's Arms</h3>
-                                <p>A tequila shot send-off, then the group heads into the city for the live band.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h2>🎸 Live Band Night — Bishop's Arms (Loredana's Pick!)</h2>
-                    <Callout>
-                        <p>
-                            🌟 <strong>Big thanks to Loredana</strong> — she's the one who found this
-                            live band event at Bishop's Arms! Great find, Loredana!
-                        </p>
-                    </Callout>
-                    <div className="event-list">
-                        <div className="event">
-                            <div className="event-icon">🎸</div>
-                            <div>
-                                <div className="event-date">19:30 · Arrival</div>
-                                <h3>Get Settled</h3>
-                                <p>Bishop's Arms, city center (on the square) — securing seating/standing spots before the band starts.</p>
-                            </div>
-                        </div>
-
-                        <div className="event">
-                            <div className="event-icon">🎤</div>
-                            <div>
-                                <div className="event-date">20:00 · Live Band Performance</div>
-                                <h3>Live Music Starts</h3>
-                                <p>Free live band at Bishop's Arms. Thanks to <strong>Loredana</strong> for finding this one!</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <Callout>
-                        <p><strong>Want a table at Bishop's Arms?</strong></p>
-                        <p>
-                            Just let Todd know if you'd like him to book you a place at a table —
-                            we'll have two tables reserved.
-                        </p>
-                    </Callout>
-
-                    <h2>More Information</h2>
-                    <p>
-                        Live band listing at Bishop's Arms (found by <strong>Loredana</strong>!):{' '}
-                        <a href="https://www.facebook.com/share/1JKpzZzwjp/" target="_blank" rel="noopener noreferrer">
-                            Facebook event
-                        </a>
-                    </p>
-
-                    <p className="updated">Last updated July 25, 2026.</p>
-                </div>
-            );
-        }
-
-        function TributeToRock() {
+function TributeToRock() {
             useTitle('Tribute to Rock Skellefteå 2026 | Todd Booth');
             return (
                 <div className="page-content">
@@ -2007,11 +1781,8 @@
                                 <Route path="/" element={<Home />} />
                                 <Route path="/events" element={<Events />} />
                                 <Route path="/next-31-days" element={<Next31Days />} />
-                                <Route path="/local-music" element={<LocalMusic />} />
-                                <Route path="/troubadour-evenings" element={<TroubadourEvenings />} />
                                 <Route path="/sara-kulturhus" element={<SaraKulturhus />} />
                                 <Route path="/tribute-to-rock" element={<TributeToRock />} />
-                                <Route path="/saturday-party" element={<SaturdayParty />} />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/background" element={<ProfessionalBackground />} />
                                 <Route path="/contact" element={<Contact />} />
