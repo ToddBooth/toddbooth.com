@@ -632,6 +632,12 @@
             margin: -0.5rem 0 2rem;
         }
 
+        .media-warning {
+            color: #b34700;
+            font-weight: 600;
+            margin: 0.4rem 0;
+        }
+
         .sources {
             margin: 0.5rem 0 0 1.5rem;
             font-size: 0.9rem;
@@ -1086,6 +1092,7 @@
             const tabs = [
                 { to: '/', label: 'Home', end: true },
                 { to: '/events', label: 'Events', forceActive: eventsActive },
+                { to: '/movies', label: 'Movies & Series' },
                 { to: '/about', label: 'About Me' },
                 { to: '/background', label: 'Professional Background' },
                 { to: '/contact', label: 'Contact' }
@@ -1463,6 +1470,136 @@ function TributeToRock() {
             );
         }
 
+        // ---------------------------------------------------------------
+        // Movies & Series
+        //
+        // Source of truth is Cloud-Azure/Web_Service/Personal/Movie_Planning/
+        // top_10_movies.md and top_10_series.md — manually synced here, no
+        // build step (same pattern as events-data.js). IMDb ratings were
+        // verified directly on imdb.com via Playwright, not estimated from
+        // search snippets; streaming-inclusion (base subscription vs. an
+        // extra rental/purchase fee) was verified the same way on each
+        // service's own Swedish site. See those two .md files' own
+        // "Anteckningar" sections for the full verification methodology.
+        // ---------------------------------------------------------------
+
+        const MOVIES_NOW = [
+            { title: 'Sinners', service: 'HBO Max', premiere: '2025', rating: '7.5', desc: 'Övernaturlig skräckfilm i sydstatsmiljö om tvillingbröderna Smoke och Stack som återvänder till sin hemstad för att göra ett nytt försök till ett bättre liv. Kritikerhyllad och en av de senaste årens mest omtalade filmer.', cast: "Michael B. Jordan, Hailee Steinfeld, Jack O'Connell, Wunmi Mosaku", imdb: 'https://www.imdb.com/title/tt31193180/' },
+            { title: 'Frankenstein', service: 'Netflix', premiere: '22 januari 2026', rating: '7.4', desc: 'Guillermo del Toros gotiska tolkning av Mary Shelleys klassiker, om vetenskapsmannen Victor Frankenstein och varelsen han skapar. Ingår i Netflix-abonnemanget utan extra kostnad.', cast: 'Oscar Isaac, Jacob Elordi, Mia Goth, Christoph Waltz', imdb: 'https://www.imdb.com/title/tt1312221/' },
+            { title: 'Trustorhärvan', service: 'Netflix', premiere: '5 augusti 2026', rating: '7.4', ratingNote: ' (endast ~79 röster ännu, tidigt betyg)', desc: 'Svensk dokumentär om Trustor-affären, en av Sveriges största finansskandaler. Joachim Posener framträder för första gången på länge och berättar sin version för dokumentärfilmaren Karin af Klintberg. Bekräftat: ingår i Netflix-abonnemanget (från 129 kr/månad), ingen extra avgift.', cast: 'Joachim Posener, Karin af Klintberg (regi)', imdb: 'https://www.imdb.com/title/tt5072334/' },
+            { title: 'Nuremberg', service: 'Netflix', premiere: 'Februari 2026', rating: '7.3', desc: 'Historiskt drama om den amerikanske psykiatern Douglas Kelley, som ska avgöra om nazistiska krigsförbrytare är tillräkneliga för att ställas inför rätta, och hans möte med Hermann Göring.', cast: 'Rami Malek, Russell Crowe, Michael Shannon', imdb: 'https://www.imdb.com/title/tt29567915/' },
+            { title: 'Predator: Badlands', service: 'Disney+', premiere: '6 augusti 2026', rating: '7.2', desc: 'Actionfylld sci-fi där en ung Predator, utstött från sin klan, hittar en oväntad allierad i Thia. Bekräftat direkt på disneyplus.com: ingår i det vanliga Disney+-abonnemanget, ingen Premier Access eller extra engångsavgift.', cast: 'Elle Fanning, Dimitrius Schuster-Koloamatangi', imdb: 'https://www.imdb.com/title/tt31227572/' },
+            { title: 'Den svenska länken', service: 'Netflix', premiere: '19 februari 2026', rating: '6.9', desc: 'Svensk biografisk dramafilm om utrikesministeriets tjänsteman Gösta Engzell, som under andra världskrigets mörkaste skeden räddade tusentals judiska liv genom att utfärda visum.', cast: 'Henrik Dorsin, Sissela Benn, Johan Glans, Jonas Karlsson', imdb: 'https://www.imdb.com/title/tt28793125/' },
+            { title: 'Is God Is', service: 'Prime Video', premiere: '15 maj 2026', rating: '6.5', warning: 'Kostar extra: Verifierat på primevideo.com att filmen INTE ingår i Prime-medlemskapet — den finns bara att hyra eller köpa separat (ca 14,99 US$/hyra).', desc: 'Sydstatsgotisk hämndthriller (Aleshea Harris regidebut) om tvillingsystrar som skickas av sin frånvarande mor för att döda fadern som stympade dem.', cast: 'Kara Young, Mallori Johnson, Janelle Monáe, Sterling K. Brown', imdb: 'https://www.imdb.com/title/tt34379307/' },
+            { title: 'Enola Holmes 3', service: 'Netflix', premiere: '1 juli 2026', rating: '5.7', desc: 'Millie Bobby Brown är tillbaka som Sherlock Holmes lillasyster, som denna gång jagar ett svårlöst fall på Malta.', cast: 'Millie Bobby Brown, Louis Partridge, Henry Cavill, Helena Bonham Carter', imdb: 'https://www.imdb.com/title/tt32278481/' },
+            { title: '72 Hours', service: 'Netflix', premiere: '24 juli 2026', rating: '5.4', desc: 'R-märkt komedi där en 40-årig reklamchef av misstag läggs till i en svensexa-gruppchatt och hakar på resan. Blandade recensioner men enormt tittande.', cast: 'Kevin Hart, Marcello Hernández, Teyana Taylor, Andy Garcia', imdb: 'https://www.imdb.com/title/tt36304003/' },
+            { title: "Five Nights at Freddy's 2", service: 'Netflix', premiere: '3 augusti 2026', rating: '5.1', desc: 'Skräckuppföljare där Abby smiter iväg för att återknyta kontakten med animatronerna från Freddy Fazbears pizzeria, vilket sätter mörka hemligheter i rörelse.', cast: 'Josh Hutcherson, Elizabeth Lail, Piper Rubio, Matthew Lillard', imdb: 'https://www.imdb.com/title/tt30274401/' },
+        ];
+
+        const MOVIES_SOON = [
+            { title: 'Normal', service: 'HBO Max', premiere: '14 augusti 2026', rating: '6.3', desc: 'Brottsthriller där en tillförordnad sheriff i den fiktiva staden Normal, Minnesota, dras in i en mörk konspiration efter ett misslyckat bankrån. Regisserad av Ben Wheatley.', cast: 'Bob Odenkirk, Lena Headey, Henry Winkler', imdb: 'https://www.imdb.com/title/tt31195136/' },
+            { title: 'Mother Mary', service: 'HBO Max', premiere: '21 augusti 2026', rating: '5.5', desc: 'A24:s musikaliska psykologiska drama/thriller där en popstjärna återförenas med sin frånvarande bästa vän kvällen före en comeback-konsert.', cast: 'Anne Hathaway, Michaela Coel, Hunter Schafer', imdb: 'https://www.imdb.com/title/tt27200708/' },
+            { title: 'The Strangers: Chapter 2', service: 'HBO Max', premiere: '7 augusti 2026', rating: '4.7', desc: 'Skräckuppföljare där Maya på nytt måste överleva en natt av terror från tre maskerade mördare i en liten stad utan flyktväg.', cast: 'Madelaine Petsch, Gabriel Basso, Ema Horvath', imdb: 'https://www.imdb.com/title/tt28671344/' },
+            { title: 'In the Lost Lands', service: 'Prime Video', premiere: '7 augusti 2026', rating: '4.7', warning: 'Kostar extra: Verifierat på primevideo.com — INTE inkluderad i Prime-medlemskapet. Endast "Hyr HD" (49 kr) eller "Köp HD" (139 kr).', desc: 'Fantasyfilm baserad på George R.R. Martin, om häxan Gray Alys som måste bevilja alla önskningar hon får, och den mystiske jägaren Boyce som anlitar henne.', cast: 'Milla Jovovich, Dave Bautista', imdb: 'https://www.imdb.com/title/tt4419684/' },
+            { title: 'The Last House', service: 'Netflix', premiere: '7 augusti 2026', rating: null, desc: 'Sci-fi-thriller om en familj på fyra som plötsligt blir inlåsta i sitt hem och måste överleva med sinande resurser och ett mystiskt hot som håller dem fångna.', cast: 'Greta Lee, Wagner Moura', imdb: 'https://www.imdb.com/title/tt32268156/' },
+            { title: 'Camp Rock 3', service: 'Disney+', premiere: '14 augusti 2026', rating: null, desc: 'Musikalisk återupplivning: Connect 3 återvänder till Camp Rock för att hitta en ny förband inför sin återföreningsturné. Bekräftat direkt på disneyplus.com: ingår i det vanliga abonnemanget, ingen extra kostnad.', cast: 'Joe Jonas, Nick Jonas, Kevin Jonas, Maria Canals-Barrera', imdb: 'https://www.imdb.com/title/tt6743524/' },
+            { title: 'Novak Djokovic: The Wolf in Winter', service: 'Prime Video', premiere: '20 augusti 2026', rating: null, desc: 'Dokumentär från regissören bakom "The Last Dance" om Novak Djokovics karriär. Verifierat på primevideo.com: listas som "Coming Soon" utan köp-märkning — allt tyder på att den ingår i medlemskapet, men går inte att bekräfta 100% förrän premiär.', cast: 'Novak Djokovic, Rafael Nadal, Andre Agassi', imdb: 'https://www.imdb.com/title/tt43676563/' },
+            { title: 'The Last Sunrise', service: 'Prime Video', premiere: '26 augusti 2026', rating: null, desc: 'Romantiskt drama om en ung amerikansk kvinna med hälsoproblem som under en sommar på Mallorca finner oväntad kärlek. Verifierat på primevideo.com: listas som "Coming Soon" utan köp/hyr-märkning.', cast: 'Sabrina Bartlett, Eva Longoria, Fernando Lindez', imdb: 'https://www.imdb.com/title/tt36694271/' },
+            { title: 'The Whisper Man', service: 'Netflix', premiere: '28 augusti 2026', rating: null, desc: 'Thriller där en änkling och deckarförfattare, efter att hans son kidnappats, vänder sig till sin frånvarande deckarpappa för hjälp — och upptäcker en koppling till en redan fängslad seriemördare.', cast: 'Robert De Niro, Michelle Monaghan, Adam Scott, Michael Keaton', imdb: 'https://www.imdb.com/title/tt11561116/' },
+            { title: 'Den hemliga kvinnan (The Secret Woman)', service: 'Netflix', premiere: '28 augusti 2026', rating: null, desc: 'Nordisk (dansk) thriller om Louise, vars fridfulla liv på en norsk ö rasar samman när en främling hävdar att hon egentligen är Helene Söderberg, en kvinna som försvann från Danmark för tre år sedan.', cast: 'Natalie Madueño, Claes Bang, Pål Sverre Hagen', imdb: 'https://www.imdb.com/title/tt37275992/' },
+        ];
+
+        const SERIES = [
+            { title: 'The Pitt', service: 'HBO Max', premiere: '2025', rating: '8.9', desc: 'Medicinsk dramaserie i realtid, utspelad under ett enda skift på akutmottagningen på ett sjukhus i Pittsburgh. Kritikerhyllad som en av de bästa nya serierna på flera år.', cast: 'Noah Wyle, Tracy Ifeachor, Patrick Ball, Katherine LaNasa', imdb: 'https://www.imdb.com/title/tt31938062/' },
+            { title: 'A Knight of the Seven Kingdoms', service: 'HBO Max', premiere: '2026', rating: '8.6', desc: 'Utspelar sig hundra år före Game of Thrones. Följer riddaren Ser Duncan den Långe och hans unge väpnare Egg på deras äventyr genom Westeros, medan huset Targaryen sitter på Järntronen. Lyfts uttryckligen fram som en av de just nu mest populära serierna på HBO Max i Sverige.', cast: 'Peter Claffey, Dexter Sol Ansell', imdb: 'https://www.imdb.com/title/tt27497448/' },
+            { title: 'The Boys', service: 'Prime Video', premiere: 'Säsong 5 (sista säsongen), 2026', rating: '8.5', desc: 'Mörk, satirisk superhjälteserie om en grupp vanliga människor som slåss mot korrupta superhjältar kontrollerade av megabolaget Vought International. Avslutas med sin femte och sista säsong 2026.', cast: 'Karl Urban, Jack Quaid, Antony Starr, Erin Moriarty', imdb: 'https://www.imdb.com/title/tt1190634/' },
+            { title: 'Fallout', service: 'Prime Video', premiere: 'Säsong 2, december 2025', rating: '8.3', desc: 'Baserad på det klassiska spelet. Utspelar sig i ett postapokalyptiskt Los Angeles där invånare från de underjordiska Valven tvingas ut i en brutal, mutantbefolkad ödemark. Verifierat på primevideo.com: ingen "DEAL"-märkning — ingår i Prime-medlemskapet utan extra kostnad.', cast: 'Ella Purnell, Aaron Moten, Walton Goggins', imdb: 'https://www.imdb.com/title/tt12637874/' },
+            { title: 'Only Murders in the Building', service: 'Disney+', premiere: 'Säsong 5, 2025', rating: '8.0', desc: 'Komedideckare om tre grannar besatta av true crime-poddar som startar sin egen podcast för att utreda ett mystiskt dödsfall i sitt lyxiga hus på Upper West Side i New York.', cast: 'Steve Martin, Martin Short, Selena Gomez', imdb: 'https://www.imdb.com/title/tt11691774/' },
+            { title: 'The Bombing of Pan Am 103', service: 'Netflix', premiere: '2025', rating: '7.5', desc: 'Dramaserie om terrorattacken mot Pan Am-flight 103 över Lockerbie, Skottland 1988, och den mångåriga internationella utredningen som följde. Just nu #2 på Netflix Sveriges officiella topp 10-lista över serier (vecka 27/7-2/8 2026).', cast: 'Connor Swindells, Patrick J. Adams, Merritt Wever', imdb: 'https://www.imdb.com/title/tt13592494/' },
+            { title: 'Dune: Prophecy', service: 'HBO Max', premiere: '2024', rating: '7.3', desc: 'Prequel-serie utspelad 10 000 år före Dune-filmerna, om systrarna Valya och Tula Harkonnen som grundar Bene Gesserit-orden och kämpar mot krafter som hotar mänsklighetens framtid.', cast: 'Emily Watson, Olivia Williams, Travis Fimmel', imdb: 'https://www.imdb.com/title/tt10466872/' },
+            { title: 'Svärtan', service: 'SVT Play', premiere: '2026', rating: '7.0', ratingNote: ' (endast ~500 röster ännu, tidigt betyg)', desc: 'Svensk dramaserie baserad på John Ajvide Lindqvists bästsäljande roman "Sommaren 1985", i regi av Björn Stein. För närvarande den mest sedda serien på SVT Plays egen "Populärt"-lista — före både Hotell Romantik och Grace. Gratis att se, ingår i det svenska public service-utbudet utan extra kostnad.', cast: 'Regisserad av Björn Stein, manus av Amy Deasismont', imdb: 'https://www.imdb.com/title/tt38672679/' },
+            { title: 'Ransom Canyon', service: 'Netflix', premiere: 'Säsong 1 (2025) och säsong 2 (2026)', rating: '6.8', desc: 'Romantiskt westerndrama om tre familjer av ranchägare i den fiktiva staden Ransom Canyon, Texas, och kampen om kärlek, arv och mark. Både säsong 1 och säsong 2 ligger just nu på Netflix Sveriges topp 10-lista över serier (#10 respektive #3, vecka 27/7-2/8 2026).', cast: 'Josh Duhamel, Minka Kelly, James Brolin', imdb: 'https://www.imdb.com/title/tt28088031/' },
+            { title: 'The Idaho Murders: College Nightmare', service: 'Netflix', premiere: '2026', rating: '6.7', ratingNote: ' (tidigt betyg)', desc: 'True crime-dokusåpa om morden på fyra collegestudenter i Moscow, Idaho 2022, och den efterföljande polisutredningen och rättsprocessen. Just nu etta på Netflix Sveriges officiella topp 10-lista över serier (vecka 27/7-2/8 2026).', cast: null, imdb: 'https://www.imdb.com/title/tt43680755/' },
+        ];
+
+        function MediaCard({ icon, title, service, premiere, rating, ratingNote, warning, desc, cast, imdb }) {
+            return (
+                <div className="event">
+                    <div className="event-icon">{icon}</div>
+                    <div>
+                        <div className="event-date">
+                            {service} · {premiere}{rating ? ` · IMDb ${rating}/10${ratingNote || ''}` : ' · IMDb: Ej betygsatt än (ej släppt)'}
+                        </div>
+                        <h3>{title}</h3>
+                        {warning && <p className="media-warning">⚠️ {warning}</p>}
+                        <p>{desc}</p>
+                        {cast && <p style={{ fontSize: '0.9rem', color: '#777', marginTop: '0.4rem' }}><strong>Skådespelare:</strong> {cast}</p>}
+                        <p style={{ marginTop: '0.5rem' }}>
+                            <a href={imdb} target="_blank" rel="noopener noreferrer">Visa på IMDb →</a>
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        function MoviesAndSeries() {
+            useTitle('Movies & Series | Todd Booth');
+            return (
+                <div className="page-content">
+                    <h1>🎬 Movies &amp; Series</h1>
+                    <p className="subtitle">
+                        My running watchlist of what's popular on streaming right now — content is in
+                        Swedish since it's built for what's popular in Sweden specifically. Betyg och
+                        prenumerationsstatus är verifierade direkt på imdb.com och på respektive
+                        streamingtjänsts svenska webbplats (Netflix, Disney+, HBO Max, Amazon Prime
+                        Video, SVT Play).
+                    </p>
+
+                    <Callout>
+                        <p>
+                            <strong>Så här verifieras listorna:</strong> IMDb-betyg hämtas direkt från
+                            imdb.com, inte från sökresultat-uppskattningar. Prenumerationsstatus
+                            (ingår vs. kostar extra) kontrolleras direkt på respektive tjänsts egen
+                            svenska sajt. Serierna är dessutom valda utifrån Netflix Tudums officiella
+                            Sverige-topplista och SVT Plays egen "Populärt"-lista där det är möjligt.
+                        </p>
+                    </Callout>
+
+                    <h2>🎞️ Filmer — Tillgängliga just nu</h2>
+                    <div className="event-list">
+                        {MOVIES_NOW.map((m, i) => (
+                            <MediaCard key={i} icon="🎬" {...m} />
+                        ))}
+                    </div>
+
+                    <h2>🎞️ Filmer — Kommer inom 1 månad</h2>
+                    <div className="event-list">
+                        {MOVIES_SOON.map((m, i) => (
+                            <MediaCard key={i} icon="🎬" {...m} />
+                        ))}
+                    </div>
+
+                    <h2>📺 Serier</h2>
+                    <div className="event-list">
+                        {SERIES.map((s, i) => (
+                            <MediaCard key={i} icon="📺" {...s} />
+                        ))}
+                    </div>
+
+                    <h2>Källor &amp; metod</h2>
+                    <p>
+                        Fullständig metodik, källor och anteckningar för varje lista finns i{' '}
+                        <code>Movie_Planning/top_10_movies.md</code> och{' '}
+                        <code>Movie_Planning/top_10_series.md</code> i projektets repo. Endast
+                        Netflix, Disney+, HBO Max, Amazon Prime Video och SVT Play ingår. Betyg för
+                        filmer som ännu inte haft premiär visas som "Ej betygsatt än".
+                    </p>
+
+                    <p className="updated">Last updated August 6, 2026.</p>
+                </div>
+            );
+        }
+
         function About() {
             useTitle('About Me | Todd Booth');
             return (
@@ -1783,6 +1920,7 @@ function TributeToRock() {
                                 <Route path="/next-31-days" element={<Next31Days />} />
                                 <Route path="/sara-kulturhus" element={<SaraKulturhus />} />
                                 <Route path="/tribute-to-rock" element={<TributeToRock />} />
+                                <Route path="/movies" element={<MoviesAndSeries />} />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/background" element={<ProfessionalBackground />} />
                                 <Route path="/contact" element={<Contact />} />
