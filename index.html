@@ -2183,13 +2183,14 @@ function TributeToRock() {
             const [sending, setSending] = useState(false);
             const [error, setError] = useState(null);
             const [lastUsage, setLastUsage] = useState(null);
+            const [budget, setBudget] = useState(null);
             const logRef = React.useRef(null);
 
             useEffect(() => {
                 let cancelled = false;
                 fetch(API_BASE + '/api/chat/status', { cache: 'no-store' })
                     .then(r => r.json())
-                    .then(d => { if (!cancelled) setStatus(d); })
+                    .then(d => { if (!cancelled) { setStatus(d); setBudget(d.budget || null); } })
                     .catch(() => { if (!cancelled) setStatus({ configured: false, unreachable: true }); });
                 return () => { cancelled = true; };
             }, []);
@@ -2220,6 +2221,11 @@ function TributeToRock() {
                         body: JSON.stringify({ messages: next.slice(-10) }),
                     });
                     const data = await res.json().catch(() => null);
+
+                    // The backend returns the current budget on both the success
+                    // path and the 429 "daily limit reached" path, so the page
+                    // stays accurate without polling for it.
+                    if (data && data.budget) setBudget(data.budget);
 
                     if (!res.ok) {
                         setError((data && data.error) || ('HTTP ' + res.status));
@@ -2272,6 +2278,12 @@ function TributeToRock() {
 
                         {error && <div className="chat-error">{error}</div>}
 
+                        {budget && budget.exhausted ? (
+                            <div className="chat-error">
+                                This chatbot has reached its daily usage limit. It resets at{' '}
+                                {new Date(budget.resetsAtUtc).toLocaleString()}.
+                            </div>
+                        ) : (
                         <form className="chat-input-row" onSubmit={send}>
                             <input
                                 type="text"
@@ -2286,6 +2298,7 @@ function TributeToRock() {
                                 Send
                             </button>
                         </form>
+                        )}
                     </div>
 
                     <p className="chat-meta">
@@ -2297,6 +2310,11 @@ function TributeToRock() {
                         {status.limits && (
                             <span> · {status.limits.requestsPer5Min} requests per 5 minutes per visitor,
                                    {' '}{status.limits.maxOutputTokens} token replies</span>
+                        )}
+                        {budget && (
+                            <span> · today: {budget.tokensRemaining.toLocaleString()} of{' '}
+                                {budget.tokenLimit.toLocaleString()} tokens left
+                                ({budget.requestsRemaining} of {budget.requestLimit} replies)</span>
                         )}
                     </p>
 
