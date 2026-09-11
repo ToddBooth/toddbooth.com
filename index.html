@@ -929,6 +929,104 @@
         }
 
         .smoke-run:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        /* --- DeepSeek chatbot on /api-test --- */
+        .chat-box {
+            border: 1px solid #dfe4e8;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0 1.5rem;
+        }
+
+        .chat-log {
+            max-height: 420px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #fff;
+        }
+
+        .chat-empty {
+            color: #7f8c8d;
+            text-align: center;
+            padding: 2rem 1rem;
+            font-size: 0.95rem;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 0.6rem 0.9rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+
+        .chat-msg.user {
+            background: #3498db;
+            color: #fff;
+            margin-left: auto;
+            border-bottom-right-radius: 3px;
+        }
+
+        .chat-msg.assistant {
+            background: #f1f3f5;
+            color: #2c3e50;
+            border-bottom-left-radius: 3px;
+        }
+
+        .chat-msg.pending { color: #7f8c8d; font-style: italic; }
+
+        .chat-input-row {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-top: 1px solid #dfe4e8;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            min-width: 0;
+            padding: 0.6rem 0.9rem;
+            border: 1px solid #cfd6dc;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .chat-input-row input:disabled { background: #eceff1; }
+
+        .chat-send {
+            background: #3498db;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.4rem;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .chat-send:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        .chat-error {
+            background: #fdedec;
+            color: #c0392b;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .chat-meta {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 0.35rem;
+        }
+
+        @media (max-width: 480px) {
+            .chat-msg { max-width: 95%; }
+            .chat-send { padding: 0.6rem 1rem; }
+        }
     </style>
 </head>
 
@@ -2078,6 +2176,141 @@ function TributeToRock() {
             );
         }
 
+        function ChatBot() {
+            const [status, setStatus] = useState(null);     // null = still checking
+            const [messages, setMessages] = useState([]);   // {role, content}
+            const [draft, setDraft] = useState('');
+            const [sending, setSending] = useState(false);
+            const [error, setError] = useState(null);
+            const [lastUsage, setLastUsage] = useState(null);
+            const logRef = React.useRef(null);
+
+            useEffect(() => {
+                let cancelled = false;
+                fetch(API_BASE + '/api/chat/status', { cache: 'no-store' })
+                    .then(r => r.json())
+                    .then(d => { if (!cancelled) setStatus(d); })
+                    .catch(() => { if (!cancelled) setStatus({ configured: false, unreachable: true }); });
+                return () => { cancelled = true; };
+            }, []);
+
+            // Keep the newest message in view as the conversation grows.
+            useEffect(() => {
+                if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+            }, [messages, sending]);
+
+            async function send(e) {
+                if (e) e.preventDefault();
+                const text = draft.trim();
+                if (!text || sending) return;
+
+                const next = messages.concat({ role: 'user', content: text });
+                setMessages(next);
+                setDraft('');
+                setError(null);
+                setSending(true);
+
+                try {
+                    const res = await fetch(API_BASE + '/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        // Only the last few turns are sent: the backend caps the
+                        // conversation, and trimming here keeps the cost per call
+                        // predictable rather than growing with the chat.
+                        body: JSON.stringify({ messages: next.slice(-10) }),
+                    });
+                    const data = await res.json().catch(() => null);
+
+                    if (!res.ok) {
+                        setError((data && data.error) || ('HTTP ' + res.status));
+                        return;
+                    }
+                    setMessages(next.concat({ role: 'assistant', content: data.reply }));
+                    setLastUsage(data);
+                } catch (err) {
+                    setError(err.name + ': ' + err.message +
+                             ' — no HTTP status, so this is a network or CORS failure rather than an error from the API.');
+                } finally {
+                    setSending(false);
+                }
+            }
+
+            if (status === null) {
+                return <p className="chat-meta">Checking whether the chat backend is configured…</p>;
+            }
+
+            if (!status.configured) {
+                return (
+                    <InfoBox>
+                        <p><strong>The chatbot is not switched on yet.</strong>{' '}
+                        {status.unreachable
+                            ? 'The backend could not be reached at all.'
+                            : 'The backend is running, but has no DeepSeek API key configured.'}</p>
+                        <p>The key is deliberately held server-side — in Azure Key Vault, read by
+                        the API through its managed identity — so it is never sent to your browser.
+                        Until it is set, this endpoint answers with an honest 503 rather than
+                        pretending to work.</p>
+                    </InfoBox>
+                );
+            }
+
+            return (
+                <div>
+                    <div className="chat-box">
+                        <div className="chat-log" ref={logRef}>
+                            {messages.length === 0 && !sending && (
+                                <p className="chat-empty">
+                                    Ask something to test the full path:<br />
+                                    your browser → Azure App Service → DeepSeek → back again.
+                                </p>
+                            )}
+                            {messages.map((m, i) => (
+                                <div key={i} className={'chat-msg ' + m.role}>{m.content}</div>
+                            ))}
+                            {sending && <div className="chat-msg assistant pending">thinking…</div>}
+                        </div>
+
+                        {error && <div className="chat-error">{error}</div>}
+
+                        <form className="chat-input-row" onSubmit={send}>
+                            <input
+                                type="text"
+                                value={draft}
+                                onChange={e => setDraft(e.target.value)}
+                                placeholder={sending ? 'Waiting for a reply…' : 'Type a message…'}
+                                maxLength={status.limits ? status.limits.maxCharsPerMessage : 2000}
+                                disabled={sending}
+                                aria-label="Message"
+                            />
+                            <button className="chat-send" type="submit" disabled={sending || !draft.trim()}>
+                                Send
+                            </button>
+                        </form>
+                    </div>
+
+                    <p className="chat-meta">
+                        Model <strong>{status.model}</strong>
+                        {lastUsage && lastUsage.completionTokens != null && (
+                            <span> · last reply {lastUsage.completionTokens} completion tokens
+                                   ({lastUsage.promptTokens} prompt)</span>
+                        )}
+                        {status.limits && (
+                            <span> · {status.limits.requestsPer5Min} requests per 5 minutes per visitor,
+                                   {' '}{status.limits.maxOutputTokens} token replies</span>
+                        )}
+                    </p>
+
+                    {messages.length > 0 && (
+                        <p>
+                            <button className="smoke-run" onClick={() => {
+                                setMessages([]); setError(null); setLastUsage(null);
+                            }}>Clear conversation</button>
+                        </p>
+                    )}
+                </div>
+            );
+        }
+
         function ApiTest() {
             useTitle('API Test | Todd Booth');
 
@@ -2209,6 +2442,18 @@ function TributeToRock() {
                         cause is usually CORS or the free tier's daily CPU budget (60 minutes)
                         having run out for the day, rather than the API being broken.</p>
                     </InfoBox>
+
+                    <h2 style={{ marginTop: '2.5rem' }}>Chatbot</h2>
+                    <p>
+                        The same backend, doing something more interesting than saying "ok".
+                        Messages go to the C# API on Azure, which calls <strong>DeepSeek</strong>
+                        {' '}and returns the reply. The API key lives in Azure Key Vault and is
+                        read by the backend through its managed identity — it is never sent to
+                        your browser, which is the whole reason the call is proxied rather than
+                        made directly from this page.
+                    </p>
+
+                    <ChatBot />
                 </div>
             );
         }
