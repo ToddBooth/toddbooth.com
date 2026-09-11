@@ -1017,10 +1017,6 @@
             font-size: 0.9rem;
         }
 
-        .chat-turnstile {
-            margin: 0.25rem 0 0.5rem;
-        }
-
         .chat-meta {
             font-size: 0.8rem;
             color: #7f8c8d;
@@ -2188,11 +2184,7 @@ function TributeToRock() {
             const [error, setError] = useState(null);
             const [lastUsage, setLastUsage] = useState(null);
             const [budget, setBudget] = useState(null);
-            const [botReady, setBotReady] = useState(false);
             const logRef = React.useRef(null);
-            const widgetRef = React.useRef(null);     // the <div> Turnstile renders into
-            const widgetIdRef = React.useRef(null);   // Turnstile's own handle for reset()
-            const tokenRef = React.useRef(null);      // current single-use token
 
             useEffect(() => {
                 let cancelled = false;
@@ -2202,45 +2194,6 @@ function TributeToRock() {
                     .catch(() => { if (!cancelled) setStatus({ configured: false, unreachable: true }); });
                 return () => { cancelled = true; };
             }, []);
-
-            // Load Cloudflare Turnstile and render the widget, but only if the
-            // backend says a site key exists. No key -> no script, no widget.
-            //
-            // NOTE: this <script> deliberately carries NO integrity hash, unlike
-            // every other CDN tag on this site. Cloudflare updates api.js in
-            // place and publishes no hash for it, so SRI is impossible here —
-            // pinning a hash would break the widget the next time they ship.
-            useEffect(() => {
-                const siteKey = status && status.turnstileSiteKey;
-                if (!siteKey) return;
-
-                let cancelled = false;
-
-                function render() {
-                    if (cancelled || !window.turnstile || !widgetRef.current) return;
-                    if (widgetIdRef.current !== null) return;   // already rendered
-                    widgetIdRef.current = window.turnstile.render(widgetRef.current, {
-                        sitekey: siteKey,
-                        callback: (token) => { tokenRef.current = token; setBotReady(true); },
-                        'expired-callback': () => { tokenRef.current = null; setBotReady(false); },
-                        'error-callback': () => { tokenRef.current = null; setBotReady(false); },
-                    });
-                }
-
-                if (window.turnstile) { render(); return; }
-
-                const existing = document.querySelector('script[data-turnstile]');
-                if (existing) { existing.addEventListener('load', render); return () => { cancelled = true; }; }
-
-                const el = document.createElement('script');
-                el.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-                el.async = true;
-                el.defer = true;
-                el.setAttribute('data-turnstile', '1');
-                el.onload = render;
-                document.head.appendChild(el);
-                return () => { cancelled = true; };
-            }, [status]);
 
             // Keep the newest message in view as the conversation grows.
             useEffect(() => {
@@ -2265,10 +2218,7 @@ function TributeToRock() {
                         // Only the last few turns are sent: the backend caps the
                         // conversation, and trimming here keeps the cost per call
                         // predictable rather than growing with the chat.
-                        body: JSON.stringify({
-                            messages: next.slice(-10),
-                            turnstileToken: tokenRef.current,
-                        }),
+                        body: JSON.stringify({ messages: next.slice(-10) }),
                     });
                     const data = await res.json().catch(() => null);
 
@@ -2288,15 +2238,6 @@ function TributeToRock() {
                              ' — no HTTP status, so this is a network or CORS failure rather than an error from the API.');
                 } finally {
                     setSending(false);
-                    // Turnstile tokens are SINGLE-USE and expire after five
-                    // minutes. The one just sent is spent whether or not the
-                    // request succeeded, so always ask for a fresh one —
-                    // reusing it returns 'timeout-or-duplicate'.
-                    if (window.turnstile && widgetIdRef.current !== null) {
-                        tokenRef.current = null;
-                        setBotReady(false);
-                        window.turnstile.reset(widgetIdRef.current);
-                    }
                 }
             }
 
@@ -2353,25 +2294,12 @@ function TributeToRock() {
                                 disabled={sending}
                                 aria-label="Message"
                             />
-                            <button
-                                className="chat-send"
-                                type="submit"
-                                disabled={sending || !draft.trim() || (status.turnstileRequired && !botReady)}
-                            >
+                            <button className="chat-send" type="submit" disabled={sending || !draft.trim()}>
                                 Send
                             </button>
                         </form>
                         )}
                     </div>
-
-                    {status.turnstileSiteKey && (
-                        <div className="chat-turnstile">
-                            <div ref={widgetRef}></div>
-                            {status.turnstileRequired && !botReady && (
-                                <p className="chat-meta">Running a quick bot check…</p>
-                            )}
-                        </div>
-                    )}
 
                     <p className="chat-meta">
                         Model <strong>{status.model}</strong>
