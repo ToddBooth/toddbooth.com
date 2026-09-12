@@ -976,6 +976,7 @@
         }
 
         .chat-msg.pending { color: #7f8c8d; font-style: italic; }
+        .chat-msg.refused { border-left: 3px solid #e67e22; font-style: italic; }
 
         .chat-input-row {
             display: flex;
@@ -2184,6 +2185,7 @@ function TributeToRock() {
             const [error, setError] = useState(null);
             const [lastUsage, setLastUsage] = useState(null);
             const [budget, setBudget] = useState(null);
+            const [notice, setNotice] = useState(null);
             const logRef = React.useRef(null);
 
             useEffect(() => {
@@ -2218,7 +2220,12 @@ function TributeToRock() {
                         // Only the last few turns are sent: the backend caps the
                         // conversation, and trimming here keeps the cost per call
                         // predictable rather than growing with the chat.
-                        body: JSON.stringify({ messages: next.slice(-10) }),
+                        // Assistant turns carry the `sig` the backend attached when it
+                        // wrote them; it verifies those so a visitor cannot forge
+                        // 'assistant' history to steer the model off its rules.
+                        body: JSON.stringify({
+                            messages: next.slice(-10).map(m => ({ role: m.role, content: m.content, sig: m.sig })),
+                        }),
                     });
                     const data = await res.json().catch(() => null);
 
@@ -2229,9 +2236,16 @@ function TributeToRock() {
 
                     if (!res.ok) {
                         setError((data && data.error) || ('HTTP ' + res.status));
+                        // A message the input filter refused is taken back out of the
+                        // log — otherwise it is re-sent as history with every later
+                        // message and refused again each time.
+                        if (data && data.code === 'blocked_input') setMessages(messages);
                         return;
                     }
-                    setMessages(next.concat({ role: 'assistant', content: data.reply }));
+                    setNotice(data.historyDropped
+                        ? 'Earlier messages were not included this time (the backend could not verify them), so this reply only considers your latest message.'
+                        : null);
+                    setMessages(next.concat({ role: 'assistant', content: data.reply, sig: data.sig, refused: !!data.offTopic }));
                     setLastUsage(data);
                 } catch (err) {
                     setError(err.name + ': ' + err.message +
@@ -2266,17 +2280,20 @@ function TributeToRock() {
                         <div className="chat-log" ref={logRef}>
                             {messages.length === 0 && !sending && (
                                 <p className="chat-empty">
-                                    Ask something to test the full path:<br />
-                                    your browser → Azure App Service → DeepSeek → back again.
+                                    Ask about Todd — his background, the events he shares, or how to
+                                    reach him. The full path is your browser → Azure App Service →
+                                    DeepSeek → back again. Anything unrelated to Todd or this site is
+                                    declined.
                                 </p>
                             )}
                             {messages.map((m, i) => (
-                                <div key={i} className={'chat-msg ' + m.role}>{m.content}</div>
+                                <div key={i} className={'chat-msg ' + m.role + (m.refused ? ' refused' : '')}>{m.content}</div>
                             ))}
                             {sending && <div className="chat-msg assistant pending">thinking…</div>}
                         </div>
 
                         {error && <div className="chat-error">{error}</div>}
+                        {notice && <div className="chat-meta">{notice}</div>}
 
                         {budget && budget.exhausted ? (
                             <div className="chat-error">
@@ -2310,6 +2327,11 @@ function TributeToRock() {
                         {status.limits && (
                             <span> · {status.limits.requestsPer5Min} requests per 5 minutes per visitor,
                                    {' '}{status.limits.maxOutputTokens} token replies</span>
+                        )}
+                        {status.guardrails && (
+                            <span> · {status.guardrails.maxStrikes} off-topic or blocked messages within{' '}
+                                {status.guardrails.strikeWindowMinutes} minutes pauses the chat for{' '}
+                                {status.guardrails.blockMinutes} minutes</span>
                         )}
                         {budget && (
                             <span> · today: {budget.tokensRemaining.toLocaleString()} of{' '}
@@ -2469,6 +2491,18 @@ function TributeToRock() {
                         read by the backend through its managed identity — it is never sent to
                         your browser, which is the whole reason the call is proxied rather than
                         made directly from this page.
+                    </p>
+
+                    <p>
+                        <strong>It only talks about Todd and this site.</strong> A public chatbot
+                        with no login is an open invitation to use someone else's LLM credit for
+                        homework, so the backend enforces scope in layers: a cheap input filter
+                        rejects the obvious "ignore your instructions" shapes before any tokens
+                        are spent; the model itself is instructed to decline anything unrelated;
+                        its replies are screened before they reach you; each reply is signed so
+                        the conversation history you send back cannot be forged; and a visitor
+                        who keeps pushing is paused for a while. Try asking it to write code and
+                        watch it decline.
                     </p>
 
                     <ChatBot />
