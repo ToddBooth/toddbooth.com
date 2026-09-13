@@ -1032,6 +1032,17 @@
         .private-tab { padding: 0.5rem 1.1rem; border: 1px solid #bdc3c7; border-radius: 999px; background: #fff; color: #2c3e50; cursor: pointer; font: inherit; font-weight: 600; }
         .private-tab:hover { border-color: #3498db; }
         .private-tab.active { background: #3498db; border-color: #3498db; color: #fff; }
+        /* --- OCI ADB AI panel --- */
+        .adb-section { margin: 1.5rem 0 2rem; }
+        .adb-section h3 { margin: 0 0 0.4rem; }
+        .adb-table { border-collapse: collapse; font-size: 0.88rem; margin: 0.6rem 0; }
+        .adb-table th, .adb-table td { border: 1px solid #dfe6e9; padding: 0.3rem 0.55rem; text-align: left; white-space: nowrap; vertical-align: top; }
+        .adb-table th { background: #f5f7fa; }
+        .adb-pre { background: #2c3e50; color: #ecf0f1; padding: 0.8rem 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; white-space: pre-wrap; margin: 0.6rem 0; }
+        .adb-link { background: none; border: none; color: #3498db; cursor: pointer; padding: 0; font: inherit; text-decoration: underline; }
+        .adb-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin: 0.5rem 0; }
+        .adb-row select, .adb-row input[type=text] { padding: 0.5rem 0.7rem; border: 1px solid #bdc3c7; border-radius: 6px; font: inherit; }
+        .adb-row input[type=text] { flex: 1 1 320px; }
         .private-content ul { padding-left: 1.4rem; }
 
         .chat-meta {
@@ -2556,6 +2567,184 @@ function TributeToRock() {
             });
         }
 
+        // ---- OCI ADB AI: requests against the Autonomous Database ----
+        // Every call goes to the C# API with the Google ID token; the API talks to
+        // Oracle REST Data Services as the low-privilege AI_WEB user. See
+        // backend/README.md § "OCI ADB AI" for what each request does and costs.
+        function ResultTable({ columns, rows }) {
+            if (!rows || rows.length === 0) return <p className="chat-meta">(no rows)</p>;
+            const cols = columns && columns.length ? columns : Object.keys(rows[0]);
+            const cell = (r, c) => { const v = r[c] !== undefined ? r[c] : r[c.toLowerCase()]; return v === null || v === undefined ? '' : String(v); };
+            return (
+                <div style={{ overflowX: 'auto' }}>
+                    <table className="adb-table">
+                        <thead><tr>{cols.map(c => <th key={c}>{c}</th>)}</tr></thead>
+                        <tbody>{rows.map((r, i) => <tr key={i}>{cols.map(c => <td key={c}>{cell(r, c)}</td>)}</tr>)}</tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        function AdbPanel({ token }) {
+            const [status, setStatus] = useState(null);
+            const [busy, setBusy] = useState({});
+            const [err, setErr] = useState({});
+            const [ping, setPing] = useState(null);
+            const [schemas, setSchemas] = useState(null);
+            const [schema, setSchema] = useState(null);
+            const [objects, setObjects] = useState(null);
+            const [table, setTable] = useState(null);
+            const [columns, setColumns] = useState(null);
+            const [question, setQuestion] = useState('How many customers are there in each country?');
+            const [action, setAction] = useState('showsql');
+            const [ai, setAi] = useState(null);
+            const [autoIndex, setAutoIndex] = useState(null);
+
+            async function call(key, path, options, onOk) {
+                setBusy(b => ({ ...b, [key]: true }));
+                setErr(e => ({ ...e, [key]: null }));
+                try {
+                    const res = await fetch(API_BASE + '/api/adb' + path, {
+                        ...(options || {}),
+                        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...((options && options.headers) || {}) },
+                        cache: 'no-store',
+                    });
+                    const data = await res.json().catch(() => null);
+                    if (res.status === 401) throw new Error('Your Google sign-in has expired — sign out and back in.');
+                    if (!res.ok) throw new Error((data && data.error) || ('HTTP ' + res.status));
+                    onOk(data);
+                } catch (e) {
+                    setErr(x => ({ ...x, [key]: e.message }));
+                } finally {
+                    setBusy(b => ({ ...b, [key]: false }));
+                }
+            }
+
+            useEffect(() => { call('status', '/status', null, setStatus); }, []);
+
+            function loadSchemas() { call('schemas', '/schemas', null, setSchemas); }
+            function loadObjects(name) { setSchema(name); setTable(null); setColumns(null); call('objects', '/objects?schema=' + name, null, setObjects); }
+            function loadColumns(name) { setTable(name); call('columns', '/columns?schema=' + schema + '&table=' + encodeURIComponent(name), null, setColumns); }
+            function ask(e) {
+                if (e) e.preventDefault();
+                call('ai', '/select-ai', { method: 'POST', body: JSON.stringify({ question, action }) }, d => { setAi(d); call('status', '/status', null, setStatus); });
+            }
+
+            const Err = ({ k }) => err[k] ? <div className="chat-error">{err[k]}</div> : null;
+            const Btn = ({ k, onClick, children }) => <button type="button" className="chat-send" disabled={!!busy[k]} onClick={onClick}>{busy[k] ? 'Working…' : children}</button>;
+
+            if (status === null && !err.status) return <p className="chat-meta">Checking the database connection…</p>;
+            if (err.status) return <div className="chat-error">{err.status}</div>;
+            if (!status.configured) {
+                return (
+                    <InfoBox>
+                        <p><strong>The database connection is not configured yet.</strong> The API needs
+                        <code> ADB_ORDS_BASE</code>, <code>ADB_USER</code> and <code>ADB_PASSWORD</code>.</p>
+                    </InfoBox>
+                );
+            }
+
+            return (
+                <div>
+                    <h2>OCI ADB AI</h2>
+                    <p>
+                        Requests against the Autonomous Database <strong>Neoana-Dev1</strong> (Oracle 26ai, Chicago)
+                        and its SH and SSB sample schemas, made by the API over Oracle's REST endpoint as the
+                        read-only user <strong>{status.user}</strong> on <code>{status.host}</code>. SH is queried;
+                        SSB is browsed but never executed — the user simply has no privileges on its tables.
+                    </p>
+
+                    <div className="adb-section">
+                        <h3>Connection</h3>
+                        <div className="adb-row"><Btn k="ping" onClick={() => call('ping', '/ping', null, setPing)}>Ping the database</Btn>
+                            {ping && <span className="chat-meta">{ping.elapsedMs} ms round trip</span>}</div>
+                        <Err k="ping" />
+                        {ping && (ping.error ? <div className="chat-error">{ping.error}</div> : <ResultTable columns={ping.columns} rows={ping.rows} />)}
+                    </div>
+
+                    <div className="adb-section">
+                        <h3>Schemas and tables</h3>
+                        <div className="adb-row"><Btn k="schemas" onClick={loadSchemas}>List the sample schemas</Btn></div>
+                        <Err k="schemas" />
+                        {schemas && (schemas.error ? <div className="chat-error">{schemas.error}</div> : (
+                            <div>
+                                <ResultTable columns={schemas.columns} rows={schemas.rows} />
+                                <div className="adb-row">
+                                    {schemas.rows.map(r => { const n = r.schema_name || r.SCHEMA_NAME; return (
+                                        <button key={n} type="button" className="adb-link" onClick={() => loadObjects(n)}>tables in {n} →</button>
+                                    ); })}
+                                </div>
+                            </div>
+                        ))}
+                        <Err k="objects" />
+                        {objects && schema && (objects.error ? <div className="chat-error">{objects.error}</div> : (
+                            <div>
+                                <p className="chat-meta">{schema}: click a table for its columns. Row counts are optimizer estimates.</p>
+                                <ResultTable columns={objects.columns} rows={objects.rows.map(r => ({ ...r, table_name: r.table_name }))} />
+                                <div className="adb-row">
+                                    {objects.rows.map(r => { const t = r.table_name || r.TABLE_NAME; return (
+                                        <button key={t} type="button" className="adb-link" onClick={() => loadColumns(t)}>{t}</button>
+                                    ); })}
+                                </div>
+                            </div>
+                        ))}
+                        <Err k="columns" />
+                        {columns && table && (columns.error ? <div className="chat-error">{columns.error}</div> : (
+                            <div><p className="chat-meta">{schema}.{table}</p><ResultTable columns={columns.columns} rows={columns.rows} /></div>
+                        ))}
+                    </div>
+
+                    <div className="adb-section">
+                        <h3>Select AI — ask the database in plain English</h3>
+                        <p className="chat-meta">
+                            The database itself sends the SH table definitions (never rows) to Claude and gets SQL back.
+                            One paid LLM call per question · {status.selectAi.usedToday} of {status.selectAi.dailyLimit} used today ·
+                            "run" executes the generated SQL, capped at {status.maxRows} rows.
+                        </p>
+                        <form onSubmit={ask}>
+                            <div className="adb-row">
+                                <input type="text" value={question} onChange={e => setQuestion(e.target.value)} maxLength={status.selectAi.maxQuestionChars} aria-label="Question" />
+                                <select value={action} onChange={e => setAction(e.target.value)} aria-label="Action">
+                                    <option value="showsql">show the SQL</option>
+                                    <option value="explainsql">explain the SQL</option>
+                                    <option value="runsql">run it (rows)</option>
+                                    <option value="narrate">narrate (prose)</option>
+                                </select>
+                                <button type="submit" className="chat-send" disabled={!!busy.ai || question.trim().length < 3}>{busy.ai ? 'Asking…' : 'Ask'}</button>
+                            </div>
+                        </form>
+                        <Err k="ai" />
+                        {ai && (
+                            <div>
+                                {ai.error && <div className="chat-error">{ai.error}</div>}
+                                {ai.sql && <pre className="adb-pre">{ai.sql}</pre>}
+                                {ai.text && <pre className="adb-pre">{ai.text}</pre>}
+                                {ai.refused && <div className="chat-error">{ai.refused}</div>}
+                                {ai.rows && <ResultTable columns={ai.columns} rows={ai.rows} />}
+                                <p className="chat-meta">{ai.action} · {ai.elapsedMs} ms</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="adb-section">
+                        <h3>Automatic indexing — the database tuning itself</h3>
+                        <p className="chat-meta">No LLM involved: the database watches its own workload, tests candidate indexes invisibly and keeps the ones that win. Read-only report, last 7 days.</p>
+                        <div className="adb-row"><Btn k="autoIndex" onClick={() => call('autoIndex', '/auto-index', null, setAutoIndex)}>Load the report</Btn></div>
+                        <Err k="autoIndex" />
+                        {autoIndex && (
+                            <div>
+                                {autoIndex.config && !autoIndex.config.error && <ResultTable columns={autoIndex.config.columns} rows={autoIndex.config.rows} />}
+                                {autoIndex.config && autoIndex.config.error && <div className="chat-error">{autoIndex.config.error}</div>}
+                                {autoIndex.reportError && <div className="chat-error">{autoIndex.reportError}</div>}
+                                {autoIndex.reportText && <pre className="adb-pre">{autoIndex.reportText}</pre>}
+                                <p className="chat-meta">{autoIndex.elapsedMs} ms</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
         const PRIVATE_TOKEN_KEY = 'toddbooth-google-id-token';
 
         // Google ID tokens last one hour. Kept in sessionStorage so a reload
@@ -2669,8 +2858,9 @@ function TributeToRock() {
 
                     {status && status.configured && !token && (
                         <div>
-                            <p>Sign in with Google to see this page — the API smoke tests, the web chatbot and
-                            the private notes. Only accounts on the list get in; everyone else gets a polite 403.</p>
+                            <p>Sign in with Google to see this page — the API smoke tests, the web chatbot, the
+                            OCI ADB AI requests and the private notes. Only accounts on the list get in; everyone
+                            else gets a polite 403.</p>
                             <p className="chat-meta">The rest of this site is public on purpose — only this page's
                             content lives behind the sign-in. Signing in here does not change what anyone else can see.</p>
                             <div className="private-signin" ref={buttonRef}></div>
@@ -2688,7 +2878,7 @@ function TributeToRock() {
                                 <button type="button" className="chat-send" onClick={signOut}>Sign out</button>
                             </div>
                             <div className="private-tabs" role="tablist">
-                                {[['api', 'API Test'], ['chat', 'Web Chatbot'], ['notes', 'Notes']].map(([id, label]) => (
+                                {[['api', 'API Test'], ['chat', 'Web Chatbot'], ['adb', 'OCI ADB AI'], ['notes', 'Notes']].map(([id, label]) => (
                                     <button key={id} type="button" role="tab" aria-selected={tab === id}
                                             className={'private-tab' + (tab === id ? ' active' : '')}
                                             onClick={() => setTab(id)}>
@@ -2698,6 +2888,7 @@ function TributeToRock() {
                             </div>
                             {tab === 'api' && <ApiTestPanel />}
                             {tab === 'chat' && <ChatPanel token={token} />}
+                            {tab === 'adb' && <AdbPanel token={token} />}
                             {tab === 'notes' && <div className="private-content"><MarkdownLite text={result.content} /></div>}
                         </div>
                     )}
