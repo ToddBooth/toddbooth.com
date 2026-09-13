@@ -840,7 +840,7 @@
             }
         }
 
-        /* --- API smoke test page (/api-test) --- */
+        /* --- API smoke test panel (inside /private) --- */
         .smoke-summary {
             padding: 1rem 1.5rem;
             border-radius: 10px;
@@ -935,7 +935,7 @@
 
         .smoke-run:disabled { background: #bdc3c7; cursor: not-allowed; }
 
-        /* --- DeepSeek chatbot on /api-test --- */
+        /* --- DeepSeek chatbot panel (inside /private) --- */
         .chat-box {
             border: 1px solid #dfe4e8;
             border-radius: 10px;
@@ -1028,6 +1028,10 @@
         .private-who { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
         .private-who img { width: 36px; height: 36px; border-radius: 50%; }
         .private-content h2 { margin-top: 1.5rem; }
+        .private-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0 0 1.5rem; border-bottom: 2px solid #ecf0f1; padding-bottom: 0.75rem; }
+        .private-tab { padding: 0.5rem 1.1rem; border: 1px solid #bdc3c7; border-radius: 999px; background: #fff; color: #2c3e50; cursor: pointer; font: inherit; font-weight: 600; }
+        .private-tab:hover { border-color: #3498db; }
+        .private-tab.active { background: #3498db; border-color: #3498db; color: #fff; }
         .private-content ul { padding-left: 1.4rem; }
 
         .chat-meta {
@@ -1346,7 +1350,7 @@
                 { to: '/about', label: 'About Me' },
                 { to: '/background', label: 'Professional Background' },
                 { to: '/contact', label: 'Contact' },
-                { to: '/api-test', label: 'API Test' }
+                { to: '/private', label: '🔒 Private' }
             ];
 
             return (
@@ -1380,7 +1384,6 @@
                     <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.75 }}>
                         ✨ The stars above are the real sky over Skellefteå, Sweden — 09:00, June 26, 19xx,
                         the morning I was born. <Link to="/birth-sky">See the full sky →</Link>
-                        {' · '}<Link to="/private">🔒 Private</Link>
                     </p>
                 </footer>
             );
@@ -2190,7 +2193,7 @@ function TributeToRock() {
             );
         }
 
-        function ChatBot() {
+        function ChatBot({ token }) {
             const [status, setStatus] = useState(null);     // null = still checking
             const [messages, setMessages] = useState([]);   // {role, content}
             const [draft, setDraft] = useState('');
@@ -2229,7 +2232,9 @@ function TributeToRock() {
                 try {
                     const res = await fetch(API_BASE + '/api/chat', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        // The chatbot lives in the private area: the backend checks
+                        // the same Google ID token (and allow-list) on every message.
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
                         // Only the last few turns are sent: the backend caps the
                         // conversation, and trimming here keeps the cost per call
                         // predictable rather than growing with the chat.
@@ -2248,7 +2253,9 @@ function TributeToRock() {
                     if (data && data.budget) setBudget(data.budget);
 
                     if (!res.ok) {
-                        setError((data && data.error) || ('HTTP ' + res.status));
+                        setError(res.status === 401
+                            ? 'Your Google sign-in has expired. Sign out and back in, then try again.'
+                            : ((data && data.error) || ('HTTP ' + res.status)));
                         // A message the input filter refused is taken back out of the
                         // log — otherwise it is re-sent as history with every later
                         // message and refused again each time.
@@ -2364,9 +2371,9 @@ function TributeToRock() {
             );
         }
 
-        function ApiTest() {
-            useTitle('API Test | Todd Booth');
-
+        // The API smoke tests, as a panel inside the private area (they were the
+        // public /api-test route until build 43 — see CHANGELOG).
+        function ApiTestPanel() {
             const [results, setResults] = useState({});
             const [running, setRunning] = useState(false);
             const [ranAt, setRanAt] = useState(null);
@@ -2436,8 +2443,8 @@ function TributeToRock() {
                     : passed + ' of ' + SMOKE_TESTS.length + ' checks passed.');
 
             return (
-                <div className="page-content">
-                    <h1>API Test</h1>
+                <div>
+                    <h2>API Test</h2>
                     <p className="subtitle">
                         Live smoke test from this page to the C# backend
                     </p>
@@ -2495,30 +2502,34 @@ function TributeToRock() {
                         cause is usually CORS or the free tier's daily CPU budget (60 minutes)
                         having run out for the day, rather than the API being broken.</p>
                     </InfoBox>
+                </div>
+            );
+        }
 
-                    <h2 style={{ marginTop: '2.5rem' }}>Chatbot</h2>
+        function ChatPanel({ token }) {
+            return (
+                <div>
+                    <h2>Web Chatbot</h2>
                     <p>
-                        The same backend, doing something more interesting than saying "ok".
                         Messages go to the C# API on Azure, which calls <strong>DeepSeek</strong>
-                        {' '}and returns the reply. The API key lives in Azure Key Vault and is
-                        read by the backend through its managed identity — it is never sent to
-                        your browser, which is the whole reason the call is proxied rather than
-                        made directly from this page.
+                        {' '}and returns the reply. The API key lives in Azure Key Vault (Standard
+                        tier) and is read by the backend through its managed identity — it is never
+                        sent to your browser, which is the whole reason the call is proxied rather
+                        than made directly from this page.
                     </p>
 
                     <p>
-                        <strong>It only talks about Todd and this site.</strong> A public chatbot
-                        with no login is an open invitation to use someone else's LLM credit for
-                        homework, so the backend enforces scope in layers: a cheap input filter
-                        rejects the obvious "ignore your instructions" shapes before any tokens
-                        are spent; the model itself is instructed to decline anything unrelated;
-                        its replies are screened before they reach you; each reply is signed so
-                        the conversation history you send back cannot be forged; and a visitor
-                        who keeps pushing is paused for a while. Try asking it to write code and
-                        watch it decline.
+                        <strong>Sign-in required, and it only talks about Todd and this site.</strong>{' '}
+                        The backend checks your Google sign-in on every message, so nobody else can
+                        spend the LLM budget. The scope guardrails stay on underneath: a cheap input
+                        filter rejects the obvious "ignore your instructions" shapes before any tokens
+                        are spent; the model is instructed to decline anything unrelated; replies are
+                        screened before they reach you; each reply is signed so the history you send
+                        back cannot be forged; and repeated pushing pauses the chat for a while. Try
+                        asking it to write code and watch it decline.
                     </p>
 
-                    <ChatBot />
+                    <ChatBot token={token} />
                 </div>
             );
         }
@@ -2568,6 +2579,7 @@ function TributeToRock() {
             const [result, setResult] = useState(null);      // { email, name, picture, content }
             const [error, setError] = useState(null);
             const [loading, setLoading] = useState(false);
+            const [tab, setTab] = useState('api');          // 'api' | 'chat' | 'notes'
             const buttonRef = React.useRef(null);
 
             useEffect(() => {
@@ -2657,8 +2669,8 @@ function TributeToRock() {
 
                     {status && status.configured && !token && (
                         <div>
-                            <p>Sign in with Google to see this page. Only accounts on the list get the content;
-                            everyone else gets a polite 403.</p>
+                            <p>Sign in with Google to see this page — the API smoke tests, the web chatbot and
+                            the private notes. Only accounts on the list get in; everyone else gets a polite 403.</p>
                             <p className="chat-meta">The rest of this site is public on purpose — only this page's
                             content lives behind the sign-in. Signing in here does not change what anyone else can see.</p>
                             <div className="private-signin" ref={buttonRef}></div>
@@ -2675,7 +2687,18 @@ function TributeToRock() {
                                 <span>Signed in as <strong>{result.name || result.email}</strong> ({result.email})</span>
                                 <button type="button" className="chat-send" onClick={signOut}>Sign out</button>
                             </div>
-                            <div className="private-content"><MarkdownLite text={result.content} /></div>
+                            <div className="private-tabs" role="tablist">
+                                {[['api', 'API Test'], ['chat', 'Web Chatbot'], ['notes', 'Notes']].map(([id, label]) => (
+                                    <button key={id} type="button" role="tab" aria-selected={tab === id}
+                                            className={'private-tab' + (tab === id ? ' active' : '')}
+                                            onClick={() => setTab(id)}>
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+                            {tab === 'api' && <ApiTestPanel />}
+                            {tab === 'chat' && <ChatPanel token={token} />}
+                            {tab === 'notes' && <div className="private-content"><MarkdownLite text={result.content} /></div>}
                         </div>
                     )}
 
@@ -2720,7 +2743,6 @@ function TributeToRock() {
                                 <Route path="/background" element={<ProfessionalBackground />} />
                                 <Route path="/contact" element={<Contact />} />
                                 <Route path="/birth-sky" element={<BirthSkyFull />} />
-                                <Route path="/api-test" element={<ApiTest />} />
                                 <Route path="/private" element={<PrivateArea />} />
                                 <Route path="*" element={<NotFound />} />
                             </Routes>
