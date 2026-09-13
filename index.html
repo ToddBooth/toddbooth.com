@@ -10,6 +10,11 @@
 
     <!-- PWA: installable on Android (and desktop Chrome/Edge) via manifest + service worker -->
     <link rel="manifest" href="manifest.json">
+    <!-- Google Identity Services, for the /private route's sign-in. Google's own
+         library loaded from Google: deliberately unpinned and without SRI, since
+         Google updates it in place and publishes no hash. Nothing else on this
+         page is loaded that way. -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <meta name="theme-color" content="#3498db">
     <link rel="apple-touch-icon" href="icon-192.png">
 
@@ -1018,6 +1023,13 @@
             font-size: 0.9rem;
         }
 
+        /* --- Private area (Google sign-in) --- */
+        .private-signin { margin: 1rem 0; min-height: 44px; }
+        .private-who { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
+        .private-who img { width: 36px; height: 36px; border-radius: 50%; }
+        .private-content h2 { margin-top: 1.5rem; }
+        .private-content ul { padding-left: 1.4rem; }
+
         .chat-meta {
             font-size: 0.8rem;
             color: #7f8c8d;
@@ -1368,6 +1380,7 @@
                     <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.75 }}>
                         ✨ The stars above are the real sky over Skellefteå, Sweden — 09:00, June 26, 19xx,
                         the morning I was born. <Link to="/birth-sky">See the full sky →</Link>
+                        {' · '}<Link to="/private">🔒 Private</Link>
                     </p>
                 </footer>
             );
@@ -2510,6 +2523,167 @@ function TributeToRock() {
             );
         }
 
+        // ---- Private area: Google sign-in, content served by the API ----
+        // This page is only a shell. The text comes from GET /api/private after
+        // Google Identity Services hands us an ID token and the API has verified
+        // it and checked the allow-list — so nothing private is ever in this
+        // file or in the public GitHub repo. See backend/README.md § Private area.
+        function MarkdownLite({ text }) {
+            const blocks = String(text || '').replace(/\r/g, '').split(/\n{2,}/);
+            return blocks.map((block, i) => {
+                const lines = block.split('\n').filter(l => l.trim() !== '');
+                if (lines.length === 0) return null;
+                const h = lines[0].match(/^(#{1,3})\s+(.*)$/);
+                if (h && lines.length === 1) {
+                    const Tag = 'h' + Math.min(h[1].length + 1, 4);
+                    return <Tag key={i}>{h[2]}</Tag>;
+                }
+                if (lines.every(l => /^[-*]\s+/.test(l))) {
+                    return <ul key={i}>{lines.map((l, j) => <li key={j}>{l.replace(/^[-*]\s+/, '')}</li>)}</ul>;
+                }
+                return <p key={i}>{lines.join(' ')}</p>;
+            });
+        }
+
+        const PRIVATE_TOKEN_KEY = 'toddbooth-google-id-token';
+
+        // Google ID tokens last one hour. Kept in sessionStorage so a reload
+        // within that hour does not need a new sign-in; never in localStorage.
+        function tokenExpiry(token) {
+            try { return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).exp || 0; } catch (e) { return 0; }
+        }
+        function readStoredToken() {
+            try {
+                const raw = sessionStorage.getItem(PRIVATE_TOKEN_KEY);
+                if (!raw) return null;
+                const { token, exp } = JSON.parse(raw);
+                return exp * 1000 > Date.now() + 30000 ? token : null;
+            } catch (e) { return null; }
+        }
+
+        function PrivateArea() {
+            useTitle('Private | Todd Booth');
+            const [status, setStatus] = useState(null);      // null = checking; { configured, clientId } | { unreachable }
+            const [token, setToken] = useState(readStoredToken);
+            const [result, setResult] = useState(null);      // { email, name, picture, content }
+            const [error, setError] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const buttonRef = React.useRef(null);
+
+            useEffect(() => {
+                let cancelled = false;
+                fetch(API_BASE + '/api/private/status', { cache: 'no-store' })
+                    .then(r => r.json())
+                    .then(d => { if (!cancelled) setStatus(d); })
+                    .catch(() => { if (!cancelled) setStatus({ configured: false, unreachable: true }); });
+                return () => { cancelled = true; };
+            }, []);
+
+            function signOut() {
+                try { sessionStorage.removeItem(PRIVATE_TOKEN_KEY); } catch (e) {}
+                const g = window.google && window.google.accounts && window.google.accounts.id;
+                if (g) g.disableAutoSelect();
+                setToken(null);
+                setResult(null);
+            }
+
+            // Google Identity Services: once the library has loaded and we know
+            // the client ID, render the button and offer One Tap ("Continue as
+            // Todd"). auto_select lets a returning browser sign in without a click.
+            useEffect(() => {
+                if (!status || !status.configured || token) return;
+                let cancelled = false;
+                const timer = setInterval(() => {
+                    if (cancelled) return;
+                    const g = window.google && window.google.accounts && window.google.accounts.id;
+                    if (!g || !buttonRef.current) return;
+                    clearInterval(timer);
+                    g.initialize({
+                        client_id: status.clientId,
+                        auto_select: true,
+                        callback: (resp) => {
+                            const t = resp && resp.credential;
+                            if (!t) return;
+                            try { sessionStorage.setItem(PRIVATE_TOKEN_KEY, JSON.stringify({ token: t, exp: tokenExpiry(t) })); } catch (e) {}
+                            setError(null);
+                            setToken(t);
+                        },
+                    });
+                    g.renderButton(buttonRef.current, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill' });
+                    g.prompt();
+                }, 100);
+                return () => { cancelled = true; clearInterval(timer); };
+            }, [status, token]);
+
+            // Fetch the content whenever we hold a token.
+            useEffect(() => {
+                if (!token) { setResult(null); return; }
+                let cancelled = false;
+                setLoading(true);
+                setError(null);
+                fetch(API_BASE + '/api/private', { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' })
+                    .then(async r => {
+                        const data = await r.json().catch(() => null);
+                        if (cancelled) return;
+                        if (r.status === 401) {
+                            signOut();
+                            setError('Your sign-in has expired or was not accepted by the backend. Sign in again.');
+                            return;
+                        }
+                        if (!r.ok) { setError((data && data.error) || ('HTTP ' + r.status)); return; }
+                        setResult(data);
+                    })
+                    .catch(err => { if (!cancelled) setError(err.name + ': ' + err.message + ' — no HTTP status, so a network or CORS failure rather than an answer from the API.'); })
+                    .finally(() => { if (!cancelled) setLoading(false); });
+                return () => { cancelled = true; };
+            }, [token]);
+
+            return (
+                <div className="page-content">
+                    <h1>🔒 Private</h1>
+
+                    {status === null && <p className="chat-meta">Checking sign-in configuration…</p>}
+
+                    {status && !status.configured && (
+                        <InfoBox>
+                            <p><strong>Sign-in is not switched on yet.</strong>{' '}
+                            {status.unreachable
+                                ? 'The backend could not be reached at all.'
+                                : 'The backend has no Google client ID configured, so there is nothing to sign in with.'}</p>
+                            <p>This page is only a shell. Its content is served by the API after a Google
+                            sign-in has been verified, so there is nothing here to read without one — by design.</p>
+                        </InfoBox>
+                    )}
+
+                    {status && status.configured && !token && (
+                        <div>
+                            <p>Sign in with Google to see this page. Only accounts on the list get the content;
+                            everyone else gets a polite 403.</p>
+                            <div className="private-signin" ref={buttonRef}></div>
+                        </div>
+                    )}
+
+                    {error && <div className="chat-error">{error}</div>}
+                    {token && loading && !result && <p className="chat-meta">Loading…</p>}
+
+                    {result && (
+                        <div>
+                            <div className="private-who">
+                                {result.picture && <img src={result.picture} alt="" referrerPolicy="no-referrer" />}
+                                <span>Signed in as <strong>{result.name || result.email}</strong> ({result.email})</span>
+                                <button type="button" className="chat-send" onClick={signOut}>Sign out</button>
+                            </div>
+                            <div className="private-content"><MarkdownLite text={result.content} /></div>
+                        </div>
+                    )}
+
+                    {token && !result && !loading && error && (
+                        <p><button type="button" className="chat-send" onClick={signOut}>Sign out</button></p>
+                    )}
+                </div>
+            );
+        }
+
         function NotFound() {
             useTitle('Page Not Found | Todd Booth');
             return (
@@ -2545,6 +2719,7 @@ function TributeToRock() {
                                 <Route path="/contact" element={<Contact />} />
                                 <Route path="/birth-sky" element={<BirthSkyFull />} />
                                 <Route path="/api-test" element={<ApiTest />} />
+                                <Route path="/private" element={<PrivateArea />} />
                                 <Route path="*" element={<NotFound />} />
                             </Routes>
                         </div>
