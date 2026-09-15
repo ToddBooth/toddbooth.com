@@ -1,78 +1,422 @@
-// events-data.js — single source of truth for dated event instances used by
-// the /next-31-days route (React) to compute a rolling "next 31 days" summary.
-//
-// `date` is an ISO-8601 string WITH an explicit UTC offset so the "is this within
-// the next 31 days" comparison is correct regardless of the visitor's local
-// timezone. Swedish-local events use +02:00 (CEST) or +01:00 (CET) depending on
-// whether the date falls in Swedish daylight saving time (DST ends the last
-// Sunday of October, begins the last Sunday of March) — the Sara Kulturhus
-// concerts are encoded at their correct Swedish-local offset for this reason.
-// None of the Sara Kulturhus concerts had a specific start time captured from
-// the source, so they use a placeholder 19:00 — this value is never displayed
-// to visitors (the /next-31-days page only shows the date, not the time), it
-// only affects same-day sort order.
-//
-// `link` is a React Router path (e.g. '/sara-kulturhus'), not a filename —
-// index.html is a single-page app since 2026-07-08 (build 12), routed with
-// HashRouter.
-//
-// Keep this in sync by hand with the LocalMusic / TroubadourEvenings /
-// SaraKulturhus page components in index.html whenever a date is added, changed,
-// or removed there — there's no build step tying them together automatically.
+// Public concert data shared by Events, Next 31 Days and Sara Kulturhus.
+// Source: Input_Files/sara_culture_house.md, captured 2026-07-05.
+// Dates are Swedish calendar dates, not invented performance start times.
+// endDate is inclusive for multi-day listings; verify times/tickets at url.
+const EVENT_TIME_ZONE = 'Europe/Stockholm';
 const EVENTS = [
     {
-        date: '2026-08-07T12:00:00+02:00',
-        title: 'Tribute to Rock Skellefteå 2026 (Fredag)',
-        venue: 'Skellefteå, Guldtorget',
-        icon: '🎸',
-        link: '/tribute-to-rock'
+        "date": "2026-09-18",
+        "title": "Från Elvis Presley till Jerry Williams",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/fran-elvis-presley-till-jerry-williams/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "18 Sep"
     },
     {
-        date: '2026-08-08T12:00:00+02:00',
-        title: 'Tribute to Rock Skellefteå 2026 (Lördag)',
-        venue: 'Skellefteå, Guldtorget',
-        icon: '🎸',
-        link: '/tribute-to-rock'
+        "date": "2026-09-19",
+        "title": "Sandro Cavazza",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/sandro-cavazza/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "19 Sep"
     },
-    // --- Sara Kulturhus concerts (Aug 2026 - Apr 2027) — source:
-    // /home/todd/Activities/Current/sara_culture_events.md, captured 2026-07-05.
-    // Placeholder 19:00 time on every entry (see file header comment above).
-    { date: '2026-08-28T19:00:00+02:00', title: 'Säsongsöppning med Beethoven och Sjostakovitj', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-09-12T19:00:00+02:00', title: 'Ida-Lova + Tjuvjakt', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-09-18T19:00:00+02:00', title: 'Från Elvis Presley till Jerry Williams', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-09-19T19:00:00+02:00', title: 'Sandro Cavazza', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-09-20T19:00:00+02:00', title: 'Piteå stråkkvartett', venue: 'Sara Kulturhus, Skellefteå (Scen 5)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-02T19:00:00+02:00', title: 'Oh What A Night!', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-09T19:00:00+02:00', title: 'Byström och Tjajkovskij', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-10T19:00:00+02:00', title: 'Viktor Norén & Linus Wahlgren - Våra Liv, Våra Musikaler', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-10T19:00:00+02:00', title: 'Tusen års saknad - musik och poesi i två akter', venue: 'Sara Kulturhus, Skellefteå (Scen 5)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-17T19:00:00+02:00', title: 'A Tribute to Dire Straits', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-22T19:00:00+02:00', title: 'Valter Nilsson', venue: 'Sara Kulturhus, Skellefteå (Scen 2)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-22T19:00:00+02:00', title: 'Bach Jazz', venue: 'Sara Kulturhus, Skellefteå (Hjortronet)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-24T19:00:00+02:00', title: 'Skellefteå Symfoniorkester - Queen at The Opera', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-25T19:00:00+01:00', title: 'Niklas Strömstedt – Tyck OM mig', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-28T19:00:00+01:00', title: 'Pianomania Nordica - Anna Fedorova', venue: 'Sara Kulturhus, Skellefteå (Scen 2)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-30T19:00:00+01:00', title: 'Sven Ingvars – Igår. Idag. Imorgon. 70 år.', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-10-31T19:00:00+01:00', title: 'Disco Inferno', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-11-05T19:00:00+01:00', title: 'BrassUnit', venue: 'Sara Kulturhus, Skellefteå (Scen 5)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-11-06T19:00:00+01:00', title: 'Hardcore Superstar', venue: 'Sara Kulturhus, Skellefteå (Scen 2)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-11-19T19:00:00+01:00', title: 'Bo Kaspers Orkester - Il Magnifico', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-11-19T19:00:00+01:00', title: 'Carl-Johan Vallgren', venue: 'Sara Kulturhus, Skellefteå (Scen 2)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-11-25T19:00:00+01:00', title: 'Pianomania Nordica - Steven Mayer', venue: 'Sara Kulturhus, Skellefteå (Scen 2)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-11-27T19:00:00+01:00', title: 'Division 7', venue: 'Sara Kulturhus, Skellefteå (Scen 2)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-11-28T19:00:00+01:00', title: 'Christmas Night', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-12-05T19:00:00+01:00', title: 'Seinabo Sey', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-12-09T19:00:00+01:00', title: 'John Lundvik med Mats Björkes Caravan', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-12-12T19:00:00+01:00', title: 'The Soul of Christmas', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-12-16T19:00:00+01:00', title: 'Hogwarts Magic Symphony', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-12-17T19:00:00+01:00', title: 'Vintergala med Gunhild Carling', venue: 'Sara Kulturhus, Skellefteå', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-12-18T19:00:00+01:00', title: 'Vintergala med E.M.D', venue: 'Sara Kulturhus, Skellefteå (Södra foajén & Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-12-19T19:00:00+01:00', title: 'En innerlig jul med Andreas Aleman och Tareq Taylor', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2026-12-30T19:00:00+01:00', title: 'Euskefeurat – Maränger och surdeg', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2027-01-10T19:00:00+01:00', title: 'Familjeshowen - Dolly Style', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2027-01-26T19:00:00+01:00', title: 'The Music of Hans Zimmer', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2027-02-05T19:00:00+01:00', title: 'Beethoven och Schumann', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2027-02-26T19:00:00+01:00', title: 'Molly Hammar', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2027-03-05T19:00:00+01:00', title: 'Den Svenska Björnstammen', venue: 'Sara Kulturhus, Skellefteå (Scen 2)', icon: '🎼', link: '/sara-kulturhus' },
-    { date: '2027-04-09T19:00:00+02:00', title: 'Säsongsavslutning med Ravel och Bacewicz', venue: 'Sara Kulturhus, Skellefteå (Scen 1)', icon: '🎼', link: '/sara-kulturhus' }
+    {
+        "date": "2026-09-20",
+        "title": "Piteå stråkkvartett",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 5)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/pitea-strakkvartett/",
+        "category": "Klassisk, Konsert, Musik",
+        "location": "Scen 5",
+        "dateLabel": "20 Sep"
+    },
+    {
+        "date": "2026-10-02",
+        "endDate": "2026-10-03",
+        "title": "Oh What A Night!",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/oh-what-a-night/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "02 – 03 Oct"
+    },
+    {
+        "date": "2026-10-09",
+        "title": "Byström och Tjajkovskij",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/bystrom-och-tjajkovskij/",
+        "category": "Klassisk, Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "09 Oct"
+    },
+    {
+        "date": "2026-10-10",
+        "title": "Viktor Norén & Linus Wahlgren - Våra Liv, Våra Musikaler",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/viktor-noren-linus-wahlgren-vara-liv-vara-musikaler/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "10 Oct"
+    },
+    {
+        "date": "2026-10-10",
+        "title": "Tusen års saknad - musik och poesi i två akter",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 5)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/tusen-ars-saknad-musik-och-poesi-i-tva-akter/",
+        "category": "Konsert, Musik, Teater",
+        "location": "Scen 5",
+        "dateLabel": "10 Oct"
+    },
+    {
+        "date": "2026-10-17",
+        "title": "A Tribute to Dire Straits",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/a-tribute-to-dire-straits/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "17 Oct"
+    },
+    {
+        "date": "2026-10-22",
+        "title": "Valter Nilsson",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 2)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/valter-nilsson/",
+        "category": "Konsert, Musik",
+        "location": "Scen 2",
+        "dateLabel": "22 Oct"
+    },
+    {
+        "date": "2026-10-22",
+        "title": "Bach Jazz",
+        "venue": "Sara Kulturhus, Skellefteå (Hjortronet)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/bach-jazz/",
+        "category": "Konsert, Jazz, Musik",
+        "location": "Hjortronet",
+        "dateLabel": "22 Oct"
+    },
+    {
+        "date": "2026-10-24",
+        "title": "Skellefteå Symfoniorkester - Queen at The Opera",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/skelleftea-symfoniorkester-queen-at-the-opera/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "24 Oct"
+    },
+    {
+        "date": "2026-10-25",
+        "title": "Niklas Strömstedt – Tyck OM mig",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/niklas-stromstedt-tyck-om-mig/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "25 Oct"
+    },
+    {
+        "date": "2026-10-28",
+        "title": "Pianomania Nordica - Anna Fedorova",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 2)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/pianomania-nordica-anna-fedorova/",
+        "category": "Klassisk, Konsert, Musik",
+        "location": "Scen 2",
+        "dateLabel": "28 Oct"
+    },
+    {
+        "date": "2026-10-30",
+        "title": "Sven Ingvars – Igår. Idag. Imorgon. 70 år.",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/sven-ingvars-igar-idag-imorgon-70-ar/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "30 Oct"
+    },
+    {
+        "date": "2026-10-31",
+        "title": "Disco Inferno",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/disco-inferno/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "31 Oct"
+    },
+    {
+        "date": "2026-11-05",
+        "title": "BrassUnit",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 5)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/brassunit/",
+        "category": "Konsert, Jazz, Musik",
+        "location": "Scen 5",
+        "dateLabel": "05 Nov"
+    },
+    {
+        "date": "2026-11-06",
+        "title": "Hardcore Superstar",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 2)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/hardcore-superstar/",
+        "category": "Konsert, Musik",
+        "location": "Scen 2",
+        "dateLabel": "06 Nov"
+    },
+    {
+        "date": "2026-11-19",
+        "endDate": "2026-11-20",
+        "title": "Bo Kaspers Orkester - Il Magnifico",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/bo-kaspers-orkester-il-magnifico/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "19 – 20 Nov"
+    },
+    {
+        "date": "2026-11-19",
+        "title": "Carl-Johan Vallgren",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 2)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/carl-johan-vallgren/",
+        "category": "Konsert, Musik",
+        "location": "Scen 2",
+        "dateLabel": "19 Nov"
+    },
+    {
+        "date": "2026-11-25",
+        "title": "Pianomania Nordica - Steven Mayer",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 2)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/pianomania-nordica-steven-mayer/",
+        "category": "Klassisk, Konsert, Musik",
+        "location": "Scen 2",
+        "dateLabel": "25 Nov"
+    },
+    {
+        "date": "2026-11-27",
+        "title": "Division 7",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 2)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/division-7/",
+        "category": "Konsert, Musik",
+        "location": "Scen 2",
+        "dateLabel": "27 Nov"
+    },
+    {
+        "date": "2026-11-28",
+        "title": "Christmas Night",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/christmas-night/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "28 Nov"
+    },
+    {
+        "date": "2026-12-05",
+        "title": "Seinabo Sey",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/seinabo-sey/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "05 Dec"
+    },
+    {
+        "date": "2026-12-09",
+        "title": "John Lundvik med Mats Björkes Caravan",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/john-lundvik-med-mats-bjorkes-caravan/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "09 Dec"
+    },
+    {
+        "date": "2026-12-12",
+        "title": "The Soul of Christmas",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/the-soul-of-christmas/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "12 Dec"
+    },
+    {
+        "date": "2026-12-16",
+        "title": "Hogwarts Magic Symphony",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/hogwarts-magic-symphony/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "16 Dec"
+    },
+    {
+        "date": "2026-12-17",
+        "title": "Vintergala med Gunhild Carling",
+        "venue": "Sara Kulturhus, Skellefteå",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/vintergala-med-gunhild-carling/",
+        "category": "Konsert, Mat & dryck, Jazz",
+        "location": "—",
+        "dateLabel": "17 Dec"
+    },
+    {
+        "date": "2026-12-18",
+        "title": "Vintergala med E.M.D",
+        "venue": "Sara Kulturhus, Skellefteå (Södra foajén & Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/vintergala-med-e-m-d/",
+        "category": "Konsert, Mat & dryck, Musik",
+        "location": "Södra foajén & Scen 1",
+        "dateLabel": "18 Dec"
+    },
+    {
+        "date": "2026-12-19",
+        "title": "En innerlig jul med Andreas Aleman och Tareq Taylor",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/en-innerlig-jul-med-andreas-aleman-och-tareq-taylor/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "19 Dec"
+    },
+    {
+        "date": "2026-12-30",
+        "title": "Euskefeurat – Maränger och surdeg",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/euskefeurat-maranger-och-surdeg/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "30 Dec"
+    },
+    {
+        "date": "2027-01-10",
+        "title": "Familjeshowen - Dolly Style",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/familjeshowen-dolly-style/",
+        "category": "Barn & familj, Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "10 Jan"
+    },
+    {
+        "date": "2027-01-26",
+        "title": "The Music of Hans Zimmer",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/the-music-of-hans-zimmer/",
+        "category": "Klassisk, Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "26 Jan"
+    },
+    {
+        "date": "2027-02-05",
+        "title": "Beethoven och Schumann",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/beethoven-och-schumann/",
+        "category": "Klassisk, Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "05 Feb"
+    },
+    {
+        "date": "2027-02-26",
+        "title": "Molly Hammar",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/molly-hammar/",
+        "category": "Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "26 Feb"
+    },
+    {
+        "date": "2027-03-05",
+        "title": "Den Svenska Björnstammen",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 2)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/den-svenska-bjornstammen/",
+        "category": "Konsert, Musik",
+        "location": "Scen 2",
+        "dateLabel": "05 Mar"
+    },
+    {
+        "date": "2027-04-09",
+        "title": "Säsongsavslutning med Ravel och Bacewicz",
+        "venue": "Sara Kulturhus, Skellefteå (Scen 1)",
+        "icon": "🎼",
+        "link": "/sara-kulturhus",
+        "url": "https://www.sarakulturhus.se/sv/evenemang/sasongsavslutning-med-ravel-och-bacewicz/",
+        "category": "Klassisk, Konsert, Musik",
+        "location": "Scen 1",
+        "dateLabel": "09 Apr"
+    }
 ];
+
+function eventDayKey(now = new Date()) {
+    return new Intl.DateTimeFormat('sv-SE', {
+        timeZone: EVENT_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(now);
+}
+
+function getUpcomingEvents(now = new Date(), days = null) {
+    const today = eventDayKey(now);
+    const end = new Date(today + 'T12:00:00Z');
+    if (days !== null) end.setUTCDate(end.getUTCDate() + days);
+    const lastDay = days === null ? null : end.toISOString().slice(0, 10);
+    return EVENTS.filter(event => (event.endDate || event.date) >= today
+        && (lastDay === null || event.date <= lastDay))
+        .map(event => ({ ...event, parsed: new Date(event.date + 'T12:00:00Z') }))
+        .sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
+}
