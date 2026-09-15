@@ -1,60 +1,54 @@
-// sw.js — minimal service worker for PWA installability + basic offline support.
-//
-// Strategy: network-first, cache fallback. This site gets deployed frequently
-// (it's actively being iterated on), so a cache-first strategy would risk
-// showing stale content indefinitely — network-first always serves the latest
-// version when online, and only falls back to whatever's cached when offline.
-// Bump CACHE_NAME when the precache list changes, so old caches get pruned.
-const CACHE_NAME = 'toddbooth-v2';
+// Network-first caching for public site assets and integrity-pinned libraries.
+// Sign-in, API responses and arbitrary third-party requests bypass this worker.
+const CACHE_PREFIX = 'toddbooth-';
+const CACHE_NAME = CACHE_PREFIX + 'v4';
 const PRECACHE_URLS = ['/', '/index.html', '/events-data.js', '/manifest.json'];
-
-// The backend API (Azure App Service). Its responses must NEVER be cached —
-// see the fetch handler below for why.
-const API_ORIGIN = 'https://toddbooth-api.azurewebsites.net';
+const STATIC_PATHS = new Set([
+    ...PRECACHE_URLS, '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png',
+    '/favicon.ico', '/qr_code.png', '/vcard.vcf',
+]);
 
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
-    );
-    self.skipWaiting();
+    event.waitUntil((async () => {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.addAll(PRECACHE_URLS.map(url => new Request(url, { cache: 'reload' })));
+        await self.skipWaiting();
+    })());
 });
 
 self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) =>
-            Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-        )
-    );
-    self.clients.claim();
+    event.waitUntil((async () => {
+        const keys = await caches.keys();
+        await Promise.all(keys.filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+            .map(key => caches.delete(key)));
+        await self.clients.claim();
+    })());
 });
 
 self.addEventListener('fetch', (event) => {
-    if (event.request.method !== 'GET') return;
+    const request = event.request;
+    if (request.method !== 'GET' || request.cache === 'no-store'
+        || request.headers.has('Authorization') || request.headers.has('Range')) return;
 
-    // Never touch the API. Returning without calling respondWith() hands the
-    // request back to the browser untouched — no caching, no cache fallback.
-    //
-    // Without this, the network-first handler below would write every API
-    // response into the cache and then serve it from there whenever the fetch
-    // failed. On the F1 Free tier that failure is routine, not exceptional:
-    // cold starts, idle unload, and the 60 CPU-minute/day quota all make the
-    // API briefly unreachable. The page would silently show stale data with no
-    // error — worse than an honest failure the UI can report.
-    //
-    // Note this is deliberately NOT a blanket same-origin check. The React,
-    // React Router and Babel bundles are cross-origin too (unpkg), and caching
-    // those is exactly what makes the site work offline. They're safe to cache
-    // because each URL pins an exact version and carries an SRI hash, so the
-    // bytes behind a given URL never change. API responses have neither property.
-    if (event.request.url.startsWith(API_ORIGIN)) return;
+    const url = new URL(request.url);
+    const ownAsset = url.origin === self.location.origin && STATIC_PATHS.has(url.pathname);
+    const pinnedLibrary = url.origin === 'https://unpkg.com' && Boolean(request.integrity);
+    const publicFont = url.origin === 'https://fonts.googleapis.com' || url.origin === 'https://fonts.gstatic.com';
+    if (!ownAsset && !pinnedLibrary && !publicFont) return;
 
-    event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                const clone = response.clone();
-                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-                return response;
-            })
-            .catch(() => caches.match(event.request))
-    );
+    // Canonical asset keys also let versioned events-data URLs work offline.
+    const key = ownAsset ? url.origin + url.pathname : request;
+    const responsePromise = fetch(request);
+    event.waitUntil(responsePromise.then(async response => {
+        if (!response.ok || response.status === 206
+            || /(?:no-store|private)/i.test(response.headers.get('Cache-Control') || '')) return;
+        const copy = response.clone();
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(key, copy);
+    }).catch(() => {})); // A storage failure must not break an online response.
+
+    event.respondWith(responsePromise.catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        return await cache.match(key) || Response.error();
+    }));
 });
