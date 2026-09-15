@@ -548,26 +548,6 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .rsvp-note {
-            background: #fff8e6;
-            border: 1px solid #f0d68a;
-            border-radius: 10px;
-            padding: 1.25rem 1.5rem;
-            margin: 1.5rem auto;
-            max-width: 700px;
-            text-align: center;
-        }
-
-        .rsvp-note p {
-            margin-bottom: 0;
-            color: #5a4a1f;
-        }
-
-        .rsvp-note a {
-            color: #8a6d1f;
-            font-weight: 600;
-        }
-
         .callout {
             background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
@@ -635,12 +615,6 @@
             color: #777;
             font-size: 0.9rem;
             margin: -0.5rem 0 2rem;
-        }
-
-        .media-warning {
-            color: #b34700;
-            font-weight: 600;
-            margin: 0.4rem 0;
         }
 
         .sources {
@@ -1061,8 +1035,15 @@
 <body>
     <div id="root"></div>
 
-    <script src="events-data.js?v=24"></script>
-    <script type="text/babel">
+    <script src="events-data.js?v=26"></script>
+    <script id="jsx-config">
+        // CDN UMD builds expose React as a global; there is no module resolver
+        // for the automatic JSX runtime's react/jsx-runtime import.
+        Babel.registerPreset('site-react', {
+            presets: [[Babel.availablePresets.react, { runtime: 'classic' }]],
+        });
+    </script>
+    <script type="text/babel" data-presets="env,site-react">
         const { useState, useEffect, useMemo } = React;
         const { HashRouter, Routes, Route, Link, NavLink, useLocation } = ReactRouterDOM;
 
@@ -1076,13 +1057,11 @@
         // because the API allows this exact origin. There is no build step
         // here, so this is a plain constant rather than an env var.
         //
-        // ⚠ If the App Service is ever renamed, change it in BOTH places:
-        // here, and API_ORIGIN in sw.js (which keeps the service worker from
-        // caching API responses). A mismatch in sw.js is silent and nasty —
-        // stale API data served from cache with no error shown.
+        // The service worker caches only explicitly allowed public assets.
+        // API hosts and Google sign-in requests bypass its cache automatically.
         const API_BASE = 'https://toddbooth-api.azurewebsites.net';
 
-        // Smoke tests run by the /api-test page, in order.
+        // Smoke tests run by the API Test tab inside /private, in order.
         const SMOKE_TESTS = [
             {
                 id: 'health',
@@ -1122,21 +1101,20 @@
             }, [title]);
         }
 
-        // Filters the shared EVENTS array (events-data.js) down to whatever falls
-        // in the next 31 days, computed fresh on mount — this is what powers the
-        // "Next 31 Days" page. `now`/`upcoming` are memoized once per page load,
-        // matching the previous vanilla-JS behavior (recompute happens because
-        // this component remounts fresh each time you navigate to it).
-        function useEvents() {
-            return useMemo(() => {
-                const now = new Date();
-                const windowEnd = new Date(now.getTime() + 31 * 24 * 60 * 60 * 1000);
-                const upcoming = EVENTS
-                    .map(e => ({ ...e, parsed: new Date(e.date) }))
-                    .filter(e => e.parsed >= now && e.parsed <= windowEnd)
-                    .sort((a, b) => a.parsed - b.parsed);
-                return { now, upcoming };
+        // Refresh on mount, every minute, and after returning to an open tab.
+        // Calendar boundaries use Sweden's timezone, including daylight saving.
+        function useEvents(days = 31) {
+            const [now, setNow] = useState(() => new Date());
+            useEffect(() => {
+                const refresh = () => setNow(new Date());
+                const timer = setInterval(refresh, 60000);
+                document.addEventListener('visibilitychange', refresh);
+                return () => {
+                    clearInterval(timer);
+                    document.removeEventListener('visibilitychange', refresh);
+                };
             }, []);
+            return useMemo(() => ({ now, upcoming: getUpcomingEvents(now, days) }), [now, days]);
         }
 
         // ---------------------------------------------------------------
@@ -1351,13 +1329,12 @@
 
         function Header() {
             const location = useLocation();
-            const eventRoutes = ['/events', '/next-31-days', '/sara-kulturhus', '/tribute-to-rock'];
+            const eventRoutes = ['/events', '/next-31-days', '/sara-kulturhus'];
             const eventsActive = eventRoutes.includes(location.pathname);
 
             const tabs = [
                 { to: '/', label: 'Home', end: true },
                 { to: '/events', label: 'Events', forceActive: eventsActive },
-                { to: '/movies', label: 'Movies & Series' },
                 { to: '/about', label: 'About Me' },
                 { to: '/background', label: 'Professional Background' },
                 { to: '/contact', label: 'Contact' },
@@ -1400,14 +1377,6 @@
             );
         }
 
-        function RsvpNote({ children }) {
-            return (
-                <div className="rsvp-note">
-                    <p>{children}</p>
-                </div>
-            );
-        }
-
         function Callout({ children }) {
             return <div className="callout">{children}</div>;
         }
@@ -1444,7 +1413,7 @@
                             &lt;--- Camera or ---&gt;
                         </div>
                         <div style={{ flex: '1 1 auto', textAlign: 'left', minWidth: '250px' }}>
-                            <a href="vcard.vcf" download="ToddBooth.vcf" className="download-vcard">
+                            <a href="vcard.vcf?v=20260915" download="ToddBooth.vcf" className="download-vcard">
                                 📇 Download vcard
                             </a>
                         </div>
@@ -1464,26 +1433,16 @@
                     <div className="hero">
                         <h1>Welcome! I'm Todd Booth</h1>
                         <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '800px', margin: '0 auto' }}>
-                            Beyond the day job, I like bringing people together — whether that's a technical
-                            meetup, a friendly get-together, or a crowd for a big game. I'm just getting started
-                            organizing events, so take a look at what's coming up, save my contact info below,
-                            or explore my professional background and get in touch.
-                        </p>
-                        <p style={{ fontSize: '1.1rem', color: '#666', maxWidth: '800px', margin: '1rem auto 0' }}>
-                            And a shout out to my new friends Teodor, Loredana, and the gang (Helen, Ewa,
-                            Sussi, and Zana)! 👋
+                            I enjoy technology, live music, and bringing people together in Skellefteå.
+                            Browse the concert calendar, explore my professional background,
+                            or get in touch using the contact details below.
                         </p>
                     </div>
                     <div style={{ margin: '1rem auto 2rem', textAlign: 'center' }}>
                         <Link to="/events" className="download-vcard" style={{ fontSize: '1.1rem' }}>
-                            📅 See what events I'm organizing →
+                            📅 Browse upcoming concerts →
                         </Link>
                     </div>
-                    <RsvpNote>
-                        ⚠️ <strong>Important:</strong> if you want to attend one of my events, please
-                        tell me as early as possible — I need to know so I can add you to the booked
-                        table. If I don't hear from you in time, I may not be able to fit you in.
-                    </RsvpNote>
                     <ContactVcard />
                 </div>
             );
@@ -1491,14 +1450,16 @@
 
         function Events() {
             useTitle('Events | Todd Booth');
+            const { upcoming } = useEvents(null);
+            const concerts = upcoming.filter(event => event.link === '/sara-kulturhus');
             return (
                 <div className="page-content">
                     <div className="hero">
                         <h1>Upcoming Events</h1>
                         <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '800px', margin: '0 auto' }}>
-                            I'm working on organizing more get-togethers — bringing people together
-                            around things we're all excited about. Here's what's coming up so far;
-                            more to be added soon.
+                            Concerts at Sara Kulturhus that may be of interest.
+                            These are venue events; use each official listing for current details
+                            and book tickets directly with the venue.
                         </p>
                     </div>
                     <div className="events-list">
@@ -1514,17 +1475,10 @@
                             to="/sara-kulturhus"
                             icon="🎼"
                             title="Sara Kulturhus Concerts"
-                            date="Aug 2026 – Apr 2027"
-                            description="38 upcoming concerts at Sara Kulturhus in Skellefteå — jazz, classical, pop, rock, and more, from August 2026 through April 2027."
+                            description={concerts.length
+                                ? concerts.length + ' upcoming concert listings at Sara Kulturhus. Check the venue for current times and tickets.'
+                                : 'No upcoming concerts remain in this captured calendar. Check Sara Kulturhus for new listings.'}
                             linkText="View full concert calendar"
-                        />
-                        <EventCard
-                            to="/tribute-to-rock"
-                            icon="🎸"
-                            title="Tribute to Rock Skellefteå 2026"
-                            date="Fri–Sun, Aug 7–9, 2026"
-                            description="A free rock tribute weekend at Guldtorget — world-class tribute bands, two days of riffs and festival atmosphere."
-                            linkText="View event details"
                         />
                     </div>
                     <p style={{ marginTop: '2rem', color: '#888', fontStyle: 'italic', textAlign: 'center' }}>
@@ -1553,11 +1507,12 @@
                     ) : (
                         <div className="event-list">
                             {upcoming.map((e, i) => (
-                                <Link key={i} to={e.link} className="week-event">
+                                <Link key={e.date + e.title} to={e.link} className="week-event">
                                     <div className="week-event-icon">{e.icon}</div>
                                     <div className="week-event-body">
                                         <div className="week-event-date">
-                                            {e.parsed.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+                                            {e.parsed.toLocaleDateString(undefined, { timeZone: EVENT_TIME_ZONE, weekday: 'long', month: 'long', day: 'numeric' })}
+                                            {e.endDate && ' – ' + new Date(e.endDate + 'T12:00:00Z').toLocaleDateString(undefined, { timeZone: EVENT_TIME_ZONE, month: 'long', day: 'numeric' })}
                                         </div>
                                         <h3>{e.title}</h3>
                                         <p>{e.venue}</p>
@@ -1570,7 +1525,7 @@
                     <Link to="/events" className="all-events-link">← See all upcoming events</Link>
 
                     <p className="updated">
-                        Generated {now.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })} — this list updates automatically each time the page loads.
+                        Generated {now.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })} — Swedish event dates; this list refreshes every minute and when you return to the tab.
                     </p>
                 </div>
             );
@@ -1579,16 +1534,19 @@
 
         function SaraKulturhus() {
             useTitle('Sara Kulturhus Concerts | Todd Booth');
+            const { upcoming } = useEvents(null);
+            const concerts = upcoming.filter(event => event.link === '/sara-kulturhus');
+            const years = [...new Set(concerts.map(event => event.date.slice(0, 4)))];
             return (
                 <div className="page-content">
                     <Link to="/events" className="back-link">← Back to Events</Link>
                     <h1>🎼 Sara Kulturhus Concerts</h1>
-                    <p className="subtitle">38 upcoming concerts at Sara Kulturhus, Skellefteå — jazz, classical, pop, rock, and more. Captured July 5, 2026.</p>
+                    <p className="subtitle">{concerts.length} upcoming concert listings at Sara Kulturhus, Skellefteå. Source captured July 5, 2026; check the venue for changes.</p>
 
                     <p>
                         Sara Kulturhus is Skellefteå's cultural center and concert venue. Below is the
                         full concert calendar, pulled from the venue's own "Konsert" listing filter,
-                        covering the next nine months (through early April 2027). Each event title links
+                        covering September 2026 through April 2027, with past listings hidden automatically. Each event title links
                         to its official page on <a href="https://www.sarakulturhus.se/sv/evenemang/" target="_blank" rel="noopener noreferrer">sarakulturhus.se</a> for
                         full details, times, and tickets.
                     </p>
@@ -1601,71 +1559,24 @@
                         </p>
                     </Callout>
 
-                    <h2>2026</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Event</th>
-                                <th>Category</th>
-                                <th>Location</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>28 Aug</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/sasongsoppning-med-beethoven-och-sjostakovitj/" target="_blank" rel="noopener noreferrer">Säsongsöppning med Beethoven och Sjostakovitj</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>12 Sep</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/ida-lova-tjuvjakt/" target="_blank" rel="noopener noreferrer">Ida-Lova + Tjuvjakt</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>18 Sep</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/fran-elvis-presley-till-jerry-williams/" target="_blank" rel="noopener noreferrer">Från Elvis Presley till Jerry Williams</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>19 Sep</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/sandro-cavazza/" target="_blank" rel="noopener noreferrer">Sandro Cavazza</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>20 Sep</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/pitea-strakkvartett/" target="_blank" rel="noopener noreferrer">Piteå stråkkvartett</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 5</td></tr>
-                            <tr><td>02 – 03 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/oh-what-a-night/" target="_blank" rel="noopener noreferrer">Oh What A Night!</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>09 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/bystrom-och-tjajkovskij/" target="_blank" rel="noopener noreferrer">Byström och Tjajkovskij</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>10 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/viktor-noren-linus-wahlgren-vara-liv-vara-musikaler/" target="_blank" rel="noopener noreferrer">Viktor Norén &amp; Linus Wahlgren - Våra Liv, Våra Musikaler</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>10 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/tusen-ars-saknad-musik-och-poesi-i-tva-akter/" target="_blank" rel="noopener noreferrer">Tusen års saknad - musik och poesi i två akter</a></td><td>Konsert, Musik, Teater</td><td>Scen 5</td></tr>
-                            <tr><td>17 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/a-tribute-to-dire-straits/" target="_blank" rel="noopener noreferrer">A Tribute to Dire Straits</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>22 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/valter-nilsson/" target="_blank" rel="noopener noreferrer">Valter Nilsson</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
-                            <tr><td>22 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/bach-jazz/" target="_blank" rel="noopener noreferrer">Bach Jazz</a></td><td>Konsert, Jazz, Musik</td><td>Hjortronet</td></tr>
-                            <tr><td>24 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/skelleftea-symfoniorkester-queen-at-the-opera/" target="_blank" rel="noopener noreferrer">Skellefteå Symfoniorkester - Queen at The Opera</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>25 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/niklas-stromstedt-tyck-om-mig/" target="_blank" rel="noopener noreferrer">Niklas Strömstedt – Tyck OM mig</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>28 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/pianomania-nordica-anna-fedorova/" target="_blank" rel="noopener noreferrer">Pianomania Nordica - Anna Fedorova</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 2</td></tr>
-                            <tr><td>30 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/sven-ingvars-igar-idag-imorgon-70-ar/" target="_blank" rel="noopener noreferrer">Sven Ingvars – Igår. Idag. Imorgon. 70 år.</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>31 Oct</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/disco-inferno/" target="_blank" rel="noopener noreferrer">Disco Inferno</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>05 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/brassunit/" target="_blank" rel="noopener noreferrer">BrassUnit</a></td><td>Konsert, Jazz, Musik</td><td>Scen 5</td></tr>
-                            <tr><td>06 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/hardcore-superstar/" target="_blank" rel="noopener noreferrer">Hardcore Superstar</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
-                            <tr><td>19 – 20 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/bo-kaspers-orkester-il-magnifico/" target="_blank" rel="noopener noreferrer">Bo Kaspers Orkester - Il Magnifico</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>19 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/carl-johan-vallgren/" target="_blank" rel="noopener noreferrer">Carl-Johan Vallgren</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
-                            <tr><td>25 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/pianomania-nordica-steven-mayer/" target="_blank" rel="noopener noreferrer">Pianomania Nordica - Steven Mayer</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 2</td></tr>
-                            <tr><td>27 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/division-7/" target="_blank" rel="noopener noreferrer">Division 7</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
-                            <tr><td>28 Nov</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/christmas-night/" target="_blank" rel="noopener noreferrer">Christmas Night</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>05 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/seinabo-sey/" target="_blank" rel="noopener noreferrer">Seinabo Sey</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>09 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/john-lundvik-med-mats-bjorkes-caravan/" target="_blank" rel="noopener noreferrer">John Lundvik med Mats Björkes Caravan</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>12 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/the-soul-of-christmas/" target="_blank" rel="noopener noreferrer">The Soul of Christmas</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>16 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/hogwarts-magic-symphony/" target="_blank" rel="noopener noreferrer">Hogwarts Magic Symphony</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>17 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/vintergala-med-gunhild-carling/" target="_blank" rel="noopener noreferrer">Vintergala med Gunhild Carling</a></td><td>Konsert, Mat &amp; dryck, Jazz</td><td>—</td></tr>
-                            <tr><td>18 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/vintergala-med-e-m-d/" target="_blank" rel="noopener noreferrer">Vintergala med E.M.D</a></td><td>Konsert, Mat &amp; dryck, Musik</td><td>Södra foajén &amp; Scen 1</td></tr>
-                            <tr><td>19 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/en-innerlig-jul-med-andreas-aleman-och-tareq-taylor/" target="_blank" rel="noopener noreferrer">En innerlig jul med Andreas Aleman och Tareq Taylor</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>30 Dec</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/euskefeurat-maranger-och-surdeg/" target="_blank" rel="noopener noreferrer">Euskefeurat – Maränger och surdeg</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                        </tbody>
-                    </table>
-
-                    <h2>2027</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Event</th>
-                                <th>Category</th>
-                                <th>Location</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>10 Jan</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/familjeshowen-dolly-style/" target="_blank" rel="noopener noreferrer">Familjeshowen - Dolly Style</a></td><td>Barn &amp; familj, Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>26 Jan</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/the-music-of-hans-zimmer/" target="_blank" rel="noopener noreferrer">The Music of Hans Zimmer</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>05 Feb</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/beethoven-och-schumann/" target="_blank" rel="noopener noreferrer">Beethoven och Schumann</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>26 Feb</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/molly-hammar/" target="_blank" rel="noopener noreferrer">Molly Hammar</a></td><td>Konsert, Musik</td><td>Scen 1</td></tr>
-                            <tr><td>05 Mar</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/den-svenska-bjornstammen/" target="_blank" rel="noopener noreferrer">Den Svenska Björnstammen</a></td><td>Konsert, Musik</td><td>Scen 2</td></tr>
-                            <tr><td>09 Apr</td><td><a href="https://www.sarakulturhus.se/sv/evenemang/sasongsavslutning-med-ravel-och-bacewicz/" target="_blank" rel="noopener noreferrer">Säsongsavslutning med Ravel och Bacewicz</a></td><td>Klassisk, Konsert, Musik</td><td>Scen 1</td></tr>
-                        </tbody>
-                    </table>
+                    {concerts.length === 0 && <p className="empty-state">No upcoming concerts remain in this snapshot. Check the venue for new dates.</p>}
+                    {years.map(year => (
+                        <React.Fragment key={year}>
+                            <h2>{year}</h2>
+                            <table>
+                                <thead><tr><th scope="col">Date</th><th scope="col">Event</th><th scope="col">Category</th><th scope="col">Location</th></tr></thead>
+                                <tbody>
+                                    {concerts.filter(event => event.date.startsWith(year)).map(event => (
+                                        <tr key={event.date + event.title}>
+                                            <td>{event.dateLabel}</td>
+                                            <td><a href={event.url} target="_blank" rel="noopener noreferrer">{event.title}</a></td>
+                                            <td>{event.category}</td><td>{event.location}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </React.Fragment>
+                    ))}
 
                     <h2>Venue</h2>
                     <InfoBox>
@@ -1685,230 +1596,7 @@
                         not included here.
                     </p>
 
-                    <p className="updated">Last updated July 8, 2026.</p>
-                </div>
-            );
-        }
-
-function TributeToRock() {
-            useTitle('Tribute to Rock Skellefteå 2026 | Todd Booth');
-            return (
-                <div className="page-content">
-                    <Link to="/events" className="back-link">← Back to Events</Link>
-                    <h1>🎸 Tribute to Rock Skellefteå 2026</h1>
-                    <p className="subtitle">A free rock tribute weekend at Guldtorget, Skellefteå. Captured July 22, 2026.</p>
-
-                    <p>
-                        Brand Your Event and Rockklassiker bring a Tribute to Rock weekend to Skellefteå
-                        for the first time — two days of riffs, energy, and festival atmosphere, with
-                        world-class tribute bands on stage. Free entry, with nostalgia, good food, cold
-                        beer, and crowd energy from the first riff to the last song.
-                    </p>
-
-                    <h2>When &amp; Where</h2>
-                    <Callout>
-                        <p><strong>Friday, August 7 – Sunday, August 9, 2026</strong></p>
-                        <ul>
-                            <li>Starts: Fri, Aug 7 at 11:00</li>
-                            <li>Ends: Sun, Aug 9 at 02:00</li>
-                        </ul>
-                    </Callout>
-
-                    <h2>Venue</h2>
-                    <InfoBox>
-                        <p><strong>Skellefteå, Guldtorget</strong></p>
-                        <p>Revisorcompaniet, Trädgårdsgatan, SE-931 31 Skellefteå, Sverige</p>
-                    </InfoBox>
-
-                    <h2>Good to Know</h2>
-                    <ul className="plain">
-                        <li>Free admission ("Fri entré")</li>
-                        <li>Both days run 12:00 – 01:00, with tribute bands back-to-back on one stage</li>
-                    </ul>
-
-                    <h2>Lineup / Schedule</h2>
-                    <p>
-                        The full two-day band schedule, with each cover band and the original artist/band
-                        it's paying tribute to:
-                    </p>
-
-                    <h3>Friday, August 7 (12:00 – 01:00)</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Cover Band</th>
-                                <th>Original Artist/Band</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>12:00</td><td>Rockadur</td><td>(mixed rock)</td></tr>
-                            <tr><td>16:10</td><td>Ballbreaker</td><td>AC/DC</td></tr>
-                            <tr><td>18:00</td><td>Just Lizzy</td><td>Thin Lizzy</td></tr>
-                            <tr><td>19:50</td><td>Coversnake</td><td>Whitesnake</td></tr>
-                            <tr><td>21:40</td><td>The Eagle Has Landed</td><td>Saxon</td></tr>
-                            <tr><td>23:30</td><td>Sabbath the Coverband</td><td>Black Sabbath</td></tr>
-                        </tbody>
-                    </table>
-
-                    <h3>Saturday, August 8 (12:00 – 01:00)</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Cover Band</th>
-                                <th>Original Artist/Band</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>12:00</td><td>Rockadur</td><td>(mixed rock)</td></tr>
-                            <tr><td>15:30</td><td>The Magic</td><td>Queen</td></tr>
-                            <tr><td>17:20</td><td>Ozzy the Coverband</td><td>Ozzy Osbourne</td></tr>
-                            <tr><td>18:30</td><td>Hårdrockskören</td><td>(mixed hard rock, choir)</td></tr>
-                            <tr><td>19:50</td><td>Fan Heller</td><td>Van Halen</td></tr>
-                            <tr><td>21:40</td><td>Destructed Appetite</td><td>Guns N' Roses</td></tr>
-                            <tr><td>23:30</td><td>Hetfieldz</td><td>Metallica</td></tr>
-                        </tbody>
-                    </table>
-
-                    <h2>More Information &amp; Source</h2>
-                    <p>
-                        Official site: <a href="https://www.tributetorock.se/skellefte%C3%A5" target="_blank" rel="noopener noreferrer">tributetorock.se/skellefteå</a>
-                        <br />
-                        Schedule source: <a href="https://megafonen.se/2026/08/rockfestival-tar-form-i-skelleftea-tva-dagar-rocknostalgi-star-for-dorren-det-ar-bara-att-komma" target="_blank" rel="noopener noreferrer">Megafonen — Rockfestival tar form i Skellefteå</a>
-                    </p>
-
-                    <p className="updated">Last updated August 6, 2026.</p>
-                </div>
-            );
-        }
-
-        // ---------------------------------------------------------------
-        // Movies & Series
-        //
-        // Source of truth is Cloud-Azure/Web_Service/Personal/Movie_Planning/
-        // top_10_movies.md and top_10_series.md — manually synced here, no
-        // build step (same pattern as events-data.js). IMDb ratings were
-        // verified directly on imdb.com via Playwright, not estimated from
-        // search snippets; streaming-inclusion (base subscription vs. an
-        // extra rental/purchase fee) was verified the same way on each
-        // service's own Swedish site. See those two .md files' own
-        // "Anteckningar" sections for the full verification methodology.
-        // ---------------------------------------------------------------
-
-        const MOVIES_NOW = [
-            { title: 'Sinners', service: 'HBO Max', premiere: '2025', rating: '7.5', desc: 'Övernaturlig skräckfilm i sydstatsmiljö om tvillingbröderna Smoke och Stack som återvänder till sin hemstad för att göra ett nytt försök till ett bättre liv. Kritikerhyllad och en av de senaste årens mest omtalade filmer.', cast: "Michael B. Jordan, Hailee Steinfeld, Jack O'Connell, Wunmi Mosaku", imdb: 'https://www.imdb.com/title/tt31193180/' },
-            { title: 'Frankenstein', service: 'Netflix', premiere: '22 januari 2026', rating: '7.4', desc: 'Guillermo del Toros gotiska tolkning av Mary Shelleys klassiker, om vetenskapsmannen Victor Frankenstein och varelsen han skapar. Ingår i Netflix-abonnemanget utan extra kostnad.', cast: 'Oscar Isaac, Jacob Elordi, Mia Goth, Christoph Waltz', imdb: 'https://www.imdb.com/title/tt1312221/' },
-            { title: 'Trustorhärvan', service: 'Netflix', premiere: '5 augusti 2026', rating: '7.4', ratingNote: ' (endast ~79 röster ännu, tidigt betyg)', desc: 'Svensk dokumentär om Trustor-affären, en av Sveriges största finansskandaler. Joachim Posener framträder för första gången på länge och berättar sin version för dokumentärfilmaren Karin af Klintberg. Bekräftat: ingår i Netflix-abonnemanget (från 129 kr/månad), ingen extra avgift.', cast: 'Joachim Posener, Karin af Klintberg (regi)', imdb: 'https://www.imdb.com/title/tt5072334/' },
-            { title: 'Nuremberg', service: 'Netflix', premiere: 'Februari 2026', rating: '7.3', desc: 'Historiskt drama om den amerikanske psykiatern Douglas Kelley, som ska avgöra om nazistiska krigsförbrytare är tillräkneliga för att ställas inför rätta, och hans möte med Hermann Göring.', cast: 'Rami Malek, Russell Crowe, Michael Shannon', imdb: 'https://www.imdb.com/title/tt29567915/' },
-            { title: 'Predator: Badlands', service: 'Disney+', premiere: '6 augusti 2026', rating: '7.2', desc: 'Actionfylld sci-fi där en ung Predator, utstött från sin klan, hittar en oväntad allierad i Thia. Bekräftat direkt på disneyplus.com: ingår i det vanliga Disney+-abonnemanget, ingen Premier Access eller extra engångsavgift.', cast: 'Elle Fanning, Dimitrius Schuster-Koloamatangi', imdb: 'https://www.imdb.com/title/tt31227572/' },
-            { title: 'Den svenska länken', service: 'Netflix', premiere: '19 februari 2026', rating: '6.9', desc: 'Svensk biografisk dramafilm om utrikesministeriets tjänsteman Gösta Engzell, som under andra världskrigets mörkaste skeden räddade tusentals judiska liv genom att utfärda visum.', cast: 'Henrik Dorsin, Sissela Benn, Johan Glans, Jonas Karlsson', imdb: 'https://www.imdb.com/title/tt28793125/' },
-            { title: 'Is God Is', service: 'Prime Video', premiere: '15 maj 2026', rating: '6.5', warning: 'Kostar extra: Verifierat på primevideo.com att filmen INTE ingår i Prime-medlemskapet — den finns bara att hyra eller köpa separat (ca 14,99 US$/hyra).', desc: 'Sydstatsgotisk hämndthriller (Aleshea Harris regidebut) om tvillingsystrar som skickas av sin frånvarande mor för att döda fadern som stympade dem.', cast: 'Kara Young, Mallori Johnson, Janelle Monáe, Sterling K. Brown', imdb: 'https://www.imdb.com/title/tt34379307/' },
-            { title: 'Enola Holmes 3', service: 'Netflix', premiere: '1 juli 2026', rating: '5.7', desc: 'Millie Bobby Brown är tillbaka som Sherlock Holmes lillasyster, som denna gång jagar ett svårlöst fall på Malta.', cast: 'Millie Bobby Brown, Louis Partridge, Henry Cavill, Helena Bonham Carter', imdb: 'https://www.imdb.com/title/tt32278481/' },
-            { title: '72 Hours', service: 'Netflix', premiere: '24 juli 2026', rating: '5.4', desc: 'R-märkt komedi där en 40-årig reklamchef av misstag läggs till i en svensexa-gruppchatt och hakar på resan. Blandade recensioner men enormt tittande.', cast: 'Kevin Hart, Marcello Hernández, Teyana Taylor, Andy Garcia', imdb: 'https://www.imdb.com/title/tt36304003/' },
-            { title: "Five Nights at Freddy's 2", service: 'Netflix', premiere: '3 augusti 2026', rating: '5.1', desc: 'Skräckuppföljare där Abby smiter iväg för att återknyta kontakten med animatronerna från Freddy Fazbears pizzeria, vilket sätter mörka hemligheter i rörelse.', cast: 'Josh Hutcherson, Elizabeth Lail, Piper Rubio, Matthew Lillard', imdb: 'https://www.imdb.com/title/tt30274401/' },
-        ];
-
-        const MOVIES_SOON = [
-            { title: 'Normal', service: 'HBO Max', premiere: '14 augusti 2026', rating: '6.3', desc: 'Brottsthriller där en tillförordnad sheriff i den fiktiva staden Normal, Minnesota, dras in i en mörk konspiration efter ett misslyckat bankrån. Regisserad av Ben Wheatley.', cast: 'Bob Odenkirk, Lena Headey, Henry Winkler', imdb: 'https://www.imdb.com/title/tt31195136/' },
-            { title: 'Mother Mary', service: 'HBO Max', premiere: '21 augusti 2026', rating: '5.5', desc: 'A24:s musikaliska psykologiska drama/thriller där en popstjärna återförenas med sin frånvarande bästa vän kvällen före en comeback-konsert.', cast: 'Anne Hathaway, Michaela Coel, Hunter Schafer', imdb: 'https://www.imdb.com/title/tt27200708/' },
-            { title: 'The Strangers: Chapter 2', service: 'HBO Max', premiere: '7 augusti 2026', rating: '4.7', desc: 'Skräckuppföljare där Maya på nytt måste överleva en natt av terror från tre maskerade mördare i en liten stad utan flyktväg.', cast: 'Madelaine Petsch, Gabriel Basso, Ema Horvath', imdb: 'https://www.imdb.com/title/tt28671344/' },
-            { title: 'In the Lost Lands', service: 'Prime Video', premiere: '7 augusti 2026', rating: '4.7', warning: 'Kostar extra: Verifierat på primevideo.com — INTE inkluderad i Prime-medlemskapet. Endast "Hyr HD" (49 kr) eller "Köp HD" (139 kr).', desc: 'Fantasyfilm baserad på George R.R. Martin, om häxan Gray Alys som måste bevilja alla önskningar hon får, och den mystiske jägaren Boyce som anlitar henne.', cast: 'Milla Jovovich, Dave Bautista', imdb: 'https://www.imdb.com/title/tt4419684/' },
-            { title: 'The Last House', service: 'Netflix', premiere: '7 augusti 2026', rating: null, desc: 'Sci-fi-thriller om en familj på fyra som plötsligt blir inlåsta i sitt hem och måste överleva med sinande resurser och ett mystiskt hot som håller dem fångna.', cast: 'Greta Lee, Wagner Moura', imdb: 'https://www.imdb.com/title/tt32268156/' },
-            { title: 'Camp Rock 3', service: 'Disney+', premiere: '14 augusti 2026', rating: null, desc: 'Musikalisk återupplivning: Connect 3 återvänder till Camp Rock för att hitta en ny förband inför sin återföreningsturné. Bekräftat direkt på disneyplus.com: ingår i det vanliga abonnemanget, ingen extra kostnad.', cast: 'Joe Jonas, Nick Jonas, Kevin Jonas, Maria Canals-Barrera', imdb: 'https://www.imdb.com/title/tt6743524/' },
-            { title: 'Novak Djokovic: The Wolf in Winter', service: 'Prime Video', premiere: '20 augusti 2026', rating: null, desc: 'Dokumentär från regissören bakom "The Last Dance" om Novak Djokovics karriär. Verifierat på primevideo.com: listas som "Coming Soon" utan köp-märkning — allt tyder på att den ingår i medlemskapet, men går inte att bekräfta 100% förrän premiär.', cast: 'Novak Djokovic, Rafael Nadal, Andre Agassi', imdb: 'https://www.imdb.com/title/tt43676563/' },
-            { title: 'The Last Sunrise', service: 'Prime Video', premiere: '26 augusti 2026', rating: null, desc: 'Romantiskt drama om en ung amerikansk kvinna med hälsoproblem som under en sommar på Mallorca finner oväntad kärlek. Verifierat på primevideo.com: listas som "Coming Soon" utan köp/hyr-märkning.', cast: 'Sabrina Bartlett, Eva Longoria, Fernando Lindez', imdb: 'https://www.imdb.com/title/tt36694271/' },
-            { title: 'The Whisper Man', service: 'Netflix', premiere: '28 augusti 2026', rating: null, desc: 'Thriller där en änkling och deckarförfattare, efter att hans son kidnappats, vänder sig till sin frånvarande deckarpappa för hjälp — och upptäcker en koppling till en redan fängslad seriemördare.', cast: 'Robert De Niro, Michelle Monaghan, Adam Scott, Michael Keaton', imdb: 'https://www.imdb.com/title/tt11561116/' },
-            { title: 'Den hemliga kvinnan (The Secret Woman)', service: 'Netflix', premiere: '28 augusti 2026', rating: null, desc: 'Nordisk (dansk) thriller om Louise, vars fridfulla liv på en norsk ö rasar samman när en främling hävdar att hon egentligen är Helene Söderberg, en kvinna som försvann från Danmark för tre år sedan.', cast: 'Natalie Madueño, Claes Bang, Pål Sverre Hagen', imdb: 'https://www.imdb.com/title/tt37275992/' },
-        ];
-
-        const SERIES = [
-            { title: 'The Pitt', service: 'HBO Max', premiere: '2025', rating: '8.9', desc: 'Medicinsk dramaserie i realtid, utspelad under ett enda skift på akutmottagningen på ett sjukhus i Pittsburgh. Kritikerhyllad som en av de bästa nya serierna på flera år.', cast: 'Noah Wyle, Tracy Ifeachor, Patrick Ball, Katherine LaNasa', imdb: 'https://www.imdb.com/title/tt31938062/' },
-            { title: 'A Knight of the Seven Kingdoms', service: 'HBO Max', premiere: '2026', rating: '8.6', desc: 'Utspelar sig hundra år före Game of Thrones. Följer riddaren Ser Duncan den Långe och hans unge väpnare Egg på deras äventyr genom Westeros, medan huset Targaryen sitter på Järntronen. Lyfts uttryckligen fram som en av de just nu mest populära serierna på HBO Max i Sverige.', cast: 'Peter Claffey, Dexter Sol Ansell', imdb: 'https://www.imdb.com/title/tt27497448/' },
-            { title: 'The Boys', service: 'Prime Video', premiere: 'Säsong 5 (sista säsongen), 2026', rating: '8.5', desc: 'Mörk, satirisk superhjälteserie om en grupp vanliga människor som slåss mot korrupta superhjältar kontrollerade av megabolaget Vought International. Avslutas med sin femte och sista säsong 2026.', cast: 'Karl Urban, Jack Quaid, Antony Starr, Erin Moriarty', imdb: 'https://www.imdb.com/title/tt1190634/' },
-            { title: 'Fallout', service: 'Prime Video', premiere: 'Säsong 2, december 2025', rating: '8.3', desc: 'Baserad på det klassiska spelet. Utspelar sig i ett postapokalyptiskt Los Angeles där invånare från de underjordiska Valven tvingas ut i en brutal, mutantbefolkad ödemark. Verifierat på primevideo.com: ingen "DEAL"-märkning — ingår i Prime-medlemskapet utan extra kostnad.', cast: 'Ella Purnell, Aaron Moten, Walton Goggins', imdb: 'https://www.imdb.com/title/tt12637874/' },
-            { title: 'Only Murders in the Building', service: 'Disney+', premiere: 'Säsong 5, 2025', rating: '8.0', desc: 'Komedideckare om tre grannar besatta av true crime-poddar som startar sin egen podcast för att utreda ett mystiskt dödsfall i sitt lyxiga hus på Upper West Side i New York.', cast: 'Steve Martin, Martin Short, Selena Gomez', imdb: 'https://www.imdb.com/title/tt11691774/' },
-            { title: 'The Bombing of Pan Am 103', service: 'Netflix', premiere: '2025', rating: '7.5', desc: 'Dramaserie om terrorattacken mot Pan Am-flight 103 över Lockerbie, Skottland 1988, och den mångåriga internationella utredningen som följde. Just nu #2 på Netflix Sveriges officiella topp 10-lista över serier (vecka 27/7-2/8 2026).', cast: 'Connor Swindells, Patrick J. Adams, Merritt Wever', imdb: 'https://www.imdb.com/title/tt13592494/' },
-            { title: 'Dune: Prophecy', service: 'HBO Max', premiere: '2024', rating: '7.3', desc: 'Prequel-serie utspelad 10 000 år före Dune-filmerna, om systrarna Valya och Tula Harkonnen som grundar Bene Gesserit-orden och kämpar mot krafter som hotar mänsklighetens framtid.', cast: 'Emily Watson, Olivia Williams, Travis Fimmel', imdb: 'https://www.imdb.com/title/tt10466872/' },
-            { title: 'Svärtan', service: 'SVT Play', premiere: '2026', rating: '7.0', ratingNote: ' (endast ~500 röster ännu, tidigt betyg)', desc: 'Svensk dramaserie baserad på John Ajvide Lindqvists bästsäljande roman "Sommaren 1985", i regi av Björn Stein. För närvarande den mest sedda serien på SVT Plays egen "Populärt"-lista — före både Hotell Romantik och Grace. Gratis att se, ingår i det svenska public service-utbudet utan extra kostnad.', cast: 'Regisserad av Björn Stein, manus av Amy Deasismont', imdb: 'https://www.imdb.com/title/tt38672679/' },
-            { title: 'Ransom Canyon', service: 'Netflix', premiere: 'Säsong 1 (2025) och säsong 2 (2026)', rating: '6.8', desc: 'Romantiskt westerndrama om tre familjer av ranchägare i den fiktiva staden Ransom Canyon, Texas, och kampen om kärlek, arv och mark. Både säsong 1 och säsong 2 ligger just nu på Netflix Sveriges topp 10-lista över serier (#10 respektive #3, vecka 27/7-2/8 2026).', cast: 'Josh Duhamel, Minka Kelly, James Brolin', imdb: 'https://www.imdb.com/title/tt28088031/' },
-            { title: 'The Idaho Murders: College Nightmare', service: 'Netflix', premiere: '2026', rating: '6.7', ratingNote: ' (tidigt betyg)', desc: 'True crime-dokusåpa om morden på fyra collegestudenter i Moscow, Idaho 2022, och den efterföljande polisutredningen och rättsprocessen. Just nu etta på Netflix Sveriges officiella topp 10-lista över serier (vecka 27/7-2/8 2026).', cast: null, imdb: 'https://www.imdb.com/title/tt43680755/' },
-        ];
-
-        function MediaCard({ icon, title, service, premiere, rating, ratingNote, warning, desc, cast, imdb }) {
-            return (
-                <div className="event">
-                    <div className="event-icon">{icon}</div>
-                    <div>
-                        <div className="event-date">
-                            {service} · {premiere}{rating ? ` · IMDb ${rating}/10${ratingNote || ''}` : ' · IMDb: Ej betygsatt än (ej släppt)'}
-                        </div>
-                        <h3>{title}</h3>
-                        {warning && <p className="media-warning">⚠️ {warning}</p>}
-                        <p>{desc}</p>
-                        {cast && <p style={{ fontSize: '0.9rem', color: '#777', marginTop: '0.4rem' }}><strong>Skådespelare:</strong> {cast}</p>}
-                        <p style={{ marginTop: '0.5rem' }}>
-                            <a href={imdb} target="_blank" rel="noopener noreferrer">Visa på IMDb →</a>
-                        </p>
-                    </div>
-                </div>
-            );
-        }
-
-        function MoviesAndSeries() {
-            useTitle('Movies & Series | Todd Booth');
-            return (
-                <div className="page-content">
-                    <h1>🎬 Movies &amp; Series</h1>
-                    <p className="subtitle">
-                        My running watchlist of what's popular on streaming right now — content is in
-                        Swedish since it's built for what's popular in Sweden specifically. Betyg och
-                        prenumerationsstatus är verifierade direkt på imdb.com och på respektive
-                        streamingtjänsts svenska webbplats (Netflix, Disney+, HBO Max, Amazon Prime
-                        Video, SVT Play).
-                    </p>
-
-                    <Callout>
-                        <p>
-                            <strong>Så här verifieras listorna:</strong> IMDb-betyg hämtas direkt från
-                            imdb.com, inte från sökresultat-uppskattningar. Prenumerationsstatus
-                            (ingår vs. kostar extra) kontrolleras direkt på respektive tjänsts egen
-                            svenska sajt. Serierna är dessutom valda utifrån Netflix Tudums officiella
-                            Sverige-topplista och SVT Plays egen "Populärt"-lista där det är möjligt.
-                        </p>
-                    </Callout>
-
-                    <h2>🎞️ Filmer — Tillgängliga just nu</h2>
-                    <div className="event-list">
-                        {MOVIES_NOW.map((m, i) => (
-                            <MediaCard key={i} icon="🎬" {...m} />
-                        ))}
-                    </div>
-
-                    <h2>🎞️ Filmer — Kommer inom 1 månad</h2>
-                    <div className="event-list">
-                        {MOVIES_SOON.map((m, i) => (
-                            <MediaCard key={i} icon="🎬" {...m} />
-                        ))}
-                    </div>
-
-                    <h2>📺 Serier</h2>
-                    <div className="event-list">
-                        {SERIES.map((s, i) => (
-                            <MediaCard key={i} icon="📺" {...s} />
-                        ))}
-                    </div>
-
-                    <h2>Källor &amp; metod</h2>
-                    <p>
-                        Fullständig metodik, källor och anteckningar för varje lista finns i{' '}
-                        <code>Movie_Planning/top_10_movies.md</code> och{' '}
-                        <code>Movie_Planning/top_10_series.md</code> i projektets repo. Endast
-                        Netflix, Disney+, HBO Max, Amazon Prime Video och SVT Play ingår. Betyg för
-                        filmer som ännu inte haft premiär visas som "Ej betygsatt än".
-                    </p>
-
-                    <p className="updated">Last updated August 6, 2026.</p>
+                    <p className="updated">Calendar cleaned for September 15, 2026. Original source captured July 5, 2026; confirm changes with the venue.</p>
                 </div>
             );
         }
@@ -1930,9 +1618,9 @@ function TributeToRock() {
                         that leverage cutting-edge technologies to solve real-world problems.
                     </p>
 
-                    <h2>Current Focus</h2>
+                    <h2>Focus Areas</h2>
                     <p>
-                        Currently, I'm deeply involved in the AI and automation space, working with
+                        My interests include AI and automation, with a focus on
                         AI agents, cloud security solutions, and intelligent systems. I'm passionate
                         about how artificial intelligence can transform businesses and improve
                         operational efficiency.
@@ -1987,11 +1675,11 @@ function TributeToRock() {
 
                     <h2>Experience Highlights</h2>
                     <div className="personal-info">
-                        <h3>Senior Research Engineer (Cybersecurity), Luleå University of Technology — 2010–present</h3>
+                        <h3>Previous role: Senior Research Engineer (Cybersecurity), Luleå University of Technology</h3>
                         <p>
-                            Teaches 25+ university IT courses, including AI, AI Agents, and SecOps;
-                            "Teacher of the Year"; supervises MSc theses. Designs and operates the AgiUni
-                            platform behind the architecture highlights below.
+                            Taught 25+ university IT courses, including AI, AI Agents, and SecOps;
+                            received "Teacher of the Year" recognition and supervised MSc theses.
+                            Designed and operated the AgiUni teaching platform.
                         </p>
                         <h3 style={{ marginTop: '1.5rem' }}>Worldwide Director of New Technology, Ericsson Group — 1999–2001</h3>
                         <p>
@@ -2006,7 +1694,7 @@ function TributeToRock() {
                         <div className="skill-card">
                             <div className="skill-icon">☁️</div>
                             <h3>Cloud-Native Architecture</h3>
-                            <p>Designed and operate a production multi-cloud platform spanning AWS, Azure, and Oracle Cloud, with a documented migration history across three Kubernetes homes as constraints changed.</p>
+                            <p>Designed a multi-cloud platform spanning AWS, Azure, and Oracle Cloud, with a documented migration history across three Kubernetes homes as constraints changed.</p>
                         </div>
                         <div className="skill-card">
                             <div className="skill-icon">🧩</div>
@@ -2037,7 +1725,7 @@ function TributeToRock() {
                         <li><strong>B.Sc., Mathematics/Computer Science</strong> — UCLA (with honors)</li>
                     </ul>
 
-                    <h2>Certifications</h2>
+                    <h2>Certifications Earned</h2>
                     <div className="personal-info">
                         <h3>AWS</h3>
                         <ul style={{ margin: '0.5rem 0 1rem 2rem', lineHeight: 2 }}>
@@ -2235,6 +1923,14 @@ function TributeToRock() {
                 if (!text || sending) return;
 
                 const next = messages.concat({ role: 'user', content: text });
+                const history = [];
+                let historyChars = 0;
+                const maxChars = (status && status.limits && status.limits.maxTotalChars) || 8000;
+                for (let i = next.length - 1; i >= 0 && history.length < 10; i--) {
+                    if (historyChars + next[i].content.length > maxChars) break;
+                    history.unshift(next[i]);
+                    historyChars += next[i].content.length;
+                }
                 setMessages(next);
                 setDraft('');
                 setError(null);
@@ -2253,7 +1949,7 @@ function TributeToRock() {
                         // wrote them; it verifies those so a visitor cannot forge
                         // 'assistant' history to steer the model off its rules.
                         body: JSON.stringify({
-                            messages: next.slice(-10).map(m => ({ role: m.role, content: m.content, sig: m.sig })),
+                            messages: history.map(m => ({ role: m.role, content: m.content, sig: m.sig })),
                         }),
                     });
                     const data = await res.json().catch(() => null);
@@ -2267,10 +1963,16 @@ function TributeToRock() {
                         setError(res.status === 401
                             ? 'Your Google sign-in has expired. Sign out and back in, then try again.'
                             : ((data && data.error) || ('HTTP ' + res.status)));
-                        // A message the input filter refused is taken back out of the
-                        // log — otherwise it is re-sent as history with every later
-                        // message and refused again each time.
-                        if (data && data.code === 'blocked_input') setMessages(messages);
+                        // Failed turns are restored to the draft, not replayed
+                        // as conversation history on every later attempt.
+                        setMessages(messages);
+                        setDraft(text);
+                        return;
+                    }
+                    if (!data || typeof data.reply !== 'string') {
+                        setMessages(messages);
+                        setDraft(text);
+                        setError('The backend returned an invalid chat response. Please try again.');
                         return;
                     }
                     setNotice(data.historyDropped
@@ -2279,6 +1981,8 @@ function TributeToRock() {
                     setMessages(next.concat({ role: 'assistant', content: data.reply, sig: data.sig, refused: !!data.offTopic }));
                     setLastUsage(data);
                 } catch (err) {
+                    setMessages(messages);
+                    setDraft(text);
                     setError(err.name + ': ' + err.message +
                              ' — no HTTP status, so this is a network or CORS failure rather than an error from the API.');
                 } finally {
@@ -2768,7 +2472,7 @@ function TributeToRock() {
             const [result, setResult] = useState(null);      // { email, name, picture, content }
             const [error, setError] = useState(null);
             const [loading, setLoading] = useState(false);
-            const [tab, setTab] = useState('api');          // 'api' | 'chat' | 'notes'
+            const [tab, setTab] = useState('api');          // 'api' | 'chat' | 'adb' | 'notes'
             const buttonRef = React.useRef(null);
 
             useEffect(() => {
@@ -2804,7 +2508,7 @@ function TributeToRock() {
                         auto_select: true,
                         callback: (resp) => {
                             const t = resp && resp.credential;
-                            if (!t) return;
+                            if (cancelled || !t) return;
                             try { sessionStorage.setItem(PRIVATE_TOKEN_KEY, JSON.stringify({ token: t, exp: tokenExpiry(t) })); } catch (e) {}
                             setError(null);
                             setToken(t);
@@ -2816,9 +2520,22 @@ function TributeToRock() {
                 return () => { cancelled = true; clearInterval(timer); };
             }, [status, token]);
 
+            useEffect(() => {
+                if (!token) return;
+                const expire = () => {
+                    signOut();
+                    setError('Your sign-in has expired. Sign in again to continue.');
+                };
+                const remaining = tokenExpiry(token) * 1000 - Date.now();
+                const timer = setTimeout(expire, Math.max(0, remaining));
+                const checkExpiry = () => { if (tokenExpiry(token) * 1000 <= Date.now()) expire(); };
+                document.addEventListener('visibilitychange', checkExpiry);
+                return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', checkExpiry); };
+            }, [token]);
+
             // Fetch the content whenever we hold a token.
             useEffect(() => {
-                if (!token) { setResult(null); return; }
+                if (!token) { setResult(null); setLoading(false); return; }
                 let cancelled = false;
                 setLoading(true);
                 setError(null);
@@ -2928,8 +2645,6 @@ function TributeToRock() {
                                 <Route path="/events" element={<Events />} />
                                 <Route path="/next-31-days" element={<Next31Days />} />
                                 <Route path="/sara-kulturhus" element={<SaraKulturhus />} />
-                                <Route path="/tribute-to-rock" element={<TributeToRock />} />
-                                <Route path="/movies" element={<MoviesAndSeries />} />
                                 <Route path="/about" element={<About />} />
                                 <Route path="/background" element={<ProfessionalBackground />} />
                                 <Route path="/contact" element={<Contact />} />
