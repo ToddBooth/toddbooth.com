@@ -2289,6 +2289,7 @@
         }
 
         function AdbPanel({ token }) {
+            const [tab, setTab] = useState('overview');
             const [status, setStatus] = useState(null);
             const [busy, setBusy] = useState({});
             const [err, setErr] = useState({});
@@ -2357,6 +2358,26 @@
                         SSB is browsed but never executed — the user simply has no privileges on its tables.
                     </p>
 
+                    <div className="private-tabs" role="tablist" aria-label="OCI ADB AI">
+                        {[['overview', 'Overview'], ['select-ai', 'Select AI']].map(([id, label]) => (
+                            <button key={id} id={'adb-tab-' + id} type="button" role="tab"
+                                    aria-selected={tab === id} aria-controls={'adb-panel-' + id}
+                                    tabIndex={tab === id ? 0 : -1}
+                                    className={'private-tab' + (tab === id ? ' active' : '')}
+                                    onClick={() => setTab(id)}
+                                    onKeyDown={e => {
+                                        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+                                        e.preventDefault();
+                                        const next = e.key === 'Home' ? 'overview' : e.key === 'End' ? 'select-ai' : tab === 'overview' ? 'select-ai' : 'overview';
+                                        setTab(next);
+                                        document.getElementById('adb-tab-' + next).focus();
+                                    }}>
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div id="adb-panel-overview" role="tabpanel" aria-labelledby="adb-tab-overview" hidden={tab !== 'overview'}>
                     <div className="adb-section">
                         <h3>Connection</h3>
                         <div className="adb-row"><Btn k="ping" onClick={() => call('ping', '/ping', null, setPing)}>Ping the database</Btn>
@@ -2398,6 +2419,24 @@
                     </div>
 
                     <div className="adb-section">
+                        <h3>Automatic indexing — the database tuning itself</h3>
+                        <p className="chat-meta">No LLM involved: the database watches its own workload, tests candidate indexes invisibly and keeps the ones that win. Read-only report, last 7 days.</p>
+                        <div className="adb-row"><Btn k="autoIndex" onClick={() => call('autoIndex', '/auto-index', null, setAutoIndex)}>Load the report</Btn></div>
+                        <Err k="autoIndex" />
+                        {autoIndex && (
+                            <div>
+                                {autoIndex.config && !autoIndex.config.error && <ResultTable columns={autoIndex.config.columns} rows={autoIndex.config.rows} />}
+                                {autoIndex.config && autoIndex.config.error && <div className="chat-error">{autoIndex.config.error}</div>}
+                                {autoIndex.reportError && <div className="chat-error">{autoIndex.reportError}</div>}
+                                {autoIndex.reportText && <pre className="adb-pre">{autoIndex.reportText}</pre>}
+                                <p className="chat-meta">{autoIndex.elapsedMs} ms</p>
+                            </div>
+                        )}
+                    </div>
+                    </div>
+
+                    <div id="adb-panel-select-ai" role="tabpanel" aria-labelledby="adb-tab-select-ai" hidden={tab !== 'select-ai'}>
+                    <div className="adb-section">
                         <h3>Select AI — ask the database in plain English</h3>
                         <p className="chat-meta">
                             The database itself sends the SH table definitions (never rows) to Claude and gets SQL back.
@@ -2429,20 +2468,6 @@
                         )}
                     </div>
 
-                    <div className="adb-section">
-                        <h3>Automatic indexing — the database tuning itself</h3>
-                        <p className="chat-meta">No LLM involved: the database watches its own workload, tests candidate indexes invisibly and keeps the ones that win. Read-only report, last 7 days.</p>
-                        <div className="adb-row"><Btn k="autoIndex" onClick={() => call('autoIndex', '/auto-index', null, setAutoIndex)}>Load the report</Btn></div>
-                        <Err k="autoIndex" />
-                        {autoIndex && (
-                            <div>
-                                {autoIndex.config && !autoIndex.config.error && <ResultTable columns={autoIndex.config.columns} rows={autoIndex.config.rows} />}
-                                {autoIndex.config && autoIndex.config.error && <div className="chat-error">{autoIndex.config.error}</div>}
-                                {autoIndex.reportError && <div className="chat-error">{autoIndex.reportError}</div>}
-                                {autoIndex.reportText && <pre className="adb-pre">{autoIndex.reportText}</pre>}
-                                <p className="chat-meta">{autoIndex.elapsedMs} ms</p>
-                            </div>
-                        )}
                     </div>
                 </div>
             );
