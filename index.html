@@ -2303,6 +2303,10 @@
             const [action, setAction] = useState('showsql');
             const [ai, setAi] = useState(null);
             const [autoIndex, setAutoIndex] = useState(null);
+            const [products, setProducts] = useState(null);
+            const [productId, setProductId] = useState('');
+            const [sameCategory, setSameCategory] = useState(false);
+            const [similar, setSimilar] = useState(null);
 
             async function call(key, path, options, onOk) {
                 setBusy(b => ({ ...b, [key]: true }));
@@ -2335,7 +2339,7 @@
             }
 
             const Err = ({ k }) => err[k] ? <div className="chat-error">{err[k]}</div> : null;
-            const Btn = ({ k, onClick, children }) => <button type="button" className="chat-send" disabled={!!busy[k]} onClick={onClick}>{busy[k] ? 'Working…' : children}</button>;
+            const Btn = ({ k, onClick, children, disabled }) => <button type="button" className="chat-send" disabled={!!busy[k] || disabled} onClick={onClick}>{busy[k] ? 'Working…' : children}</button>;
 
             if (status === null && !err.status) return <p className="chat-meta">Checking the database connection…</p>;
             if (err.status) return <div className="chat-error">{err.status}</div>;
@@ -2359,7 +2363,7 @@
                     </p>
 
                     <div className="private-tabs" role="tablist" aria-label="OCI ADB AI">
-                        {[['overview', 'Overview'], ['select-ai', 'Select AI']].map(([id, label]) => (
+                        {[['overview', 'Overview'], ['select-ai', 'Select AI'], ['vector', 'Vector Search']].map(([id, label]) => (
                             <button key={id} id={'adb-tab-' + id} type="button" role="tab"
                                     aria-selected={tab === id} aria-controls={'adb-panel-' + id}
                                     tabIndex={tab === id ? 0 : -1}
@@ -2368,7 +2372,8 @@
                                     onKeyDown={e => {
                                         if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
                                         e.preventDefault();
-                                        const next = e.key === 'Home' ? 'overview' : e.key === 'End' ? 'select-ai' : tab === 'overview' ? 'select-ai' : 'overview';
+                                        const ids = ['overview', 'select-ai', 'vector'];
+                                        const next = e.key === 'Home' ? ids[0] : e.key === 'End' ? ids[2] : ids[(ids.indexOf(id) + (e.key === 'ArrowRight' ? 1 : 2)) % ids.length];
                                         setTab(next);
                                         document.getElementById('adb-tab-' + next).focus();
                                     }}>
@@ -2468,6 +2473,58 @@
                         )}
                     </div>
 
+                    </div>
+                    <div id="adb-panel-vector" role="tabpanel" aria-labelledby="adb-tab-vector" hidden={tab !== 'vector'}>
+                        <div className="adb-section">
+                            <h3>AI Vector Search — find similar products</h3>
+                            <p>Choose a sample product to find its five closest matches by meaning, using stored
+                                384-dimensional text embeddings of product names, categories and subcategories.</p>
+                            <p className="chat-meta">Runs inside ADB using existing vectors. No external LLM or embedding call.
+                                Cosine distance: lower means more similar, not a confidence percentage.</p>
+                            <div className="adb-row">
+                                <Btn k="products" disabled={!!busy.similar} onClick={() => {
+                                    setSimilar(null);
+                                    call('products', '/vector/products', null, d => {
+                                        setProducts(d);
+                                        setProductId(d.rows.length ? String(d.rows[0].prod_id) : '');
+                                    });
+                                }}>{products ? 'Reload products' : 'Load products'}</Btn>
+                            </div>
+                            <Err k="products" />
+                            {products && products.rows.length === 0 && <p>No products with vectors are available.</p>}
+                            {products && products.rows.length > 0 && <form onSubmit={e => {
+                                e.preventDefault();
+                                setSimilar(null);
+                                call('similar', '/vector/similar?productId=' + encodeURIComponent(productId) + '&sameCategory=' + sameCategory, null, setSimilar);
+                            }}>
+                                <div className="adb-row">
+                                    <label htmlFor="vector-product">Product</label>
+                                    <select id="vector-product" value={productId} disabled={!!busy.similar || !!busy.products}
+                                            onChange={e => { setProductId(e.target.value); setSimilar(null); }}>
+                                        {products.rows.map(p => <option key={p.prod_id} value={String(p.prod_id)}>{p.prod_name} — {p.prod_category}</option>)}
+                                    </select>
+                                    <label><input type="checkbox" checked={sameCategory} disabled={!!busy.similar || !!busy.products}
+                                        onChange={e => { setSameCategory(e.target.checked); setSimilar(null); }} /> Same category only</label>
+                                    <button type="submit" className="chat-send" disabled={!productId || !!busy.similar || !!busy.products}>
+                                        {busy.similar ? 'Searching…' : 'Find similar products'}
+                                    </button>
+                                </div>
+                            </form>}
+                            <Err k="similar" />
+                            <div aria-live="polite">
+                                {similar && <div>
+                                    <p>Closest matches to <strong>{similar.source.prod_name}</strong> (excluding that product).</p>
+                                    {similar.rows.length === 0 ? <p>No other products match this filter.</p> :
+                                        <ResultTable columns={['Product', 'Description', 'Category', 'List price', 'Cosine distance']}
+                                            rows={similar.rows.map(p => ({
+                                                'Product': p.prod_name, 'Description': p.prod_desc,
+                                                'Category': p.prod_category, 'List price': p.prod_list_price,
+                                                'Cosine distance': Number(p.cosine_distance).toFixed(4),
+                                            }))} />}
+                                    <p className="chat-meta">Exact cosine search · {similar.elapsedMs} ms</p>
+                                </div>}
+                            </div>
+                        </div>
                     </div>
                 </div>
             );
